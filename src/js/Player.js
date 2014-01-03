@@ -1,9 +1,11 @@
 define([
 	'SystemBus',
-	'Vec2'
+	'Vec2',
+	'Items'
 	], function(
 		SystemBus,
-		Vec2
+		Vec2,
+		Items
 	) {
 	'use strict';
 
@@ -91,17 +93,19 @@ define([
 
 			var rule = ruleSet.getRuleFor(currentTerrainItem.id, currentInventoryItem.id);
 			if (rule) {
-				terrain.set(facingPosition.x, facingPosition.y, Items.collection[rule.outTerrainItem]);
+				if (!rule.consume || (rule.consume && inventory.has(Items.collection[rule.inInventoryItem]))) {
+					if (rule.consume) {
+						inventory.consume(Items.collection[rule.inInventoryItem]);
+					}
 
-				if (rule.consumes) {
-					inventory.consume();
+					terrain.set(facingPosition.x, facingPosition.y, Items.collection[rule.outTerrainItem]);
+
+					rule.outInventoryItems.forEach(function (item) {
+						inventory.addItem(Items.collection[item.itemName], item.quantity);
+					});
+
+					this.health += rule.healthDelta;
 				}
-
-				rule.outInventoryItems.forEach(function (item) {
-					inventory.addItem(Items.collection[item.itemName], item.quantity);
-				});
-
-				this.health += rule.healthDelta;
 			}
 		}
 	};

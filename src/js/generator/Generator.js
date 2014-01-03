@@ -114,7 +114,7 @@ define([
 			var outInventoryItems;
 
 			if (ruleSpec.give) {
-				outInvetoryItems = ruleSpec.give.map(function (entry) {
+				outInventoryItems = ruleSpec.give.map(function (entry) {
 					return {
 						itemName: entry.itemName.s,
 						quantity: +entry.quantity.s
@@ -123,6 +123,8 @@ define([
 			} else {
 				outInventoryItems = [];
 			}
+
+			var consume = !!ruleSpec.consume;
 
 			var healthDelta = 0;
 			if (ruleSpec.heal) {
@@ -152,6 +154,7 @@ define([
 				inInventoryItemName,
 				outTerrainItemName,
 				outInventoryItems,
+				consume,
 				healthDelta,
 				teleport,
 				message

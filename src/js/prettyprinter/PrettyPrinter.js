@@ -64,18 +64,22 @@ define([], function() {
 			str += rule.inTerrainItemName.s + ' ' + rule.inInventoryItemName.s + ' -> ' + rule.outTerrainItemName.s + ';';
 
 			if (rule.give) {
-				var giveStr = spec[key].map(function (item) {
-					return item.quantity + ' ' + item.itemName;
-				}).join(', ');
-				str += ' ' + giveStr + ';';
+				var giveStr = rule.give.map(function (item) {
+					return item.quantity.s + ' ' + item.itemName.s;
+				}).join(' , ');
+				str += ' ' + giveStr + ' ;';
+			}
+
+			if (rule.consume) {
+				str += ' consume ;';
 			}
 
 			if (rule.heal) {
-				str += ' heal ' + rule.heal + ';';
+				str += ' heal ' + rule.heal.s + ';';
 			}
 
 			if (rule.hurt) {
-				str += ' hurt ' + rule.heal + ';';
+				str += ' hurt ' + rule.hurt.s + ';';
 			}
 
 			if (rule.teleport) {
@@ -83,7 +87,7 @@ define([], function() {
 			}
 
 			if (rule.message) {
-				str += ' message "' + rule.message + '";';
+				str += ' message "' + rule.message + '" ;';
 			}
 
 			str += '\n';

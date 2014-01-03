@@ -289,10 +289,10 @@ define([
 					var item = {};
 
 					tokens.expect(RDP.tree.identifier, 'Expect give quantity');
-					item.quantity = tokens.past().s;
+					item.quantity = tokens.past();
 
 					tokens.expect(RDP.tree.identifier, 'Expect give item name');
-					item.itemName = tokens.past().s;
+					item.itemName = tokens.past();
 
 					rule.give = [item];
 
@@ -302,41 +302,45 @@ define([
 						item = {};
 
 						tokens.expect(RDP.tree.identifier, 'Expect give quantity');
-						item.quantity = tokens.past().s;
+						item.quantity = tokens.past();
 
 						tokens.expect(RDP.tree.identifier, 'Expect give item name');
-						item.itemName = tokens.past().s;
+						item.itemName = tokens.past();
 
 						rule.give.push(item);
 					}
+				} else if (tokens.match('consume')) {
+					tokens.adv();
+
+					rule.consume = true;
 				} else if (tokens.match('heal')) {
 					tokens.adv();
 
 					tokens.expect(RDP.tree.identifier, 'Expect heal quantity');
-					rule.heal = tokens.past().s;
+					rule.heal = tokens.past();
 				} else if (tokens.match('hurt')) {
 					tokens.adv();
 
 					tokens.expect(RDP.tree.identifier, 'Expect hurt quantity');
-					rule.hurt = tokens.past().s;
+					rule.hurt = tokens.past();
 				} else if (tokens.match('teleport')) {
 					tokens.adv();
 
 					rule.teleport = {};
 
 					tokens.expect(RDP.tree.identifier, 'Expect teleport level name');
-					rule.teleport.levelName = tokens.past().s;
+					rule.teleport.levelName = tokens.past();
 
 					tokens.expect(RDP.tree.identifier, 'Expect teleport position x');
-					rule.teleport.x = tokens.past().s;
+					rule.teleport.x = tokens.past();
 
 					tokens.expect(RDP.tree.identifier, 'Expect teleport position y');
-					rule.teleport.y = tokens.past().s;
+					rule.teleport.y = tokens.past();
 				} else if (tokens.match('message')) {
 					tokens.adv();
 
 					tokens.expect(RDP.tree.str, 'Expect message');
-					rule.message = tokens.past().s;
+					rule.message = tokens.past();
 				} //else if (tokens.match(RDP.tree.newLine)) {
 				//	break;
 				//}

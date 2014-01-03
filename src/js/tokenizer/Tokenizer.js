@@ -224,7 +224,7 @@ define([
 		'up', 'left', 'down', 'right',
 		'color', 'tile', 'rgb',
 		'or', 'and', 'minus',
-		'put', 'consumes', 'give', 'heal', 'hurt', 'teleport', 'message'
+		'consume', 'give', 'heal', 'hurt', 'teleport', 'message'
 	];
 
 	Tokenizer.chop.whitespace = function(str) {

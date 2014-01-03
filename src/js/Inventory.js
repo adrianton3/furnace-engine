@@ -17,7 +17,7 @@ define([
 			'grass': 0,
 			'dirt': 0,
 			'stone': 0,
-			'pickaxe': 0
+			'pickaxe': 2
 		};
 		this.arrangement = ['grass', 'dirt', 'stone', 'pickaxe']; // should be nulls at first
 		this.current = 0;
@@ -57,6 +57,10 @@ define([
 	Inventory.prototype.move = function(delta) {
 		this.current += delta + this.arrangement.length;
 		this.current %= this.arrangement.length;
+	};
+
+	Inventory.prototype.has = function(item) {
+		return !!this.inventory[item.id];
 	};
 
 	Inventory.prototype.consume = function(item) {
