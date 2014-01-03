@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
+	<title>Furnace Engine - parser</title>
+	<link rel="stylesheet" type="text/css" href="style/style.css">
+	<script data-main="js/parser" src="lib/require.js"></script>
+</head>
+<body>
+	<textarea id="in" cols="40" rows="20">COLORS
+
+r rgb 230 10 50
+g rgb 10 230 50
+G rgb 40 250 90
+b rgb 10 50 230
+w rgb 250 250 250
+l rgb 1 5 10
+y rgb 250 240 30
+s rgb 160 160 160
+S rgb 80 80 80
+d rgb 80 40 10
+D rgb 120 60 20
+p rgb 160 30 240
+P rgb 140 10 220
+
+
+PLAYER
+up
+ppppp
+pPPPp
+pPPPp
+pPPPp
+ppppp
+
+left
+ppppp
+pwPPp
+pPPPp
+pwwPp
+ppppp
+
+down
+ppppp
+pwPwp
+pPPPp
+pwwwp
+ppppp
+
+right
+ppppp
+pPPwp
+pPPPp
+pPwwp
+ppppp
+
+OBJECTS
+
+stone
+SssSs
+ssSss
+sSssS
+sssSs
+sssSs
+
+dirt
+ddDdd
+dddDd
+dDddd
+ddddd
+DdddD
+
+grass
+ggggG
+ggggG
+Ggggg
+GgGgg
+ggGgg
+
+pickaxe
+SllSS
+SSSlS
+SSlSl
+SlSSl
+lSSSS
+
+SETS
+
+A = stone dirt
+
+RULES
+
+stone pickaxe -> grass ; give 1 stone ; consume
+
+LEGEND
+
+s stone
+d dirt
+g grass
+p pickaxe
+
+LEVELS
+
+entry
+ggdggdddddggg
+gggggdsssddgg
+dggdgdssddggg
+gggggddddggdg
+ggdggdggggggg
+gdgggggggdggd
+gggdggdgggggd
+
+lev2
+ggggggggggggg
+ggggggggggggg
+gggsddgdsgggg
+gggssssdggggg
+ggggssssggggg
+gggggggsggggg
+ggggggggggggg
+
+</textarea>
+	<textarea id="outtokens" cols="40" rows="20" readonly></textarea>
+	<textarea id="outtree" cols="40" rows="20" readonly></textarea>
+	<br>
+	<canvas id="can" width="100" height="100" style="display: none"></canvas>
+</body>
+</html>
