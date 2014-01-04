@@ -221,8 +221,9 @@ define([
 
 	Tokenizer.chop.alphanum.reserved = [
 		'COLORS', 'PLAYER', 'OBJECTS', 'SETS', 'RULES', 'LEGEND', 'LEVELS',
+		'rgb',
 		'up', 'left', 'down', 'right',
-		'color', 'tile', 'rgb',
+		'blocking',
 		'or', 'and', 'minus',
 		'consume', 'give', 'heal', 'hurt', 'teleport', 'message'
 	];

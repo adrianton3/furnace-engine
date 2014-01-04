@@ -198,6 +198,11 @@ define([
 			}
 			objects[objName] = { lines: [] };
 
+			if (tokens.match('blocking')) {
+				objects[objName].blocking = true;
+				tokens.adv();
+			}
+
 			RDP.tree.chompNL(tokens, 'expected nl after objects');
 
 			while (!tokens.match(RDP.tree.newLine)) {
