@@ -22,12 +22,19 @@ define([
 		this.startLocation = startLocation;
 		this.levelsByName = levelsByName;
 		this.terrain = null; // level
-		this.inventory = new Inventory(4, tileDimensions, new Vec2(0, 360));
 		this.ruleSet = ruleSet;
 		this.tileDimensions = tileDimensions;
+		this.inventory = new Inventory(
+			4,
+			tileDimensions,
+			new Vec2(0, this.tileDimensions.y * this.levelsByName.entry.height + 8)
+		);
 	}
 
 	World.prototype.init = function() {
+		con2d.canvas.width = this.tileDimensions.x * this.levelsByName.entry.width;
+		con2d.canvas.height = this.tileDimensions.y * (this.levelsByName.entry.height + 1) + 8;
+
 		this.player.init();
 		this.initStartingLocation();
 

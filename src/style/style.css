@@ -4,4 +4,14 @@ body {
 
 canvas {
 	border: 1px solid black;
+	vertical-align: top;
+}
+
+textarea {
+	background-color: black;
+	color: dimgray;
+}
+
+#in {
+	color: darkseagreen;
 }
