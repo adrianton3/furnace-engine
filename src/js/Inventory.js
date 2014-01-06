@@ -36,18 +36,18 @@ define([
 			);
 			Text.drawAt(
 				this.inventory[itemName],
-				this.uiOffset.x + 24 + i * this.tileDimensions.x,
-				this.uiOffset.y + 22
+				this.uiOffset.x + 22 + i * this.tileDimensions.x,
+				this.uiOffset.y + 20
 			);
 		}
 
 		con2d.lineWidth = 2;
-		con2d.strokeStyle = '#000';
+		con2d.strokeStyle = '#FFF';
 		con2d.strokeRect(
 			this.uiOffset.x + this.current * this.tileDimensions.x + 1, this.uiOffset.y + 1,
 			this.tileDimensions.x - 2, this.tileDimensions.y - 2
 		);
-		con2d.strokeStyle = '#FFF';
+		con2d.strokeStyle = '#000';
 		con2d.strokeRect(
 			this.uiOffset.x + this.current * this.tileDimensions.x + 2, this.uiOffset.y + 2,
 			this.tileDimensions.x - 4, this.tileDimensions.y - 4

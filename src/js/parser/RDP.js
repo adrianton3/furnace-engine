@@ -92,8 +92,8 @@ define([
 	};
 
 	RDP.tree.colors = function(tokens) {
-		tokens.expect('COLORS', 'RDP: must start with colors');
-		RDP.tree.chompNL(tokens, 'expected nl after player');
+		tokens.expect('COLORS', 'Specification must start with COLORS');
+		RDP.tree.chompNL(tokens, 'Expected new line after COLORS');
 
 		var colors = {};
 
@@ -101,48 +101,48 @@ define([
 			tokens.expect(RDP.tree.identifier, '');
 			var colorChar = tokens.past().s;
 			if (colors[colorChar]) {
-				throw 'RDP: ' + colorChar + ' already declared';
+				throw 'Color binding ' + colorChar + ' already declared';
 			}
 
-			tokens.expect('rgb', 'RDP: expected rgb');
+			tokens.expect('rgb', 'Expected rgb');
 
-			tokens.expect(RDP.tree.identifier, 'RDP: expected red value');
+			tokens.expect(RDP.tree.identifier, 'Expected red value');
 			var r = tokens.past().s;
 
-			tokens.expect(RDP.tree.identifier, 'RDP: expected blue value');
+			tokens.expect(RDP.tree.identifier, 'Expected blue value');
 			var g = tokens.past().s;
 
-			tokens.expect(RDP.tree.identifier, 'RDP: expected green value');
+			tokens.expect(RDP.tree.identifier, 'Expected green value');
 			var b = tokens.past().s;
 
 			colors[colorChar] = 'rgb(' + r + ', ' + g + ', ' + b + ')';
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expect new line between color bindings');
 		}
 
 		return colors;
 	};
 
 	RDP.tree.player = function(tokens) {
-		tokens.expect('PLAYER', 'RDP: PLAYER follows COLORS');
-		RDP.tree.chompNL(tokens, 'expected nl after player');
+		tokens.expect('PLAYER', 'Expected PLAYER section after COLORS');
+		RDP.tree.chompNL(tokens, 'Expected new line after PLAYER');
 
 		// --- up ---
-		tokens.expect('up', 'must start with up');
-		tokens.expect(RDP.tree.newLine, 'expected new line');
+		tokens.expect('up', 'Must start with "up"');
+		tokens.expect(RDP.tree.newLine, 'Expected new line');
 
 		var upLines = [];
 
 		while (!tokens.match('left')) {
-			tokens.expect(RDP.tree.identifier, 'expected at least one line');
+			tokens.expect(RDP.tree.identifier, 'Expected at least one line');
 			upLines.push(tokens.past());
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expect new line');
 		}
 
 		// --- left ---
-		tokens.expect('left', 'left follows up');
-		RDP.tree.chompNL(tokens, 'expect at least one new line');
+		tokens.expect('left', 'Expected "left" after "up"');
+		RDP.tree.chompNL(tokens, 'Expected new line');
 
 		var leftLines = [];
 
@@ -150,55 +150,60 @@ define([
 			tokens.expect(RDP.tree.identifier, '');
 			leftLines.push(tokens.past());
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expected new line');
 		}
 
 		// --- down ---
-		tokens.expect('down', 'down follows left');
-		RDP.tree.chompNL(tokens, 'expect at least one new line');
+		tokens.expect('down', 'Expected "down" after "left"');
+		RDP.tree.chompNL(tokens, 'Expected new line');
 
 		var downLines = [];
 
 		while (!tokens.match('right')) {
-			tokens.expect(RDP.tree.identifier, 'expected at least one line');
+			tokens.expect(RDP.tree.identifier, 'Expected new line');
 			downLines.push(tokens.past());
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expected new line');
 		}
 
 		// --- right ---
-		tokens.expect('right', 'right follows down');
-		RDP.tree.chompNL(tokens, 'expect at least one new line');
+		tokens.expect('right', 'Expected "right" after "down"');
+		RDP.tree.chompNL(tokens, 'Expected new line');
 
 		var rightLines = [];
 
 		while (!tokens.match('OBJECTS')) {
-			tokens.expect(RDP.tree.identifier, 'expected at least one line');
+			tokens.expect(RDP.tree.identifier, 'Expected new line');
 			rightLines.push(tokens.past());
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expected new line');
 		}
 
 		return { up: upLines, left: leftLines, down: downLines, right: rightLines };
 	};
 
 	RDP.tree.objects = function(tokens) {
-		tokens.expect('OBJECTS', 'RDP: objects follows player');
-		RDP.tree.chompNL(tokens, 'expected nl after objects');
+		tokens.expect('OBJECTS', 'Expected OBJECTS section after PLAYER');
+		RDP.tree.chompNL(tokens, 'Expected new line after OBJECTS');
 
 
 		var objects = {};
 
 		while (!tokens.match('SETS')) {
 			// name
-			tokens.expect(RDP.tree.identifier, 'expected at least one object');
+			tokens.expect(RDP.tree.identifier, 'Expected at least one object');
 			var objName = tokens.past().s;
 			if (objects[objName]) {
-				throw 'RDP: ' + objName + ' already declared';
+				throw objName + ' already declared';
 			}
 			objects[objName] = { lines: [] };
 
-			RDP.tree.chompNL(tokens, 'expected nl after objects');
+			if (tokens.match('blocking')) {
+				objects[objName].blocking = true;
+				tokens.adv();
+			}
+
+			RDP.tree.chompNL(tokens, 'Expected new line after object name binding');
 
 			while (!tokens.match(RDP.tree.newLine)) {
 				tokens.expect(RDP.tree.identifier, '');
@@ -211,15 +216,15 @@ define([
 				tokens.expect(RDP.tree.newLine, '');
 			}
 
-			RDP.tree.chompNL(tokens, 'expected nl after objects');
+			RDP.tree.chompNL(tokens, 'Expected new line after object declaration');
 		}
 
 		return objects;
 	};
 
 	RDP.tree.sets = function(tokens) {
-		tokens.expect('SETS', 'RDP: sets follows objects');
-		RDP.tree.chompNL(tokens, 'expected nl after sets');
+		tokens.expect('SETS', 'Expected SETS after OBJECTS');
+		RDP.tree.chompNL(tokens, 'Expected new line after SETS');
 
 
 		var sets = [];
@@ -230,8 +235,8 @@ define([
 
 			var set = { name: setName };
 
-			tokens.expect(RDP.tree.assignment, 'expecting assignment operator');
-			tokens.expect(RDP.tree.identifier, 'expecting identifier after assignment');
+			tokens.expect(RDP.tree.assignment, 'Expecting assignment operator');
+			tokens.expect(RDP.tree.identifier, 'Expecting identifier after assignment');
 			var firstOperandOrElement = tokens.past().s;
 
 			if (tokens.match('or') || tokens.match('and') || tokens.match('minus')) {
@@ -253,15 +258,15 @@ define([
 
 			sets.push(set);
 
-			RDP.tree.chompNL(tokens, 'expected nl after sets');
+			RDP.tree.chompNL(tokens, 'Expected new line after set declaration');
 		}
 
 		return sets;
 	};
 
 	RDP.tree.rules = function(tokens) {
-		tokens.expect('RULES', 'RDP: rules follows sets');
-		RDP.tree.chompNL(tokens, 'expected nl after RULES');
+		tokens.expect('RULES', 'Expected RULES section after SETS');
+		RDP.tree.chompNL(tokens, 'Expected new line after RULES');
 
 
 		var rules = [];
@@ -269,15 +274,15 @@ define([
 		while (!tokens.match('LEGEND')) {
 			var rule = {};
 
-			tokens.expect(RDP.tree.identifier, 'Expect terrain unit');
+			tokens.expect(RDP.tree.identifier, 'Expected terrain unit');
 			rule.inTerrainItemName = tokens.past();
 
-			tokens.expect(RDP.tree.identifier, 'Expect inventory unit');
+			tokens.expect(RDP.tree.identifier, 'Expected inventory unit');
 			rule.inInventoryItemName = tokens.past();
 
-			tokens.expect(RDP.tree.arrow, 'Expect ->');
+			tokens.expect(RDP.tree.arrow, 'Expected ->');
 
-			tokens.expect(RDP.tree.identifier, 'Expect out terrain unit');
+			tokens.expect(RDP.tree.identifier, 'Expected out terrain unit');
 			rule.outTerrainItemName = tokens.past();
 
 			while (tokens.match(RDP.tree.semicolon)) {
@@ -288,10 +293,10 @@ define([
 
 					var item = {};
 
-					tokens.expect(RDP.tree.identifier, 'Expect give quantity');
+					tokens.expect(RDP.tree.identifier, 'Expected give quantity');
 					item.quantity = tokens.past();
 
-					tokens.expect(RDP.tree.identifier, 'Expect give item name');
+					tokens.expect(RDP.tree.identifier, 'Expected give item name');
 					item.itemName = tokens.past();
 
 					rule.give = [item];
@@ -301,10 +306,10 @@ define([
 
 						item = {};
 
-						tokens.expect(RDP.tree.identifier, 'Expect give quantity');
+						tokens.expect(RDP.tree.identifier, 'Expected give quantity');
 						item.quantity = tokens.past();
 
-						tokens.expect(RDP.tree.identifier, 'Expect give item name');
+						tokens.expect(RDP.tree.identifier, 'Expected give item name');
 						item.itemName = tokens.past();
 
 						rule.give.push(item);
@@ -316,37 +321,37 @@ define([
 				} else if (tokens.match('heal')) {
 					tokens.adv();
 
-					tokens.expect(RDP.tree.identifier, 'Expect heal quantity');
+					tokens.expect(RDP.tree.identifier, 'Expected heal quantity');
 					rule.heal = tokens.past();
 				} else if (tokens.match('hurt')) {
 					tokens.adv();
 
-					tokens.expect(RDP.tree.identifier, 'Expect hurt quantity');
+					tokens.expect(RDP.tree.identifier, 'Expected hurt quantity');
 					rule.hurt = tokens.past();
 				} else if (tokens.match('teleport')) {
 					tokens.adv();
 
 					rule.teleport = {};
 
-					tokens.expect(RDP.tree.identifier, 'Expect teleport level name');
+					tokens.expect(RDP.tree.identifier, 'Expected teleport level name');
 					rule.teleport.levelName = tokens.past();
 
-					tokens.expect(RDP.tree.identifier, 'Expect teleport position x');
+					tokens.expect(RDP.tree.identifier, 'Expected teleport position X');
 					rule.teleport.x = tokens.past();
 
-					tokens.expect(RDP.tree.identifier, 'Expect teleport position y');
+					tokens.expect(RDP.tree.identifier, 'Expected teleport position Y');
 					rule.teleport.y = tokens.past();
 				} else if (tokens.match('message')) {
 					tokens.adv();
 
-					tokens.expect(RDP.tree.str, 'Expect message');
+					tokens.expect(RDP.tree.str, 'Expected message');
 					rule.message = tokens.past();
 				} //else if (tokens.match(RDP.tree.newLine)) {
 				//	break;
 				//}
 			}
 
-			RDP.tree.chompNL(tokens, 'expected nl between rules');
+			RDP.tree.chompNL(tokens, 'Expected new line between rules');
 
 			rules.push(rule);
 		}
@@ -355,8 +360,8 @@ define([
 	};
 
 	RDP.tree.legend = function(tokens) {
-		tokens.expect('LEGEND', 'RDP: legend follows rules');
-		RDP.tree.chompNL(tokens, 'expected nl after LEGEND');
+		tokens.expect('LEGEND', 'Expected LEGEND section after RULES');
+		RDP.tree.chompNL(tokens, 'Expected new line after LEGEND');
 
 		var legend = {};
 
@@ -364,35 +369,35 @@ define([
 			tokens.expect(RDP.tree.identifier, '');
 			var terrainChar = tokens.past().s;
 			if (legend[terrainChar]) {
-				throw 'RDP: ' + terrainChar + ' already declared';
+				throw terrainChar + ' already declared';
 			}
 
-			tokens.expect(RDP.tree.identifier, 'RDP: expected terrain binding');
+			tokens.expect(RDP.tree.identifier, 'Expected terrain binding');
 			legend[terrainChar] = tokens.past().s;
 
-			RDP.tree.chompNL(tokens, 'expect at least one new line');
+			RDP.tree.chompNL(tokens, 'Expected new line');
 		}
 
 		return legend;
 	};
 
 	RDP.tree.levels = function(tokens) {
-		tokens.expect('LEVELS', 'RDP: levels follow legend');
-		RDP.tree.chompNL(tokens, 'expected nl after LEVELS');
+		tokens.expect('LEVELS', 'Expected LEVELS section after LEGEND');
+		RDP.tree.chompNL(tokens, 'Expected new line after LEVELS');
 
 
 		var levels = {};
 
 		while (!tokens.match(RDP.tree.end)) {
-			tokens.expect(RDP.tree.identifier, 'expected at least one object');
+			tokens.expect(RDP.tree.identifier, 'Expected at least one level');
 			var levelName = tokens.past().s;
 			if (levels[levelName]) {
-				throw 'RDP: ' + levelName + ' already declared';
+				throw levelName + ' already declared';
 			}
 
 			var lines = [];
 
-			RDP.tree.chompNL(tokens, 'expected nl after objects');
+			RDP.tree.chompNL(tokens, 'Expected new line after level name binding');
 
 			while (!tokens.match(RDP.tree.newLine)) {
 				tokens.expect(RDP.tree.identifier, '');
@@ -403,7 +408,7 @@ define([
 
 			levels[levelName] = lines;
 
-			RDP.tree.chompNL(tokens, 'expected nl after objects');
+			RDP.tree.chompNL(tokens, 'Expected new line after level declaration');
 		}
 
 		return levels;

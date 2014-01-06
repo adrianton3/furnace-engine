@@ -36,7 +36,7 @@ define([], function() {
 		var str = 'OBJECTS\n\n';
 		for (var key in spec) {
 			var sprite = spec[key].lines.map(function (identifier) { return identifier.s; }).join('\n');
-			str += key + '\n' + sprite + '\n\n';
+			str += key + (spec[key].blocking ? ' blocking' : '') + '\n' + sprite + '\n\n';
 		}
 		return str;
 	};

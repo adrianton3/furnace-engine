@@ -11,29 +11,73 @@ require([
 	) {
 	'use strict';
 
-	var inTextArea = document.getElementById('in');
-	var outTokensTextArea = document.getElementById('outtokens');
-	var outTreeTextArea = document.getElementById('outtree');
+	setupEditors();
 
-	var button = document.getElementById('but');
+	var inWorldEditor, outTokensEditor, outInterpretedEditor;
+	function setupEditors() {
+		inWorldEditor = CodeMirror.fromTextArea(document.getElementById('in'), {
+            lineNumbers: true,
+            styleActiveLine: true
+        });
+        inWorldEditor.setSize(400, 500);
+        inWorldEditor.setOption('theme', 'cobalt');
+        inWorldEditor.on('change', parse);
 
-	inTextArea.addEventListener('keyup', parse);
+        outTokensEditor = CodeMirror.fromTextArea(document.getElementById('outtokens'), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            readOnly: true
+        });
+        outTokensEditor.setSize(400, 500);
+        outTokensEditor.setOption('theme', 'cobalt');
+
+        outInterpretedEditor = CodeMirror.fromTextArea(document.getElementById('outtree'), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            readOnly: true
+        });
+        outInterpretedEditor.setSize(400, 500);
+        outInterpretedEditor.setOption('theme', 'cobalt');
+	}
+
+	var errorLine = null;
+	function parse() {
+		var inText = inWorldEditor.getValue();
+
+		try {
+			var tokens = Tokenizer.chop(inText);
+			var outTokensText = tokens.join('\n');
+
+			outTokensEditor.setValue(outTokensText);
+
+
+			var tree = RDP.parse(tokens);
+			var outTreeText = PrettyPrinter.print(tree);
+
+			outInterpretedEditor.setValue(outTreeText);
+
+			if (errorLine !== null) {
+				inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');
+				errorLine = null;
+			}
+
+			document.getElementById('status').classList.add('ok');
+			document.getElementById('status').classList.remove('err');
+			document.getElementById('status').innerHTML = 'OK';
+		} catch (ex) {
+			if (ex.line !== undefined) {
+				if (ex.line !== errorLine && errorLine !== null) {
+					inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');
+				}
+				errorLine = ex.line;
+				inWorldEditor.addLineClass(errorLine, 'background', 'line-error');
+			}
+
+			document.getElementById('status').classList.add('err');
+			document.getElementById('status').classList.remove('ok');
+			document.getElementById('status').innerHTML = ex.message || ex;
+		}
+	}
 
 	parse();
-
-	function parse() {
-		var inText = inTextArea.value;
-
-
-		var tokens = Tokenizer.chop(inText);
-		var outTokensText = tokens.join('\n');
-
-		outTokensTextArea.value = outTokensText;
-
-
-		var tree = RDP.parse(tokens);
-		var outTreeText = PrettyPrinter.print(tree);
-
-		outTreeTextArea.value = outTreeText;
-	}
 });

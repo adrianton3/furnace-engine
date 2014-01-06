@@ -98,7 +98,7 @@ define([
 				tok.push(Tokenizer.chop.alphanum(str));
 			}
 			else if (c === '\n') {
-				tok.push(new TokNewLine());
+				tok.push(new TokNewLine(str.getCoords()));
 				str.adv();
 			} else {
 				var tmp = Tokenizer.chop.whitespace(str);
@@ -214,15 +214,15 @@ define([
 
 		tmp = str.getMarked();
 
-		if(tmp == '#t' || tmp == '#f') return new TokBool(tmp, coords);
 		if(Tokenizer.chop.alphanum.reserved.indexOf(tmp) != -1) return new TokKeyword(tmp, coords);
 		else return new TokIdentifier(tmp, coords);
 	};
 
 	Tokenizer.chop.alphanum.reserved = [
 		'COLORS', 'PLAYER', 'OBJECTS', 'SETS', 'RULES', 'LEGEND', 'LEVELS',
+		'rgb',
 		'up', 'left', 'down', 'right',
-		'color', 'tile', 'rgb',
+		'blocking',
 		'or', 'and', 'minus',
 		'consume', 'give', 'heal', 'hurt', 'teleport', 'message'
 	];
