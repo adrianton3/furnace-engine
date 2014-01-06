@@ -1,4 +1,4 @@
-define([], function() {
+define(['ParserError'], function(ParserError) {
 	'use strict';
 
 	function TokenList(token) {
@@ -27,8 +27,15 @@ define([], function() {
 	};
 
 	TokenList.prototype.expect = function(token, exMessage) {
-		if(this.match(token)) this.adv();
-		else throw exMessage + this.cur().coords + ' instead got ' + this.cur();
+		if(this.match(token)) {
+			this.adv();
+		} else {
+			throw new ParserError(
+				exMessage /*+ ' instead got ' + this.cur()*/,
+				this.cur().coords.line,
+				this.cur().coords.col
+			);
+		}
 	};
 
 	TokenList.prototype.adv = function() {

@@ -5,10 +5,16 @@
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<title>Furnace Engine - parser</title>
 	<link rel="stylesheet" type="text/css" href="style/style.css">
+	<link rel="stylesheet" href="lib/cm/codemirror.css">
+	<link rel="stylesheet" href="lib/cm/cobalt.css">
+	<script type="text/javascript" src="lib/cm/codemirror.js"></script>
 	<script data-main="js/parser" src="lib/require.js"></script>
 </head>
 <body>
-	<textarea id="in" cols="50" rows="30" spellcheck="false">COLORS
+	<div class="con">
+		<div class="title">Input</div>
+		<br>
+		<textarea id="in" cols="50" rows="30" spellcheck="false">COLORS
 
 r rgb 230 10 50
 G rgb 10 230 50
@@ -123,8 +129,18 @@ gggggggsggggg
 ggggggggggggg
 
 </textarea>
-	<textarea id="outtokens" cols="50" rows="30" readonly spellcheck="false"></textarea>
-	<textarea id="outtree" cols="50" rows="30" readonly spellcheck="false"></textarea>
+<br>
+<div id="status">...</div></div>
+	<div class="con">
+		<div class="title">Parsed tokens</div>
+		<br>
+		<textarea id="outtokens" cols="50" rows="30" readonly spellcheck="false"></textarea>
+	</div>
+	<div class="con">
+		<div class="title">Interpreted world</div>
+		<br>
+		<textarea id="outtree" cols="50" rows="30" readonly spellcheck="false"></textarea>
+	</div>
 	<br>
 	<canvas id="can" width="100" height="100" style="display: none"></canvas>
 </body>

@@ -1,5 +1,5 @@
 body {
-	background-color: #040F36;
+	background-color: rgb(0, 13, 23);
 }
 
 canvas {
@@ -12,6 +12,28 @@ textarea {
 	color: dimgray;
 }
 
-#in {
-	color: darkseagreen;
+.con {
+	padding: 0px 20px;
+	float: left;
+}
+
+.title {
+	color: #FFFFFF;
+	font-family: sans-serif;
+	font-size: small;
+}
+
+#status {
+	color: #FFFFFF;
+	font-family: sans-serif;
+	font-size: small;
+	padding: 1px 10px;
+}
+
+.ok {
+	background: #00FF00;
+}
+
+.err {
+	background: #FF0000;
 }
