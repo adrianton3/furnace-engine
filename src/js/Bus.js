@@ -5,14 +5,14 @@ define(['Util'], function (Util) {
 		this.channels = {};
 	}
 
-	Bus.prototype.addListener = function(channel, id, callback) {
+	Bus.prototype.addListener = function (channel, id, callback) {
 		if (!this.channels[channel]) {
 			this.channels[channel] = [];
 		}
 		this.channels[channel].push({ id: id, callback: callback });
 	};
 
-	Bus.prototype.emit = function(channel, data) {
+	Bus.prototype.emit = function (channel, data) {
 		if (this.channels[channel]) {
 			this.channels[channel].forEach(function(listener) {
 				listener.callback(data);
@@ -20,12 +20,16 @@ define(['Util'], function (Util) {
 		}
 	};
 
-	Bus.prototype.removeListener = function(channel, id) {
+	Bus.prototype.removeListener = function (channel, id) {
 		Util.removeFirst(this.channels[channel], function(listener) { return listener.id === id; });
 	};
 
-	Bus.prototype.removeChannel = function(channel) {
+	Bus.prototype.removeChannel = function (channel) {
 		delete this.channels[channel];
+	};
+
+	Bus.prototype.reset = function () {
+		this.channels = {};
 	};
 
 	return Bus;

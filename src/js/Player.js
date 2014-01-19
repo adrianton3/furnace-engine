@@ -107,12 +107,12 @@ define([
 					(rule.consume &&
 						inventory.has(
 							Items.collection[
-								resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.inInventoryItem)]))) {
+								resolveItem(currentTerrainItem.id, currentInventoryItem.id, currentInventoryItem.id)]))) {
 
 					if (rule.consume) {
 						inventory.consume(
 							Items.collection[
-								resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.inInventoryItem)]);
+								resolveItem(currentTerrainItem.id, currentInventoryItem.id, currentInventoryItem.id)]);
 					}
 
 					terrain.set(
