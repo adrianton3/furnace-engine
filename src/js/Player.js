@@ -81,6 +81,16 @@ define([
 		return this.position.add(deltas[this.direction]);
 	};
 
+	function resolveItem(inTerrainItem, inInventoryItem, outItem) {
+		if (outItem === '_terrain') {
+			return inTerrainItem;
+		} else if (outItem === '_inventory') {
+			return inInventoryItem;
+		} else {
+			return outItem;
+		}
+	}
+
 	Player.prototype.use = function() {
 		var inventory = this.world.inventory;
 		var terrain = this.world.terrain;
@@ -93,15 +103,29 @@ define([
 
 			var rule = ruleSet.getRuleFor(currentTerrainItem.id, currentInventoryItem.id);
 			if (rule) {
-				if (!rule.consume || (rule.consume && inventory.has(Items.collection[rule.inInventoryItem]))) {
+				if (!rule.consume ||
+					(rule.consume &&
+						inventory.has(
+							Items.collection[
+								resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.inInventoryItem)]))) {
+
 					if (rule.consume) {
-						inventory.consume(Items.collection[rule.inInventoryItem]);
+						inventory.consume(
+							Items.collection[
+								resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.inInventoryItem)]);
 					}
 
-					terrain.set(facingPosition.x, facingPosition.y, Items.collection[rule.outTerrainItem]);
+					terrain.set(
+						facingPosition.x,
+						facingPosition.y,
+						Items.collection[
+							resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.outTerrainItem)]);
 
 					rule.outInventoryItems.forEach(function (item) {
-						inventory.addItem(Items.collection[item.itemName], item.quantity);
+						inventory.addItem(
+							Items.collection[
+								resolveItem(currentTerrainItem.id, currentInventoryItem.id, item.itemName)],
+							item.quantity);
 					});
 
 					this.health += rule.healthDelta;
