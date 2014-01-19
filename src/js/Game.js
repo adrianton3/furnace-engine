@@ -2,63 +2,41 @@ define([
 	'SystemBus',
 	'SpriteSheetStore', //
 	'World',
-	'KeyListener',
-	'Text',
-	'tokenizer/Tokenizer',
-	'parser/RDP',
-	'generator/Generator'
+	'generator/Generator',
+	'KeyListener'
 	], function(
 		SystemBus,
 		SpriteSheetStore,
 		World,
-		KeyListener,
-		Text,
-		Tokenizer,
-		RDP,
-		Generator
+		Generator,
+		KeyListener
 	) {
 	'use strict';
 
 	function Game() {
 		this.world = null;
+		this.requestId = null;
 	}
 
-	Game.prototype.init = function() {
-		var inTextArea = document.getElementById('in');
-		var stringedWorld = inTextArea.value;
-		var tokens = Tokenizer.chop(stringedWorld);
-		var tree = RDP.parse(tokens);
-
-		// prettyprint it to check
-
+	Game.prototype.init = function (tree) {
 		this.world = Generator.generate(tree);
 		this.world.init();
 	};
 
-	Game.prototype.start = function() {
-		//KeyListener.init(document.getElementById('can'));
-		KeyListener.init(document);
-
+	Game.prototype.start = function () {
 		var loop = function () {
 			this.world.update();
 			this.world.draw();
-			window.requestAnimationFrame(loop);
+			this.requestId = window.requestAnimationFrame(loop);
 		}.bind(this);
 
 		loop();
 	};
 
-	function run() {
-		SystemBus.addListener('resourcesLoaded', '', function() {
-			Text.init();
-
-			var game = new Game();
-			game.init();
-			game.start();
-		});
-	}
-
-	run();
+	Game.prototype.cleanup = function () {
+		window.cancelAnimationFrame(this.requestId);
+		SystemBus.reset();
+	};
 
 	return Game;
 });

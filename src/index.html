@@ -5,10 +5,16 @@
 	<meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<title>Furnace Engine</title>
 	<link rel="stylesheet" type="text/css" href="style/style.css">
-	<script data-main="js/Game" src="lib/require.js"></script>
+	<link rel="stylesheet" href="lib/cm/codemirror.css">
+	<link rel="stylesheet" href="lib/cm/cobalt.css">
+	<script type="text/javascript" src="lib/cm/codemirror.js"></script>
+	<script data-main="js/main" src="lib/require.js"></script>
 </head>
 <body>
-	<textarea id="in" cols="50" rows="30" readonly spellcheck="false">COLORS
+	<div class="con">
+		<!-- <div class="title">Input</div> -->
+		<!-- <br> -->
+		<textarea id="in" cols="50" rows="30" spellcheck="false">COLORS
 
 r rgb 230 10 50
 G rgb 10 230 50
@@ -90,8 +96,8 @@ Collectible = stone grass
 
 RULES
 
-Collectible pickaxe -> grass ; give 1 _terrain ; consume
-dirt Collectible -> _item ; consume
+Collectible pickaxe -> dirt ; give 1 _terrain ; consume
+dirt Collectible -> _inventory ; consume
 grass stone -> stone ; consume
 
 LEGEND
@@ -122,7 +128,12 @@ gggggggsggggg
 ggggggggggggg
 
 </textarea>
+		<br>
+		<div id="status">...</div>
+		<br>
+		<button id="compile" style="width:100%;height:30px">Compile</button>
+	</div>
 
-<canvas id="can" width="500" height="500"></canvas>
+	<canvas id="can" width="0" height="0"></canvas>
 </body>
 </html>
