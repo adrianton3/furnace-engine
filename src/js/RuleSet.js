@@ -34,7 +34,7 @@ define([
 			}
 
 			return terrainMatch && inventoryMatch;
-		});
+		}.bind(this));
 
 		if (firstMatchingRule) {
 			return firstMatchingRule.element;

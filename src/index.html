@@ -86,14 +86,12 @@ lSSSS
 
 SETS
 
-A = stone dirt
+Collectible = stone grass
 
 RULES
 
-stone pickaxe -> grass ; give 1 stone ; consume
-grass pickaxe -> dirt ; give 1 grass
-dirt grass -> grass ; consume
-dirt stone -> stone ; consume
+Collectible pickaxe -> grass ; give 1 _terrain ; consume
+dirt Collectible -> _item ; consume
 grass stone -> stone ; consume
 
 LEGEND
