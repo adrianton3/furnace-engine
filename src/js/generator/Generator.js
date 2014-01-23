@@ -59,13 +59,51 @@ define([
 		});
 		var namedSprites = SpriteSheetGenerator.generate(stringedObjects, colorSpec, scale);
 
+		function processSpriteName(nam) {
+			var separator = nam.lastIndexOf(':');
+			if (separator === -1) {
+				return {
+					name: nam,
+					frame: 0
+				};
+			} else {
+				return {
+					name: nam.substr(0, separator),
+					frame: +nam.substr(separator + 1)
+				};
+			}
+		}
+
+		var groupedSprites = Util.groupBy(namedSprites, function (namedSprite) {
+			var frameAndName = processSpriteName(namedSprite.name);
+			return frameAndName.name;
+		});
+
+		var namedSpriteGroups = Util.objectToArray(groupedSprites, 'groupName', 'namedSprites');
+
 		var itemsByName = {};
-		namedSprites.forEach(function (namedSprite) {
-			itemsByName[namedSprite.name] = new Item(
-				namedSprite.name,
-				Util.capitalize(namedSprite.name),
-				namedSprite.sprite,
-				objectsSpec[namedSprite.name].blocking
+
+		namedSpriteGroups.forEach(function (namedSpriteGroup) {
+			var sortedSprites = namedSpriteGroup.namedSprites.map(function (namedSprite) {
+				var nameAndFrame = processSpriteName(namedSprite.name);
+				return {
+					sprite: namedSprite.sprite,
+					name: nameAndFrame.name,
+					frame: nameAndFrame.frame
+				};
+			}).sort(function (a, b) {
+				return a.frame - b.frame;
+			});
+
+			var sprites = sortedSprites.map(function (namedSprite) {
+				return namedSprite.sprite;
+			});
+
+			itemsByName[namedSpriteGroup.groupName] = new Item(
+				namedSpriteGroup.name,
+				Util.capitalize(namedSpriteGroup.groupName),
+				sprites,
+				objectsSpec[namedSpriteGroup.groupName].blocking
 			);
 		});
 

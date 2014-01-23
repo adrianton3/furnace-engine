@@ -127,6 +127,35 @@ define([
 		tokens.expect('PLAYER', 'Expected PLAYER section after COLORS');
 		RDP.tree.chompNL(tokens, 'Expected new line after PLAYER');
 
+
+		var playerFrames = {};
+
+		while (!tokens.match('OBJECTS')) {
+			// name
+			tokens.expect(RDP.tree.identifier, 'Expected at least one player frame');
+			var playerFrameName = tokens.past().s;
+			if (playerFrames[playerFrameName]) {
+				throw playerFrameName + ' already declared';
+			}
+			playerFrames[playerFrameName] = [];
+
+			RDP.tree.chompNL(tokens, 'Expected new line after player frame binding');
+
+			while (!tokens.match(RDP.tree.newLine)) {
+				tokens.expect(RDP.tree.identifier, '');
+				playerFrames[playerFrameName].push(tokens.past());
+
+				tokens.expect(RDP.tree.newLine, '');
+			}
+
+			RDP.tree.chompNL(tokens, 'Expected new line after player frame declaration');
+		}
+
+		return playerFrames;
+		/*
+		tokens.expect('PLAYER', 'Expected PLAYER section after COLORS');
+		RDP.tree.chompNL(tokens, 'Expected new line after PLAYER');
+
 		// --- up ---
 		tokens.expect('up', 'Must start with "up"');
 		tokens.expect(RDP.tree.newLine, 'Expected new line');
@@ -180,6 +209,7 @@ define([
 		}
 
 		return { up: upLines, left: leftLines, down: downLines, right: rightLines };
+		*/
 	};
 
 	RDP.tree.objects = function(tokens) {

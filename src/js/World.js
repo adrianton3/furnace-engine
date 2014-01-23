@@ -29,6 +29,8 @@ define([
 			tileDimensions,
 			new Vec2(0, this.tileDimensions.y * this.levelsByName.entry.height + 8)
 		);
+		this.tick = 0;
+		this.z = 0;
 	}
 
 	World.prototype.init = function() {
@@ -48,13 +50,17 @@ define([
 	};
 
 	World.prototype.draw = function() {
-		this.terrain.draw();
+		this.terrain.draw(this.tick);
 		this.inventory.draw();
-		this.player.draw();
+		this.player.draw(this.tick);
 	};
 
 	World.prototype.update = function() {
-
+		this.z++;
+		if (this.z >= 20) {
+			this.z = 0;
+			this.tick = 1 - this.tick;
+		}
 	};
 
 	return World;

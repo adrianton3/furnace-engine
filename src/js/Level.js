@@ -25,12 +25,13 @@ define([
 		return this;
 	};
 
-	Level.prototype.draw = function() {
+	Level.prototype.draw = function(tick) {
 		for (var i = 0; i < this.height; i++) {
 			for (var j = 0; j < this.width; j++) {
 				this.data[i][j].drawAt(
 					this.uiOffset.x + j * this.blockWidth,
-					this.uiOffset.y + i * this.blockHeight
+					this.uiOffset.y + i * this.blockHeight,
+					tick
 				);
 			}
 		}
