@@ -69,10 +69,11 @@ define([
 
 	Player.prototype.move = function(delta) {
 		var candidatePosition = this.position.add(delta);
-		if (this.world.terrain.withinBounds(candidatePosition.x, candidatePosition.y)) {
-			var futureBlock = this.world.terrain.get(candidatePosition.x, candidatePosition.y);
+		if (this.world.level.withinBounds(candidatePosition.x, candidatePosition.y)) {
+			var futureBlock = this.world.level.get(candidatePosition.x, candidatePosition.y);
 			if (!futureBlock.blocking) {
 				this.position = candidatePosition;
+				this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
 			}
 		}
 	};
@@ -93,13 +94,13 @@ define([
 
 	Player.prototype.use = function() {
 		var inventory = this.world.inventory;
-		var terrain = this.world.terrain;
+		var level = this.world.level;
 		var ruleSet = this.world.ruleSet;
 
 		var currentInventoryItem = inventory.getCurrent();
 		var facingPosition = this.getFacing();
-		if (terrain.withinBounds(facingPosition.x, facingPosition.y)) {
-			var currentTerrainItem = terrain.get(facingPosition.x, facingPosition.y);
+		if (level.withinBounds(facingPosition.x, facingPosition.y)) {
+			var currentTerrainItem = level.get(facingPosition.x, facingPosition.y);
 
 			var rule = ruleSet.getRuleFor(currentTerrainItem.id, currentInventoryItem.id);
 			if (rule) {
@@ -115,7 +116,7 @@ define([
 								resolveItem(currentTerrainItem.id, currentInventoryItem.id, currentInventoryItem.id)]);
 					}
 
-					terrain.set(
+					level.set(
 						facingPosition.x,
 						facingPosition.y,
 						Items.collection[
@@ -134,10 +135,12 @@ define([
 		}
 	};
 
-	Player.prototype.draw = function() {
+	Player.prototype.draw = function(camera, tick) {
 		this.sprite.drawAt(
-			this.uiOffset.x + this.position.x * this.blockWidth,
-			this.uiOffset.y + this.position.y * this.blockHeight
+			this.uiOffset.x +
+			(this.position.x - camera.position.x /*+ Math.floor(camera.dimensions.x / 2)*/) * this.blockWidth,
+			this.uiOffset.y +
+			(this.position.y - camera.position.y /*+ Math.floor(camera.dimensions.y / 2)*/) * this.blockHeight
 		);
 	};
 

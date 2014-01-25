@@ -100,7 +100,7 @@ define([
 			});
 
 			itemsByName[namedSpriteGroup.groupName] = new Item(
-				namedSpriteGroup.name,
+				namedSpriteGroup.groupName,
 				Util.capitalize(namedSpriteGroup.groupName),
 				sprites,
 				objectsSpec[namedSpriteGroup.groupName].blocking

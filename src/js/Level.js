@@ -25,10 +25,10 @@ define([
 		return this;
 	};
 
-	Level.prototype.draw = function(tick) {
-		for (var i = 0; i < this.height; i++) {
-			for (var j = 0; j < this.width; j++) {
-				this.data[i][j].drawAt(
+	Level.prototype.draw = function(camera, tick) {
+		for (var i = 0; i < camera.dimensions.y; i++) {
+			for (var j = 0; j < camera.dimensions.x; j++) {
+				this.data[i + camera.position.y][j + camera.position.x].drawAt(
 					this.uiOffset.x + j * this.blockWidth,
 					this.uiOffset.y + i * this.blockHeight,
 					tick
