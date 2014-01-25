@@ -46,6 +46,18 @@ define([], function () {
 		return ret;
 	};
 
+	Util.groupBy = function (array, fun) {
+		var groups = {};
+		array.forEach(function (element) {
+			var ret = fun(element);
+			if (!groups[ret]) {
+				groups[ret] = [];
+			}
+			groups[ret].push(element);
+		});
+		return groups;
+	};
+
 	Util.capitalize = function (string) {
 		return string.substring(0, 1).toUpperCase() + string.substring(1);
 	};
