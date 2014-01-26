@@ -17,9 +17,10 @@ define([
 			'grass': 0,
 			'dirt': 0,
 			'stone': 0,
-			'pickaxe': 2
+			'pickaxe': 9,
+			'bush': 0
 		};
-		this.arrangement = ['grass', 'dirt', 'stone', 'pickaxe']; // should be nulls at first
+		this.arrangement = ['pickaxe', 'grass', 'dirt', 'stone', 'bush']; // should be nulls at first
 		this.current = 0;
 	}
 
