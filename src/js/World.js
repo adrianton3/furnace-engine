@@ -27,7 +27,7 @@ define([
 		this.ruleSet = ruleSet;
 		this.tileDimensions = tileDimensions;
 
-		this.camera = new Camera(new Vec2(0, 0), new Vec2(5, 5));
+		this.camera = new Camera(new Vec2(0, 0), new Vec2(7, 7));
 
 		this.inventory = new Inventory(
 			4,
@@ -48,6 +48,8 @@ define([
 
 		con2d.fillStyle = '#000';
 		con2d.fillRect(0, 0, con2d.canvas.width, con2d.canvas.height);
+
+		this.camera.centerOn(this.player.position.x, this.player.position.y, this.level.width, this.level.height);
 	};
 
 	World.prototype.initStartingLocation = function() {
