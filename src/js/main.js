@@ -80,11 +80,33 @@ require([
 	function setupGUI() {
 		var compileButton = document.getElementById('compile');
 		compileButton.addEventListener('click', compile);
+
+		var getUrlButton = document.getElementById('geturl');
+		getUrlButton.addEventListener('click', setUrl);
+	}
+
+	function setUrl() {
+		var spec = inWorldEditor.getValue();
+		var baseUrl = 'http://madflame991.github.io/furnace-engine/src/index.html';
+		var encodedLevel = encodeURIComponent(spec);
+		var url = baseUrl + '?spec=' + encodedLevel;
+
+		var urlTextarea = document.getElementById('url');
+		urlTextarea.value = url;
+	}
+
+	function checkUrl() {
+		var urlParams = purl(true).param();
+		if (urlParams.spec) {
+			inWorldEditor.setValue(urlParams.spec);
+		}
 	}
 
 	function run() {
 		setupEditors();
 		setupGUI();
+
+		checkUrl();
 
 		SystemBus.addListener('resourcesLoaded', '', function() {
 			Text.init();

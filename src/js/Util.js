@@ -13,7 +13,15 @@ define([], function () {
 
 	Util.removeFirst = function (array, predicate) {
 		var firstMatch = Util.findFirst(array, predicate);
-		array.splice(firstMatch.index, 1);
+		if (firstMatch) {
+			array.splice(firstMatch.index, 1);
+		}
+	};
+
+	Util.remove = function (array, element) {
+		Util.removeFirst(array, function (entry) {
+			return entry === element;
+		});
 	};
 
 	Util.objectToArray = function (object, nameProperty, dataProperty) {
