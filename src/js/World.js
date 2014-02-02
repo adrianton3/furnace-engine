@@ -3,8 +3,10 @@ define([
 	'Inventory',
 	'Items',
 	'Vec2',
-	'RuleSet',
-	'Rule',
+	'rule/RuleSet',
+	'rule/LeaveRule',
+	'rule/EnterRule',
+	'rule/UseRule',
 	'con2d',
 	'Camera'
 	], function (
@@ -13,18 +15,30 @@ define([
 		Items,
 		Vec2,
 		RuleSet,
-		Rule,
+		LeaveRule,
+		EnterRule,
+		UseRule,
 		con2d,
 		Camera
 	) {
 	'use strict';
 
-	function World(playerSpritesByName, levelsByName, startLocation, ruleSet, tileDimensions) {
+	function World(
+		playerSpritesByName,
+		levelsByName,
+		startLocation,
+		leaveRuleSet,
+		enterRuleSet,
+		useRuleSet,
+		tileDimensions
+		) {
 		this.player = new Player(this, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
 		this.levelsByName = levelsByName;
 		this.level = null;
-		this.ruleSet = ruleSet;
+		this.leaveRuleSet = leaveRuleSet;
+		this.enterRuleSet = enterRuleSet;
+		this.useRuleSet = useRuleSet;
 		this.tileDimensions = tileDimensions;
 
 		this.camera = new Camera(new Vec2(0, 0), new Vec2(7, 7));

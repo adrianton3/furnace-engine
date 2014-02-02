@@ -43,7 +43,10 @@ define([
 		invright: 1
 	};
 
-	Player.prototype.init = function() {
+	/**
+	 * Initializes the player
+	 */
+	Player.prototype.init = function () {
 		this.direction = 'down';
 		this.sprite = this.spritesByName[this.direction];
 
@@ -62,23 +65,84 @@ define([
 		}.bind(this));
 	};
 
-	Player.prototype.setPosition = function(x, y) {
+	/**
+	 * Sets the position of the player
+	 */
+	Player.prototype.setPosition = function (x, y) {
 		this.position.x = x;
 		this.position.y = y;
 	};
 
-	Player.prototype.move = function(delta) {
+	/**
+	 * Leaves a location
+	 */
+	Player.prototype.leave = function () {
+		var level = this.world.level;
+		var ruleSet = this.world.leaveRuleSet;
+
+		var currentTerrainItem = level.get(this.position.x, this.position.y);
+
+		var rule = ruleSet.getRuleFor(currentTerrainItem.id);
+		if (rule) {
+			level.set(
+				this.position.x,
+				this.position.y,
+				Items.collection[
+					resolveItem(currentTerrainItem.id, -1, rule.outTerrainItem)]);
+		}
+	};
+
+	/**
+	 * Enters a new location
+	 */
+	Player.prototype.enter = function () {
+		var inventory = this.world.inventory;
+		var level = this.world.level;
+		var ruleSet = this.world.enterRuleSet;
+
+		var currentTerrainItem = level.get(this.position.x, this.position.y);
+
+		var rule = ruleSet.getRuleFor(currentTerrainItem.id);
+		if (rule) {
+			level.set(
+				this.position.x,
+				this.position.y,
+				Items.collection[
+					resolveItem(currentTerrainItem.id, -1, rule.outTerrainItem)]);
+
+			rule.outInventoryItems.forEach(function (item) {
+				inventory.addItem(
+					Items.collection[
+						resolveItem(currentTerrainItem.id, -1, item.itemName)],
+					item.quantity);
+			});
+
+			this.health += rule.healthDelta;
+		}
+	};
+
+	/**
+	 * Moves the delta units
+	 */
+	Player.prototype.move = function (delta) {
 		var candidatePosition = this.position.add(delta);
 		if (this.world.level.withinBounds(candidatePosition.x, candidatePosition.y)) {
 			var futureBlock = this.world.level.get(candidatePosition.x, candidatePosition.y);
 			if (!futureBlock.blocking) {
+				this.leave();
+
 				this.position = candidatePosition;
 				this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
+
+				this.enter();
 			}
 		}
 	};
 
-	Player.prototype.getFacing = function() {
+	/**
+	 * Returns the facing position
+	 */
+	Player.prototype.getFacing = function () {
 		return this.position.add(deltas[this.direction]);
 	};
 
@@ -92,10 +156,13 @@ define([
 		}
 	}
 
-	Player.prototype.use = function() {
+	/**
+	 * Uses the current inventory item on the terrain unit that it's facing
+	 */
+	Player.prototype.use = function () {
 		var inventory = this.world.inventory;
 		var level = this.world.level;
-		var ruleSet = this.world.ruleSet;
+		var ruleSet = this.world.useRuleSet;
 
 		var currentInventoryItem = inventory.getCurrent();
 		var facingPosition = this.getFacing();
@@ -135,7 +202,10 @@ define([
 		}
 	};
 
-	Player.prototype.draw = function(camera, tick) {
+	/**
+	 * Draws the player
+	 */
+	Player.prototype.draw = function (camera, tick) {
 		this.sprite.drawAt(
 			this.uiOffset.x +
 			(this.position.x - camera.position.x /*+ Math.floor(camera.dimensions.x / 2)*/) * this.blockWidth,

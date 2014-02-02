@@ -1,13 +1,15 @@
 define([], function() {
 	'use strict';
 
-	function Rule(
+	function UseRule(
 		inTerrainItem,
 		inInventoryItem,
 		outTerrainItem,
 		outInventoryItems,
 		consume,
-		healthDelta
+		healthDelta,
+		teleport,
+		message
 	) {
 		this.inTerrainItem = inTerrainItem;
 		this.inInventoryItem = inInventoryItem;
@@ -15,7 +17,9 @@ define([], function() {
 		this.outInventoryItems = outInventoryItems;
 		this.consume = consume;
 		this.healthDelta = healthDelta;
+		this.teleport = teleport;
+		this.message = message;
 	}
 
-	return Rule;
+	return UseRule;
 });

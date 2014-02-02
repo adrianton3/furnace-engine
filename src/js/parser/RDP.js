@@ -50,7 +50,9 @@ define([
 		var player = RDP.tree.player(tokens);
 		var objects = RDP.tree.objects(tokens);
 		var sets = RDP.tree.sets(tokens);
-		var rules = RDP.tree.rules(tokens);
+		var leaveRules = RDP.tree.leaveRules(tokens);
+		var enterRules = RDP.tree.enterRules(tokens);
+		var useRules = RDP.tree.useRules(tokens);
 		var legend = RDP.tree.legend(tokens);
 		var levels = RDP.tree.levels(tokens);
 
@@ -61,7 +63,9 @@ define([
 			player: player,
 			objects: objects,
 			sets: sets,
-			rules: rules,
+			leaveRules: leaveRules,
+			enterRules: enterRules,
+			useRules: useRules,
 			legend: legend,
 			levels: levels
 		};
@@ -259,7 +263,7 @@ define([
 
 		var sets = [];
 
-		while (!tokens.match('RULES')) {
+		while (!tokens.match('LEAVERULES')) {
 			tokens.expect(RDP.tree.identifier, '');
 			var setName = tokens.past().s;
 
@@ -294,9 +298,121 @@ define([
 		return sets;
 	};
 
-	RDP.tree.rules = function(tokens) {
-		tokens.expect('RULES', 'Expected RULES section after SETS');
-		RDP.tree.chompNL(tokens, 'Expected new line after RULES');
+	RDP.tree.leaveRules = function(tokens) {
+		tokens.expect('LEAVERULES', 'Expected LEAVERULES section after SETS');
+		RDP.tree.chompNL(tokens, 'Expected new line after LEAVERULES');
+
+
+		var rules = [];
+
+		while (!tokens.match('ENTERRULES')) {
+			var rule = {};
+
+			tokens.expect(RDP.tree.identifier, 'Expected terrain unit');
+			rule.inTerrainItemName = tokens.past();
+
+			tokens.expect(RDP.tree.arrow, 'Expected ->');
+
+			tokens.expect(RDP.tree.identifier, 'Expected out terrain unit');
+			rule.outTerrainItemName = tokens.past();
+
+			RDP.tree.chompNL(tokens, 'Expected new line between rules');
+
+			rules.push(rule);
+		}
+
+		return rules;
+	};
+
+	RDP.tree.enterRules = function(tokens) {
+		tokens.expect('ENTERRULES', 'Expected ENTERRULES section after LEAVERULES');
+		RDP.tree.chompNL(tokens, 'Expected new line after ENTERRULES');
+
+
+		var rules = [];
+
+		while (!tokens.match('USERULES')) {
+			var rule = {};
+
+			tokens.expect(RDP.tree.identifier, 'Expected terrain unit');
+			rule.inTerrainItemName = tokens.past();
+
+			tokens.expect(RDP.tree.arrow, 'Expected ->');
+
+			tokens.expect(RDP.tree.identifier, 'Expected out terrain unit');
+			rule.outTerrainItemName = tokens.past();
+
+			while (tokens.match(RDP.tree.semicolon)) {
+				tokens.adv();
+
+				if (tokens.match('give')) {
+					tokens.adv();
+
+					var item = {};
+
+					tokens.expect(RDP.tree.identifier, 'Expected give quantity');
+					item.quantity = tokens.past();
+
+					tokens.expect(RDP.tree.identifier, 'Expected give item name');
+					item.itemName = tokens.past();
+
+					rule.give = [item];
+
+					while (tokens.match(RDP.tree.comma)) {
+						tokens.adv();
+
+						item = {};
+
+						tokens.expect(RDP.tree.identifier, 'Expected give quantity');
+						item.quantity = tokens.past();
+
+						tokens.expect(RDP.tree.identifier, 'Expected give item name');
+						item.itemName = tokens.past();
+
+						rule.give.push(item);
+					}
+				} else if (tokens.match('heal')) {
+					tokens.adv();
+
+					tokens.expect(RDP.tree.identifier, 'Expected heal quantity');
+					rule.heal = tokens.past();
+				} else if (tokens.match('hurt')) {
+					tokens.adv();
+
+					tokens.expect(RDP.tree.identifier, 'Expected hurt quantity');
+					rule.hurt = tokens.past();
+				} else if (tokens.match('teleport')) {
+					tokens.adv();
+
+					rule.teleport = {};
+
+					tokens.expect(RDP.tree.identifier, 'Expected teleport level name');
+					rule.teleport.levelName = tokens.past();
+
+					tokens.expect(RDP.tree.identifier, 'Expected teleport position X');
+					rule.teleport.x = tokens.past();
+
+					tokens.expect(RDP.tree.identifier, 'Expected teleport position Y');
+					rule.teleport.y = tokens.past();
+				} else if (tokens.match('message')) {
+					tokens.adv();
+
+					tokens.expect(RDP.tree.str, 'Expected message');
+					rule.message = tokens.past();
+				}
+			}
+
+			RDP.tree.chompNL(tokens, 'Expected new line between rules');
+
+			rules.push(rule);
+		}
+
+		return rules;
+	};
+
+	RDP.tree.useRules = function(tokens) {
+		tokens.expect('USERULES', 'Expected USERULES section after SETS');
+		RDP.tree.chompNL(tokens, 'Expected new line after USERULES');
 
 
 		var rules = [];
@@ -376,9 +492,7 @@ define([
 
 					tokens.expect(RDP.tree.str, 'Expected message');
 					rule.message = tokens.past();
-				} //else if (tokens.match(RDP.tree.newLine)) {
-				//	break;
-				//}
+				}
 			}
 
 			RDP.tree.chompNL(tokens, 'Expected new line between rules');

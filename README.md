@@ -11,6 +11,11 @@ Try it:
 Changelog
 ---------
 
+### 0.3.0
+ + added *leave* rules
+ + added *enter* rules
+ + changed *RULES* to *USERULES*
+
 ### 0.2.3
  + added a camera
 

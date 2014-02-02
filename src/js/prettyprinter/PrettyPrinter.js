@@ -3,19 +3,21 @@ define([], function() {
 
 	var PrettyPrinter = {};
 
-	PrettyPrinter.print = function(spec) {
+	PrettyPrinter.print = function (spec) {
 		return [
 			PrettyPrinter.print.colors(spec.colors),
 			PrettyPrinter.print.player(spec.player),
 			PrettyPrinter.print.objects(spec.objects),
 			PrettyPrinter.print.sets(spec.sets),
-			PrettyPrinter.print.rules(spec.rules),
+			PrettyPrinter.print.leaveRules(spec.leaveRules),
+			PrettyPrinter.print.enterRules(spec.enterRules),
+			PrettyPrinter.print.useRules(spec.useRules),
 			PrettyPrinter.print.legend(spec.legend),
 			PrettyPrinter.print.levels(spec.levels)
 		].join('\n');
 	};
 
-	PrettyPrinter.print.colors = function(spec) {
+	PrettyPrinter.print.colors = function (spec) {
 		var str = 'COLORS\n\n';
 		for (var key in spec) {
 			str += key + ' ' + spec[key] + '\n';
@@ -23,7 +25,7 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.player = function(spec) {
+	PrettyPrinter.print.player = function (spec) {
 		var str = 'PLAYER\n\n';
 		for (var key in spec) {
 			var sprite = spec[key].map(function (identifier) { return identifier.s; }).join('\n');
@@ -32,7 +34,7 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.objects = function(spec) {
+	PrettyPrinter.print.objects = function (spec) {
 		var str = 'OBJECTS\n\n';
 		for (var key in spec) {
 			var sprite = spec[key].lines.map(function (identifier) { return identifier.s; }).join('\n');
@@ -41,7 +43,7 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.sets = function(spec) {
+	PrettyPrinter.print.sets = function (spec) {
 		var str = 'SETS\n\n';
 		spec.forEach(function (setDeclaration) {
 			str += setDeclaration.name + ' = ';
@@ -57,11 +59,21 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.rules = function(spec) {
-		var str = 'RULES\n\n';
+	PrettyPrinter.print.leaveRules = function (spec) {
+		var str = 'LEAVERULES\n\n';
 
-		spec.forEach(function(rule) {
-			str += rule.inTerrainItemName.s + ' ' + rule.inInventoryItemName.s + ' -> ' + rule.outTerrainItemName.s + ';';
+		spec.forEach(function (rule) {
+			str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';\n';
+		});
+
+		return str;
+	};
+
+	PrettyPrinter.print.enterRules = function (spec) {
+		var str = 'ENTERRULES\n\n';
+
+		spec.forEach(function (rule) {
+			str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';';
 
 			if (rule.give) {
 				var giveStr = rule.give.map(function (item) {
@@ -75,11 +87,11 @@ define([], function() {
 			}
 
 			if (rule.heal) {
-				str += ' heal ' + rule.heal.s + ';';
+				str += ' heal ' + rule.heal.s + ' ;';
 			}
 
 			if (rule.hurt) {
-				str += ' hurt ' + rule.hurt.s + ';';
+				str += ' hurt ' + rule.hurt.s + ' ;';
 			}
 
 			if (rule.teleport) {
@@ -96,7 +108,46 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.legend = function(spec) {
+	PrettyPrinter.print.useRules = function (spec) {
+		var str = 'USERULES\n\n';
+
+		spec.forEach(function (rule) {
+			str += rule.inTerrainItemName.s + ' ' + rule.inInventoryItemName.s + ' -> ' + rule.outTerrainItemName.s + ';';
+
+			if (rule.give) {
+				var giveStr = rule.give.map(function (item) {
+					return item.quantity.s + ' ' + item.itemName.s;
+				}).join(' , ');
+				str += ' ' + giveStr + ' ;';
+			}
+
+			if (rule.consume) {
+				str += ' consume ;';
+			}
+
+			if (rule.heal) {
+				str += ' heal ' + rule.heal.s + ' ;';
+			}
+
+			if (rule.hurt) {
+				str += ' hurt ' + rule.hurt.s + ' ;';
+			}
+
+			if (rule.teleport) {
+				str += ' teleport ' + rule.teleport.levelName + ' ' + rule.teleport.x + ' ' + rule.teleport.y + ';';
+			}
+
+			if (rule.message) {
+				str += ' message "' + rule.message + '" ;';
+			}
+
+			str += '\n';
+		});
+
+		return str;
+	};
+
+	PrettyPrinter.print.legend = function (spec) {
 		var str = 'LEGEND\n\n';
 		for (var key in spec) {
 			str += key + ' ' + spec[key] + '\n';
@@ -104,7 +155,7 @@ define([], function() {
 		return str;
 	};
 
-	PrettyPrinter.print.levels = function(spec) {
+	PrettyPrinter.print.levels = function (spec) {
 		var str = 'LEVELS\n\n';
 		for (var key in spec) {
 			var data = spec[key].map(function (identifier) { return identifier.s; }).join('\n');

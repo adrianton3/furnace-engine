@@ -117,7 +117,15 @@ SETS
 
 Collectible = stone grass
 
-RULES
+LEAVERULES
+
+grass -> dirt
+
+ENTERRULES
+
+dirt -> grass
+
+USERULES
 
 Collectible pickaxe -> dirt ; give 1 _terrain ; consume
 dirt Collectible -> _inventory ; consume

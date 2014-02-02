@@ -94,7 +94,15 @@ SETS
 
 A = stone dirt
 
-RULES
+LEAVERULES
+
+grass -> dirt
+
+ENTERRULES
+
+dirt -> grass
+
+USERULES
 
 stone pickaxe -> grass ; give 1 stone ; consume
 grass pickaxe -> dirt ; give 1 grass

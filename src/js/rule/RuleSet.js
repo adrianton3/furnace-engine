@@ -26,6 +26,10 @@ define([
 				return false;
 			}
 
+			if (!inInventoryItem) {
+				return terrainMatch;
+			}
+
 			var inventoryMatch;
 			if (Util.isCapitalized(rule.inInventoryItem)) {
 				inventoryMatch = this.setsByName[rule.inInventoryItem].has(inInventoryItem);
