@@ -5,7 +5,9 @@ define([], function() {
 		inTerrainItem,
 		outTerrainItem,
 		outInventoryItems,
-		healthDelta
+		healthDelta,
+		teleport,
+		message
 	) {
 		this.inTerrainItem = inTerrainItem;
 		this.outTerrainItem = outTerrainItem;

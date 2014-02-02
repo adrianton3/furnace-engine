@@ -31,6 +31,8 @@ D rgb 80 40 10
 d rgb 120 60 20
 p rgb 160 30 240
 P rgb 140 10 220
+c rgb 40 200 250
+C rgb 20 120 160
 
 
 PLAYER
@@ -113,17 +115,46 @@ SSlSl
 SlSSl
 lSSSS
 
+void blocking
+lllll
+lllll
+lllll
+lllll
+lllll
+
+star blocking
+lllll
+lllWl
+lllll
+lllll
+lllll
+
+one
+CcCcC
+ccccc
+CcccC
+ccccc
+CcCcC
+
+two
+CCCCC
+CcCcC
+CCcCC
+CcCcC
+CCCCC
+
 SETS
 
 Collectible = stone grass
 
 LEAVERULES
 
-grass -> dirt
+two -> one
+one -> void
 
 ENTERRULES
 
-dirt -> grass
+flower -> grass ; give 1 flower
 
 USERULES
 
@@ -139,17 +170,21 @@ g grass
 p pickaxe
 b bush
 f flower
+v void
+* star
+1 one
+2 two
 
 LEVELS
 
 entry
-ggdggdddddggg
-gggggdsssddgg
-dgbbgdssddggg
-gfgbgddddggdg
-ggdggdggggbbg
-gdgggggfbbgdd
-gggdggdgggggd
+ggdggdddddgv*v111vdgg
+gggggdsssddg11111*dgg
+dgbbgdssddgggv121vggg
+gfgbgddddggdgv1v*vdgg
+ggdggdggggbbg*2v111gg
+gdgggggfbbgddv212vvvd
+gggdggdgggggdvvv1v*vv
 
 lev2
 ggggggggggggg
@@ -167,6 +202,14 @@ ggggggggggggg
 		<button id="compile" style="width:100%;height:30px">Compile</button>
 	</div>
 
-	<canvas id="can" width="0" height="0"></canvas>
+	<div>
+		<canvas id="can" width="0" height="0"></canvas>
+		<br><br>
+		<span class="info">
+			Arrow keys to move<br>
+			A to use current item<br>
+			S, D to change item
+		</span>
+	</div>
 </body>
 </html>
