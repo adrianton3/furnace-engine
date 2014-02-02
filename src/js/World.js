@@ -49,6 +49,9 @@ define([
 			new Vec2(0, this.tileDimensions.y * this.camera.dimensions.y + 8)
 		);
 
+		// adding an initial item in the inventory with which you obtain the rest of the items
+		this.inventory.addItem(Items.collection.pickaxe, 9);
+
 		this.tick = 0;
 		this.z = 0;
 	}
