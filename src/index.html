@@ -33,6 +33,7 @@ p rgb 160 30 240
 P rgb 140 10 220
 c rgb 40 200 250
 C rgb 20 120 160
+o rgb 255 200 120
 
 
 PLAYER
@@ -109,11 +110,11 @@ GgGgg
 ggGgg
 
 pickaxe
-SllSS
-SSSlS
-SSlSl
-SlSSl
-lSSSS
+GwwGG
+GGGwG
+GGdGw
+GdGGw
+dGGGG
 
 void blocking
 lllll
@@ -143,6 +144,14 @@ CCcCC
 CcCcC
 CCCCC
 
+tel2
+googG
+ogggG
+ogoog
+ogGgo
+gooog
+
+
 SETS
 
 Collectible = stone grass
@@ -155,6 +164,7 @@ one -> void
 ENTERRULES
 
 flower -> grass ; give 1 flower
+tel2 -> tel2 ; teleport lev2 3 3
 
 USERULES
 
@@ -174,26 +184,28 @@ v void
 * star
 1 one
 2 two
+t tel2
 
 LEVELS
 
 entry
 ggdggdddddgv*v111vdgg
 gggggdsssddg11111*dgg
-dgbbgdssddgggv121vggg
+dgbbgdssddgggv121vgtg
 gfgbgddddggdgv1v*vdgg
 ggdggdggggbbg*2v111gg
 gdgggggfbbgddv212vvvd
 gggdggdgggggdvvv1v*vv
 
 lev2
-ggggggggggggg
-ggggggggggggg
-gggsddgdsgggg
-gggssssdggggg
-ggggssssggggg
-gggggggsggggg
-ggggggggggggg
+ggdgfgggddggg
+gdgdgggfdgggg
+ggdsddddsdgdg
+ggdssssddgggg
+gfgdssssdgfdg
+ggdfdddsdggdg
+ggdggggdggggg
+
 
 </textarea>
 		<br>

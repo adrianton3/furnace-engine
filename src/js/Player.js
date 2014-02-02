@@ -71,7 +71,54 @@ define([
 	Player.prototype.setPosition = function (x, y) {
 		this.position.x = x;
 		this.position.y = y;
+		this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
 	};
+
+	/**
+	 * Moves the delta units
+	 */
+	Player.prototype.move = function (delta) {
+		var candidatePosition = this.position.add(delta);
+		if (this.world.level.withinBounds(candidatePosition.x, candidatePosition.y)) {
+			var futureBlock = this.world.level.get(candidatePosition.x, candidatePosition.y);
+			if (!futureBlock.blocking) {
+				this.leave();
+
+				this.position = candidatePosition;
+				this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
+
+				this.enter();
+			}
+		}
+	};
+
+	/**
+	 * Teleports the player in the given level at the given coordinates
+	 * @param {string} levelName
+	 * @param {number} x
+	 * @param {number} y
+	 */
+	Player.prototype.teleport = function (levelName, x, y) {
+		this.world.setLevel(levelName);
+		this.setPosition(x, y);
+	};
+
+	/**
+	 * Returns the facing position
+	 */
+	Player.prototype.getFacing = function () {
+		return this.position.add(deltas[this.direction]);
+	};
+
+	function resolveItem(inTerrainItem, inInventoryItem, outItem) {
+		if (outItem === '_terrain') {
+			return inTerrainItem;
+		} else if (outItem === '_inventory') {
+			return inInventoryItem;
+		} else {
+			return outItem;
+		}
+	}
 
 	/**
 	 * Leaves a location
@@ -118,43 +165,12 @@ define([
 			});
 
 			this.health += rule.healthDelta;
-		}
-	};
 
-	/**
-	 * Moves the delta units
-	 */
-	Player.prototype.move = function (delta) {
-		var candidatePosition = this.position.add(delta);
-		if (this.world.level.withinBounds(candidatePosition.x, candidatePosition.y)) {
-			var futureBlock = this.world.level.get(candidatePosition.x, candidatePosition.y);
-			if (!futureBlock.blocking) {
-				this.leave();
-
-				this.position = candidatePosition;
-				this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
-
-				this.enter();
+			if (rule.teleport) {
+				this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
 			}
 		}
 	};
-
-	/**
-	 * Returns the facing position
-	 */
-	Player.prototype.getFacing = function () {
-		return this.position.add(deltas[this.direction]);
-	};
-
-	function resolveItem(inTerrainItem, inInventoryItem, outItem) {
-		if (outItem === '_terrain') {
-			return inTerrainItem;
-		} else if (outItem === '_inventory') {
-			return inInventoryItem;
-		} else {
-			return outItem;
-		}
-	}
 
 	/**
 	 * Uses the current inventory item on the terrain unit that it's facing
@@ -197,6 +213,10 @@ define([
 					});
 
 					this.health += rule.healthDelta;
+
+					if (rule.teleport) {
+						this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
+					}
 				}
 			}
 		}

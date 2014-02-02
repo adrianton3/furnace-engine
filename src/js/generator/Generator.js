@@ -202,7 +202,7 @@ define([
 				teleport = {
 					x: +ruleSpec.teleport.x.s,
 					y: +ruleSpec.teleport.y.s,
-					level: ruleSpec.teleport.levelName.s
+					levelName: ruleSpec.teleport.levelName.s
 				};
 			}
 
@@ -260,7 +260,7 @@ define([
 				teleport = {
 					x: +ruleSpec.teleport.x.s,
 					y: +ruleSpec.teleport.y.s,
-					level: ruleSpec.teleport.levelName.s
+					levelName: ruleSpec.teleport.levelName.s
 				};
 			}
 

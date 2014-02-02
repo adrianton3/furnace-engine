@@ -56,7 +56,7 @@ define([
 		this.z = 0;
 	}
 
-	World.prototype.init = function() {
+	World.prototype.init = function () {
 		con2d.canvas.width = this.tileDimensions.x * this.camera.dimensions.x; //this.levelsByName.entry.width;
 		con2d.canvas.height = this.tileDimensions.y * (this.camera.dimensions.y + 1) + 8; //(this.levelsByName.entry.height + 1) + 8;
 
@@ -69,18 +69,22 @@ define([
 		this.camera.centerOn(this.player.position.x, this.player.position.y, this.level.width, this.level.height);
 	};
 
-	World.prototype.initStartingLocation = function() {
+	World.prototype.setLevel = function (levelName) {
+		this.level = this.levelsByName[levelName];
+	};
+
+	World.prototype.initStartingLocation = function () {
 		this.level = this.levelsByName[this.startLocation.levelName];
 		this.player.setPosition(this.startLocation.x, this.startLocation.y);
 	};
 
-	World.prototype.draw = function() {
+	World.prototype.draw = function () {
 		this.level.draw(this.camera, this.tick);
 		this.inventory.draw();
 		this.player.draw(this.camera, this.tick);
 	};
 
-	World.prototype.update = function() {
+	World.prototype.update = function () {
 		this.z++; // should count deltaTime
 		if (this.z >= 20) {
 			this.z = 0;
