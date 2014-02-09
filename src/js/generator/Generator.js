@@ -29,12 +29,12 @@ define([
 
 	var Generator = {};
 
-	Generator.generate = function(spec) {
-		var scale = 8;
+	Generator.generate = function (spec) {
+		var params = Generator.generate.params(spec.params);
 
-		var playerSpritesByName = Generator.generate.player(spec.player, spec.colors, scale);
+		var playerSpritesByName = Generator.generate.player(spec.player, spec.colors, params.scale);
 
-		var itemsByName = Generator.generate.objects(spec.objects, spec.colors, scale);
+		var itemsByName = Generator.generate.objects(spec.objects, spec.colors, params.scale);
 		Items.collection = itemsByName;
 
 		var setsByName = Generator.generate.sets(spec.sets);
@@ -55,18 +55,30 @@ define([
 			leaveRuleSet,
 			enterRuleSet,
 			useRuleSet,
-			tileDimensions);
+			tileDimensions,
+			params.camera
+		);
 
 		return world;
 	};
 
-	Generator.generate.player = function(playerSpec, colorSpec, scale) {
+	Generator.generate.params = function (paramSpec) {
+		return {
+			camera: {
+				x: +paramSpec.camera[0].s || 7,
+				y: +paramSpec.camera[1].s || 7
+			},
+			scale: +paramSpec.scale[0].s || 8
+		};
+	};
+
+	Generator.generate.player = function (playerSpec, colorSpec, scale) {
 		var namedPlayerSprites = SpriteSheetGenerator.generate(playerSpec, colorSpec, scale);
 		var playerSpritesByName = Util.arrayToObject(namedPlayerSprites, 'name', 'sprite');
 		return playerSpritesByName;
 	};
 
-	Generator.generate.objects = function(objectsSpec, colorSpec, scale) {
+	Generator.generate.objects = function (objectsSpec, colorSpec, scale) {
 		var stringedObjects = Util.mapOnKeys(objectsSpec, function(object) {
 			return object.lines;
 		});
