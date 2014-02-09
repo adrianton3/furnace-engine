@@ -11,6 +11,9 @@ Try it:
 Changelog
 ---------
 
+### 0.3.2
+ + can now set starting location
+
 ### 0.3.1
  + can now configure camera size
  + can now set the scale
@@ -34,5 +37,5 @@ Changelog
 ### 0.2.0
  + added bindings in rules
 
-###v0.1.0
+### v0.1.0
  + basic gameplay in place

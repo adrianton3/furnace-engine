@@ -3,6 +3,24 @@ define([], function () {
 
 	var Util = {};
 
+	Util.maptree = function (tree, fun, predicate) {
+		if (predicate(tree)) {
+			return fun(tree);
+		}
+
+		if (tree instanceof Array) {
+			return tree.map(function (elem) {
+				return Util.maptree(elem, fun, predicate);
+			});
+		} else if (typeof tree === 'object') {
+			var newObj = {};
+			for (var key in tree) {
+				newObj[key] = Util.maptree(tree[key], fun, predicate);
+			}
+			return newObj;
+		}
+	};
+
 	Util.findFirst = function (array, predicate) {
 		for (var i = 0; i < array.length; i++) {
 			if (predicate(array[i], i)) {
