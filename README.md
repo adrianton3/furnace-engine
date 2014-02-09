@@ -13,6 +13,7 @@ Changelog
 
 ### 0.3.2
  + can now set starting location
+ + editor is hidden by default
 
 ### 0.3.1
  + can now configure camera size

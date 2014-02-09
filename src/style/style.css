@@ -12,6 +12,11 @@ textarea {
 	color: dimgray;
 }
 
+button {
+	background-color: #0066DD;
+	border: 0px;
+}
+
 .con {
 	padding: 0px 20px;
 	float: left;
@@ -42,4 +47,13 @@ textarea {
 	font-family: sans-serif;
 	font-size: small;
 	color: #FFFFFF;
+}
+
+.centeredcont {
+	text-align: center;
+}
+
+.centered {
+	text-align: left;
+	display: inline-block;
 }
