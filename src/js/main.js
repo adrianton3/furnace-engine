@@ -77,12 +77,51 @@ require([
 		}
 	}
 
+	function hide() {
+		var editorDiv = document.getElementById('editor');
+		editor.style.display = 'none';
+
+		var editButton = document.getElementById('edit');
+		editButton.style.display = 'block';
+
+		var hideButton = document.getElementById('hide');
+		hideButton.style.display = 'none';
+
+		var gameContDiv = document.getElementById('gamecont');
+		gameContDiv.classList.add('centeredcont');
+
+		var canvas = document.getElementById('can');
+		canvas.focus();
+	}
+
+	function edit() {
+		var editorDiv = document.getElementById('editor');
+		editor.style.display = 'block';
+
+		var editButton = document.getElementById('edit');
+		editButton.style.display = 'none';
+
+		var hideButton = document.getElementById('hide');
+		hideButton.style.display = 'block';
+
+		var gameContDiv = document.getElementById('gamecont');
+		gameContDiv.classList.remove('centeredcont');
+
+		inWorldEditor.refresh();
+	}
+
 	function setupGUI() {
 		var compileButton = document.getElementById('compile');
 		compileButton.addEventListener('click', compile);
 
 		var getUrlButton = document.getElementById('geturl');
 		getUrlButton.addEventListener('click', setUrl);
+
+		var editButton = document.getElementById('edit');
+		editButton.addEventListener('click', edit);
+
+		var hideButton = document.getElementById('hide');
+		hideButton.addEventListener('click', hide);
 	}
 
 	function setUrl() {
@@ -116,6 +155,9 @@ require([
 
 			parse();
 			compile();
+
+			var canvas = document.getElementById('can');
+			canvas.focus();
 		});
 	}
 

@@ -30,7 +30,7 @@ define([
 	var Generator = {};
 
 	Generator.generate = function (spec) {
-		var params = Generator.generate.params(spec.params);
+		var params = Generator.generate.params(spec.params, spec.levels);
 
 		var playerSpritesByName = Generator.generate.player(spec.player, spec.colors, params.scale);
 
@@ -47,11 +47,10 @@ define([
 
 		var levelsByName = Generator.generate.levels(spec.levels, spec.legend, tileDimensions);
 
-		var startLocation = { x: 4, y: 4, levelName: 'entry' }; // should be parameter
 		var world = new World(
 			playerSpritesByName,
 			levelsByName,
-			startLocation,
+			params.startLocation,
 			leaveRuleSet,
 			enterRuleSet,
 			useRuleSet,
@@ -62,13 +61,19 @@ define([
 		return world;
 	};
 
-	Generator.generate.params = function (paramSpec) {
+	Generator.generate.params = function (paramSpec, levelsSpec) {
+		// needs rewriting using some variant of deepExend
 		return {
 			camera: {
 				x: +paramSpec.camera[0].s || 7,
 				y: +paramSpec.camera[1].s || 7
 			},
-			scale: +paramSpec.scale[0].s || 8
+			scale: +paramSpec.scale[0].s || 8,
+			startLocation: {
+				x: +paramSpec.start_location[0].s || 2,
+				y: +paramSpec.start_location[1].s || 2,
+				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
+			}
 		};
 	};
 

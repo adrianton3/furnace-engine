@@ -12,13 +12,14 @@
 	<script data-main="js/main" src="lib/require.js"></script>
 </head>
 <body>
-	<div class="con">
+	<div id="editor" class="con" style="display: none">
 		<!-- <div class="title">Input</div> -->
 		<!-- <br> -->
 		<textarea id="in" cols="50" rows="30" spellcheck="false">PARAM
 
 camera 7 7
 scale 8
+start_location 1 1 entry
 
 COLORS
 
@@ -217,20 +218,25 @@ ggdggggdggggg
 		<br>
 		<div id="status">...</div>
 		<br>
-		<button id="compile" style="width:80%;height:30px;float:left">Compile</button>
-		<button id="geturl" style="width:20%;height:30px">Get URL</button>
+		<button id="compile" style="width:78%;height:30px;float:left;margin:1px">Compile</button>
+		<button id="geturl" style="width:20%;height:30px;margin:1px">Get URL</button>
 		<br><br>
 		<textarea id="url" cols="46" rows="1">...</textarea>
 	</div>
 
-	<div>
-		<canvas id="can" width="0" height="0"></canvas>
-		<br><br>
-		<span class="info">
-			Arrow keys to move<br>
-			A to use current item<br>
-			S, D to change item
-		</span>
+	<div id="gamecont" class="centeredcont">
+		<div id="game" class="centered">
+			<canvas id="can" width="0" height="0"></canvas>
+			<br><br>
+			<span class="info">
+				Arrow keys to move<br>
+				A to use current item<br>
+				S, D to change item<br>
+				<br>
+				<button id="hide" style="float:left;height:20px;display:none">Hide</button>
+				<button id="edit" style="float:left;height:20px">Edit</button>
+			</span>
+		</div>
 	</div>
 </body>
 </html>
