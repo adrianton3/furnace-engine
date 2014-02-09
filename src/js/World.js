@@ -30,7 +30,8 @@ define([
 		leaveRuleSet,
 		enterRuleSet,
 		useRuleSet,
-		tileDimensions
+		tileDimensions,
+		cameraDimensions
 		) {
 		this.player = new Player(this, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
@@ -41,7 +42,7 @@ define([
 		this.useRuleSet = useRuleSet;
 		this.tileDimensions = tileDimensions;
 
-		this.camera = new Camera(new Vec2(0, 0), new Vec2(7, 7));
+		this.camera = new Camera(new Vec2(0, 0), new Vec2(cameraDimensions.x, cameraDimensions.y));
 
 		this.inventory = new Inventory(
 			4,

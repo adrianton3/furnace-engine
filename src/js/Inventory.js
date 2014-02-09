@@ -37,11 +37,12 @@ define([
 				this.uiOffset.x + i * this.tileDimensions.x,
 				this.uiOffset.y
 			);
-			Text.drawAt(
-				this.inventory[itemName],
-				this.uiOffset.x + 22 + i * this.tileDimensions.x,
-				this.uiOffset.y + 20
-			);
+
+			var text = '' + this.inventory[itemName];
+			var offsetX = this.uiOffset.x + i * this.tileDimensions.x + this.tileDimensions.x - 4 - 16 * text.length;
+			var offsetY = this.uiOffset.y + this.tileDimensions.y - 20;
+
+			Text.drawAt(text, offsetX, offsetY);
 		}
 
 		con2d.lineWidth = 2;

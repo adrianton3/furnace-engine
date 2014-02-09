@@ -5,6 +5,7 @@ define([], function() {
 
 	PrettyPrinter.print = function (spec) {
 		return [
+			PrettyPrinter.print.params(spec.params),
 			PrettyPrinter.print.colors(spec.colors),
 			PrettyPrinter.print.player(spec.player),
 			PrettyPrinter.print.objects(spec.objects),
@@ -15,6 +16,14 @@ define([], function() {
 			PrettyPrinter.print.legend(spec.legend),
 			PrettyPrinter.print.levels(spec.levels)
 		].join('\n');
+	};
+
+	PrettyPrinter.print.params = function (spec) {
+		var str = 'PARAM\n\n';
+		for (var key in spec) {
+			str += key + ' ' + spec[key].map(function (token) { return token.s; }).join(' ') + '\n';
+		}
+		return str;
 	};
 
 	PrettyPrinter.print.colors = function (spec) {

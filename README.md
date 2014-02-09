@@ -11,6 +11,11 @@ Try it:
 Changelog
 ---------
 
+### 0.3.1
+ + can now configure camera size
+ + can now set the scale
+ + fixed inventory text rendering
+
 ### 0.3.0
  + added *leave* rules
  + added *enter* rules

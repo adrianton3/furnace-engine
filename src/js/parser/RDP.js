@@ -46,6 +46,7 @@ define([
 	RDP.parse = function(tokenArray) {
 		var tokens = new TokenList(tokenArray);
 
+		var params = RDP.tree.params(tokens);
 		var colors = RDP.tree.colors(tokens);
 		var player = RDP.tree.player(tokens);
 		var objects = RDP.tree.objects(tokens);
@@ -59,6 +60,7 @@ define([
 		//tokens.expect(new TokEnd(), 'RDP: expression not properly terminated');
 
 		return {
+			params: params,
 			colors: colors,
 			player: player,
 			objects: objects,
@@ -95,8 +97,34 @@ define([
 		}
 	};
 
+	RDP.tree.params = function(tokens) {
+		tokens.expect('PARAM', 'Specification must start with PARAM');
+		RDP.tree.chompNL(tokens, 'Expected new line after PARAM');
+
+		var params = {};
+
+		while (!tokens.match('COLORS')) {
+			tokens.expect(RDP.tree.identifier, '');
+			var paramName = tokens.past().s;
+			if (params[paramName]) {
+				throw 'Param definition ' + paramName + ' already declared';
+			}
+
+			params[paramName] = [];
+
+			while (tokens.match(RDP.tree.identifier)) {
+				tokens.adv();
+				params[paramName].push(tokens.past());
+			}
+
+			RDP.tree.chompNL(tokens, 'Expect new line between param declarations');
+		}
+
+		return params;
+	};
+
 	RDP.tree.colors = function(tokens) {
-		tokens.expect('COLORS', 'Specification must start with COLORS');
+		tokens.expect('COLORS', 'Expected COLORS section after PARAM');
 		RDP.tree.chompNL(tokens, 'Expected new line after COLORS');
 
 		var colors = {};
@@ -156,64 +184,6 @@ define([
 		}
 
 		return playerFrames;
-		/*
-		tokens.expect('PLAYER', 'Expected PLAYER section after COLORS');
-		RDP.tree.chompNL(tokens, 'Expected new line after PLAYER');
-
-		// --- up ---
-		tokens.expect('up', 'Must start with "up"');
-		tokens.expect(RDP.tree.newLine, 'Expected new line');
-
-		var upLines = [];
-
-		while (!tokens.match('left')) {
-			tokens.expect(RDP.tree.identifier, 'Expected at least one line');
-			upLines.push(tokens.past());
-
-			RDP.tree.chompNL(tokens, 'Expect new line');
-		}
-
-		// --- left ---
-		tokens.expect('left', 'Expected "left" after "up"');
-		RDP.tree.chompNL(tokens, 'Expected new line');
-
-		var leftLines = [];
-
-		while (!tokens.match('down')) {
-			tokens.expect(RDP.tree.identifier, '');
-			leftLines.push(tokens.past());
-
-			RDP.tree.chompNL(tokens, 'Expected new line');
-		}
-
-		// --- down ---
-		tokens.expect('down', 'Expected "down" after "left"');
-		RDP.tree.chompNL(tokens, 'Expected new line');
-
-		var downLines = [];
-
-		while (!tokens.match('right')) {
-			tokens.expect(RDP.tree.identifier, 'Expected new line');
-			downLines.push(tokens.past());
-
-			RDP.tree.chompNL(tokens, 'Expected new line');
-		}
-
-		// --- right ---
-		tokens.expect('right', 'Expected "right" after "down"');
-		RDP.tree.chompNL(tokens, 'Expected new line');
-
-		var rightLines = [];
-
-		while (!tokens.match('OBJECTS')) {
-			tokens.expect(RDP.tree.identifier, 'Expected new line');
-			rightLines.push(tokens.past());
-
-			RDP.tree.chompNL(tokens, 'Expected new line');
-		}
-
-		return { up: upLines, left: leftLines, down: downLines, right: rightLines };
-		*/
 	};
 
 	RDP.tree.objects = function(tokens) {

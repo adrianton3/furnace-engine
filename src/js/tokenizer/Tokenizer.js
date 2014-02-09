@@ -219,7 +219,7 @@ define([
 	};
 
 	Tokenizer.chop.alphanum.reserved = [
-		'COLORS', 'PLAYER', 'OBJECTS', 'SETS', 'LEAVERULES', 'ENTERRULES', 'USERULES', 'LEGEND', 'LEVELS',
+		'PARAM', 'COLORS', 'PLAYER', 'OBJECTS', 'SETS', 'LEAVERULES', 'ENTERRULES', 'USERULES', 'LEGEND', 'LEVELS',
 		'rgb',
 		'blocking',
 		'or', 'and', 'minus',
