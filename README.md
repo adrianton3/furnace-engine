@@ -13,6 +13,7 @@ Changelog
 
 ### 0.3.3
  + added *near* rules
+ + *near*, *leave* and *enter* rules are now optional
 
 ### 0.3.2
  + can now set starting location
