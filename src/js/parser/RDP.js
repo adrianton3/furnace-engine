@@ -51,11 +51,20 @@ define([
 		var player = RDP.tree.player(tokens);
 		var objects = RDP.tree.objects(tokens);
 		var sets = RDP.tree.sets(tokens);
-        var nearRules = RDP.tree.nearRules(tokens);
-		var leaveRules = RDP.tree.leaveRules(tokens);
-		var enterRules = RDP.tree.enterRules(tokens);
+
+        if (tokens.match('NEARRULES')) {
+            var nearRules = RDP.tree.nearRules(tokens);
+        }
+        if (tokens.match('LEAVERULES')) {
+		    var leaveRules = RDP.tree.leaveRules(tokens);
+        }
+        if (tokens.match('ENTERRULES')) {
+		    var enterRules = RDP.tree.enterRules(tokens);
+        }
+        // use rules must always exist
 		var useRules = RDP.tree.useRules(tokens);
-		var legend = RDP.tree.legend(tokens);
+
+        var legend = RDP.tree.legend(tokens);
 		var levels = RDP.tree.levels(tokens);
 
 		//tokens.expect(new TokEnd(), 'RDP: expression not properly terminated');
@@ -66,9 +75,9 @@ define([
 			player: player,
 			objects: objects,
 			sets: sets,
-            nearRules: nearRules,
-			leaveRules: leaveRules,
-			enterRules: enterRules,
+            nearRules: nearRules || [],
+			leaveRules: leaveRules || [],
+			enterRules: enterRules || [],
 			useRules: useRules,
 			legend: legend,
 			levels: levels
@@ -235,7 +244,10 @@ define([
 
 		var sets = [];
 
-		while (!tokens.match('NEARRULES')) {
+		while (!tokens.match('NEARRULES') &&
+            !tokens.match('LEAVERULES') &&
+            !tokens.match('ENTERRULES') &&
+            !tokens.match('USERULES')) {
 			tokens.expect(RDP.tree.identifier, '');
 			var setName = tokens.past().s;
 
@@ -277,7 +289,9 @@ define([
 
         var rules = [];
 
-        while (!tokens.match('LEAVERULES')) {
+        while (!tokens.match('LEAVERULES') &&
+            !tokens.match('ENTERRULES') &&
+            !tokens.match('USERULES')) {
             var rule = {};
 
             tokens.expect(RDP.tree.identifier, 'Expected terrain unit');
@@ -319,7 +333,8 @@ define([
 
 		var rules = [];
 
-		while (!tokens.match('ENTERRULES')) {
+		while (!tokens.match('ENTERRULES') &&
+            !tokens.match('USERULES')) {
 			var rule = {};
 
 			tokens.expect(RDP.tree.identifier, 'Expected terrain unit');
