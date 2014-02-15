@@ -1,1 +1,0 @@
-var sampleSpec = [''].join('\n');
