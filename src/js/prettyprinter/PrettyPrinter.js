@@ -10,6 +10,7 @@ define([], function() {
 			PrettyPrinter.print.player(spec.player),
 			PrettyPrinter.print.objects(spec.objects),
 			PrettyPrinter.print.sets(spec.sets),
+            PrettyPrinter.print.nearRules(spec.nearRules),
 			PrettyPrinter.print.leaveRules(spec.leaveRules),
 			PrettyPrinter.print.enterRules(spec.enterRules),
 			PrettyPrinter.print.useRules(spec.useRules),
@@ -68,6 +69,26 @@ define([], function() {
 		return str;
 	};
 
+    PrettyPrinter.print.nearRules = function (spec) {
+        var str = 'NEARRULES\n\n';
+
+        spec.forEach(function (rule) {
+            str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';';
+
+            if (rule.heal) {
+                str += ' heal ' + rule.heal.s + ' ;';
+            }
+
+            if (rule.hurt) {
+                str += ' hurt ' + rule.hurt.s + ' ;';
+            }
+
+            str += '\n';
+        });
+
+        return str;
+    };
+
 	PrettyPrinter.print.leaveRules = function (spec) {
 		var str = 'LEAVERULES\n\n';
 
@@ -89,11 +110,7 @@ define([], function() {
 					return item.quantity.s + ' ' + item.itemName.s;
 				}).join(' , ');
 				str += ' ' + giveStr + ' ;';
-			}
-
-			if (rule.consume) {
-				str += ' consume ;';
-			}
+            }
 
 			if (rule.heal) {
 				str += ' heal ' + rule.heal.s + ' ;';

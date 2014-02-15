@@ -1,0 +1,7 @@
+*.map
+.idea/
+.project
+node_modules
+
+# individual compiled files until there are no js files left
+src/js/sampleSpec.js

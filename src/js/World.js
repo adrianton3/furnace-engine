@@ -3,10 +3,7 @@ define([
 	'Inventory',
 	'Items',
 	'Vec2',
-	'rule/RuleSet',
-	'rule/LeaveRule',
-	'rule/EnterRule',
-	'rule/UseRule',
+    'rule/RuleSet',
 	'con2d',
 	'Camera'
 	], function (
@@ -14,10 +11,7 @@ define([
 		Inventory,
 		Items,
 		Vec2,
-		RuleSet,
-		LeaveRule,
-		EnterRule,
-		UseRule,
+        RuleSet,
 		con2d,
 		Camera
 	) {
@@ -27,6 +21,7 @@ define([
 		playerSpritesByName,
 		levelsByName,
 		startLocation,
+        nearRuleSet,
 		leaveRuleSet,
 		enterRuleSet,
 		useRuleSet,
@@ -37,6 +32,7 @@ define([
 		this.startLocation = startLocation;
 		this.levelsByName = levelsByName;
 		this.level = null;
+        this.nearRuleSet = nearRuleSet;
 		this.leaveRuleSet = leaveRuleSet;
 		this.enterRuleSet = enterRuleSet;
 		this.useRuleSet = useRuleSet;
