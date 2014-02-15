@@ -5,6 +5,7 @@ define([
 	'Item',
 	'Items',
 	'Set',
+    'rule/NearRule',
 	'rule/LeaveRule',
 	'rule/EnterRule',
 	'rule/UseRule',
@@ -18,6 +19,7 @@ define([
 		Item,
 		Items,
 		Set,
+        NearRule,
 		LeaveRule,
 		EnterRule,
 		UseRule,
@@ -38,6 +40,7 @@ define([
 		Items.collection = itemsByName;
 
 		var setsByName = Generator.generate.sets(spec.sets);
+        var nearRuleSet = Generator.generate.nearRules(spec.nearRules, setsByName);
 		var leaveRuleSet = Generator.generate.leaveRules(spec.leaveRules, setsByName);
 		var enterRuleSet = Generator.generate.enterRules(spec.enterRules, setsByName);
 		var useRuleSet = Generator.generate.useRules(spec.useRules, setsByName);
@@ -51,6 +54,7 @@ define([
 			playerSpritesByName,
 			levelsByName,
 			params.startLocation,
+            nearRuleSet,
 			leaveRuleSet,
 			enterRuleSet,
 			useRuleSet,
@@ -171,6 +175,29 @@ define([
 
 		return setsByName;
 	};
+
+    Generator.generate.nearRules = function(rulesSpec, setsByName) {
+        var rules = rulesSpec.map(function (ruleSpec) {
+            var inTerrainItemName = ruleSpec.inTerrainItemName.s;
+            var outTerrainItemName = ruleSpec.outTerrainItemName.s;
+
+            var healthDelta = 0;
+            if (ruleSpec.heal) {
+                healthDelta += +ruleSpec.heal.s;
+            }
+            if (ruleSpec.hurt) {
+                healthDelta -= +ruleSpec.hurt.s;
+            }
+
+            return new NearRule(
+                inTerrainItemName,
+                outTerrainItemName,
+                healthDelta
+            );
+        });
+
+        return new RuleSet(rules, setsByName);
+    };
 
 	Generator.generate.leaveRules = function(rulesSpec, setsByName) {
 		var rules = rulesSpec.map(function (ruleSpec) {

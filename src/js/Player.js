@@ -75,7 +75,7 @@ define([
 	};
 
 	/**
-	 * Moves the delta units
+	 * Moves delta units
 	 */
 	Player.prototype.move = function (delta) {
 		var candidatePosition = this.position.add(delta);
@@ -88,6 +88,8 @@ define([
 				this.world.camera.centerOn(this.position.x, this.position.y, this.world.level.width, this.world.level.height);
 
 				this.enter();
+
+                this.near();
 			}
 		}
 	};
@@ -119,6 +121,56 @@ define([
 			return outItem;
 		}
 	}
+
+    /**
+     * Standard 8 neighbouring locations on a tiled map
+     * @type {Vec2[]}
+     */
+    Player.neighbourhood = [
+        new Vec2( 0, -1),
+        new Vec2(-1, -1),
+        new Vec2(-1,  0),
+        new Vec2(-1,  1),
+        new Vec2( 0,  1),
+        new Vec2( 1,  1),
+        new Vec2( 1,  0),
+        new Vec2( 1, -1)
+    ];
+
+    /**
+     * Returns a list of neighbouring locations which are within the bound of the level
+     * @returns {Vec2[]}
+     */
+    Player.prototype.getNearLocations = function () {
+        return Player.neighbourhood.map(function (location) {
+            return this.position.add(location);
+        }.bind(this)).filter(function (location) {
+            return this.world.level.withinBounds(location.x, location.y);
+        }.bind(this));
+    };
+
+    /**
+     * Nears neighbouring locations
+     */
+    Player.prototype.near = function () {
+        var level = this.world.level;
+        var ruleSet = this.world.nearRuleSet;
+
+        this.getNearLocations().forEach(function (location) {
+            var currentTerrainItem = level.get(location.x, location.y);
+
+            var rule = ruleSet.getRuleFor(currentTerrainItem.id);
+            if (rule) {
+                level.set(
+                    location.x,
+                    location.y,
+                    Items.collection[
+                        resolveItem(currentTerrainItem.id, -1, rule.outTerrainItem)]);
+
+                this.health += rule.healthDelta;
+            }
+        }.bind(this));
+    };
 
 	/**
 	 * Leaves a location

@@ -11,6 +11,9 @@ Try it:
 Changelog
 ---------
 
+### 0.3.3
+ + added *near* rules
+
 ### 0.3.2
  + can now set starting location
  + editor is hidden by default
