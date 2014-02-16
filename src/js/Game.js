@@ -1,15 +1,11 @@
 define([
 	'SystemBus',
-	'SpriteSheetStore', //
 	'World',
-	'generator/Generator',
-	'KeyListener'
+	'generator/Generator'
 	], function(
 		SystemBus,
-		SpriteSheetStore,
 		World,
-		Generator,
-		KeyListener
+		Generator
 	) {
 	'use strict';
 
