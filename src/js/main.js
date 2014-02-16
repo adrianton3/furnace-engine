@@ -1,4 +1,4 @@
-require([
+define([
 	'SystemBus',
 	'Text',
 	'Game',
@@ -160,5 +160,5 @@ require([
         canvas.focus();
 	}
 
-	run();
+	return { run: run };
 });
