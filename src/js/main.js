@@ -147,18 +147,17 @@ require([
 
 		checkUrl();
 
-		SystemBus.addListener('resourcesLoaded', '', function() {
-			Text.init();
 
-			document.getElementById('can').tabIndex = 0;
-			KeyListener.init(document.getElementById('can'));
+        Text.init();
 
-			parse();
-			compile();
+        document.getElementById('can').tabIndex = 0;
+        KeyListener.init(document.getElementById('can'));
 
-			var canvas = document.getElementById('can');
-			canvas.focus();
-		});
+        parse();
+        compile();
+
+        var canvas = document.getElementById('can');
+        canvas.focus();
 	}
 
 	run();

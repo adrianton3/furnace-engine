@@ -1,5 +1,13 @@
-define(['SpriteSheetStore'], function (SpriteSheetStore) {
-	// should store text files in some other way
+define([
+    'Font',
+    'generator/SpriteSheetGenerator',
+    'Util'
+], function (
+    Font,
+    SpriteSheetGenerator,
+    Util
+    ) {
+
 	'use strict';
 
 	var Text = {};
@@ -7,10 +15,12 @@ define(['SpriteSheetStore'], function (SpriteSheetStore) {
 	Text.sprites = [];
 
 	Text.init = function() {
-		var spriteSheet = SpriteSheetStore.text;
-		for (var i = 0; i < 10; i++) {
-			Text.sprites[i + 48] = spriteSheet.getSprite(i, 0);
-		}
+        var namedSprites = SpriteSheetGenerator.generate(Font.spritesByName, Font.colorBindings, 1);
+        var spritesByName = Util.arrayToObject(namedSprites, 'name', 'sprite');
+
+        for (var i = 0; i < 10; i++) {
+            Text.sprites[i + 48] = spritesByName[i];
+        }
 	};
 
 	Text.drawAt = function(string, x, y) {
