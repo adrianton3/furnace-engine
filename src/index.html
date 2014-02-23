@@ -9,7 +9,8 @@
 	<link rel="stylesheet" href="lib/cm/cobalt.css">
 	<script type="text/javascript" src="lib/purl.js"></script>
 	<script type="text/javascript" src="lib/cm/codemirror.js"></script>
-	<script data-main="js/main" src="lib/require.js"></script>
+	<script src="lib/require.js"></script>
+    <script src="../out/furnace.js"></script>
 </head>
 <body>
 	<div id="editor" class="con" style="display: none">
@@ -44,6 +45,12 @@
 			</span>
 		</div>
 	</div>
+
+    <script>
+        require(['main'], function (main) {
+            main.run();
+        });
+    </script>
 
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){

@@ -1,17 +1,13 @@
-require([
+define([
 	'tokenizer/Tokenizer',
 	'parser/RDP',
-	'prettyprinter/PrettyPrinter',
-	'generator/SpriteSheetGenerator'
+	'prettyprinter/PrettyPrinter'
 	], function(
 		Tokenizer,
 		RDP,
-		PrettyPrinter,
-		SpriteSheetGenerator
+		PrettyPrinter
 	) {
 	'use strict';
-
-	setupEditors();
 
 	var inWorldEditor, outTokensEditor, outInterpretedEditor;
 	function setupEditors() {
@@ -79,5 +75,10 @@ require([
 		}
 	}
 
-	parse();
+    function run() {
+        setupEditors();
+        parse();
+    }
+
+	return { run: run };
 });
