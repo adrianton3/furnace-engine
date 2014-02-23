@@ -39,5 +39,3 @@
   });
 
 }).call(this);
-
-//# sourceMappingURL=Font.map
