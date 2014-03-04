@@ -6,10 +6,17 @@ A PuzzleScript like engine
 Try it:
 
 * [Sample game](http://madflame991.github.io/furnace-engine/src/)
+* [Sprite importer](http://madflame991.github.io/furnace-engine/src/conv.html)
 * [Detailed parsing](http://madflame991.github.io/furnace-engine/src/parser.html)
 
 Changelog
 ---------
+
+### 0.3.5
+ + added sprite sheet importer
+
+### 0.3.4
+ + bigger, better, more complex sample game
 
 ### 0.3.3
  + added *near* rules
