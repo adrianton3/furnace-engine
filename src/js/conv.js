@@ -1,4 +1,4 @@
-define([], function () {
+define(['js/Util'], function (Util) {
     'use strict';
 
     /**
@@ -117,14 +117,25 @@ define([], function () {
      * @returns {string}
      */
     function prettyPrintObjects(mat, dim) {
+        var lines = Math.floor(mat[0].length / dim);
+        var columns = Math.floor(mat.length / dim);
+
         var strings = [];
-        for (var  i = 0; i < mat[0].length; i += dim) {
-            for (var  j = 0; j < mat.length; j += dim) {
-                strings.push('b_' + i / dim + '_' + j / dim);
-                strings.push(matToString(subMat(mat, i, j, dim, dim)));
+        for (var i = 0; i < lines; i++) {
+            for (var j = 0; j < columns; j++) {
+                strings.push('b_' + i + '_' + j);
+                strings.push(matToString(subMat(mat, i * dim, j * dim, dim, dim)));
             }
         }
         return strings.join('\n');
+    }
+
+    function getCommonDivisor(width, height) {
+        var divisorList = [5, 16, 8, 4, 7, 9, 6, 11, 13];
+        var result = Util.findFirst(divisorList, function (d) {
+            return (width % d === 0) && (height % d === 0);
+        });
+        return result.element || 5;
     }
 
     /**
@@ -135,20 +146,67 @@ define([], function () {
      */
     function process(data, width, height) {
         // process the image
-        var processedImage = indexColors(data);
-        var mat = arrayToMat(processedImage.indices, width);
-
-        var scale = 4;
+        processedImage = indexColors(data);
+        mat = arrayToMat(processedImage.indices, width);
 
         // paint it back
-        dropCanvas.width = mat[0].length * scale;
-        dropCanvas.height = mat.length * scale;
-        var con = dropCanvas.getContext('2d');
+        sheetCanvas = document.createElement('canvas');
+        sheetCanvas.width = mat[0].length * scale;
+        sheetCanvas.height = mat.length * scale;
+        var con = sheetCanvas.getContext('2d');
 
         rebuildImage(mat, processedImage.indexedColors, scale, con);
 
-        //
-        var dim = 5;
+        // set dim to some common divisor of width and height
+        dim = getCommonDivisor(sheetCanvas.width, sheetCanvas.height);
+        paintGrid();
+
+        var dimslider = document.getElementById('dimslider');
+        dimslider.value = dim;
+
+        updateString.apply({ value: dim });
+    }
+
+    function paintGrid() {
+        dropCanvas.width = sheetCanvas.width;
+        dropCanvas.height = sheetCanvas.height;
+
+        var con = dropCanvas.getContext('2d');
+        con.drawImage(sheetCanvas, 0, 0);
+
+        var lines = Math.floor(mat[0].length / dim);
+        var columns = Math.floor(mat.length / dim);
+
+        con.strokeStyle = gridColor;
+        con.lineWidth = 1;
+
+        con.beginPath();
+        for (var i = 0; i <= lines; i++) {
+            con.moveTo(i * dim * scale, 0);
+            con.lineTo(i * dim * scale, dropCanvas.height);
+        }
+
+        for (var j = 0; j <= columns; j++) {
+            con.moveTo(0, j * dim * scale);
+            con.lineTo(dropCanvas.width, j * dim * scale);
+        }
+        con.stroke();
+    }
+
+    var sheetCanvas;
+    var outTokensEditor, dropCanvas;
+    var processedImage, mat;
+    var scale = 4;
+    var dim = 5;
+    var gridColor = '#FFF';
+
+    function updateString() {
+        dim = +this.value;
+
+        var dimtext = document.getElementById('dimtext');
+        dimtext.value = dim;
+
+        if (!processedImage || !mat) { return; }
 
         // transform it into text
         var stringedColors = processedImage.indexedColors.reduce(function (prev, cur, index) {
@@ -163,6 +221,16 @@ define([], function () {
 
         // and output it via codemirror
         outTokensEditor.setValue(completeString);
+
+        paintGrid();
+
+        var dimtext = document.getElementById('dimtext');
+        dimtext.value = dim;
+    }
+
+    function setupDimInput() {
+        var dimElement = document.getElementById('dimslider');
+        dimElement.addEventListener('change', updateString);
     }
 
     /**
@@ -214,8 +282,6 @@ define([], function () {
         });
     }
 
-    var outTokensEditor, dropCanvas;
-
     /**
      * Sets up the codemirror editor where the result is shown
      */
@@ -252,6 +318,7 @@ define([], function () {
      * Main starting point
      */
     function run() {
+        setupDimInput();
         setupDropZone();
         setupEditors();
         setupDropEventListener();
