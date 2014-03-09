@@ -5,7 +5,8 @@ define([
 	'Vec2',
     'rule/RuleSet',
 	'con2d',
-	'Camera'
+	'Camera',
+    'TextBubble'
 	], function (
 		Player,
 		Inventory,
@@ -13,7 +14,8 @@ define([
 		Vec2,
         RuleSet,
 		con2d,
-		Camera
+		Camera,
+        TextBubble
 	) {
 	'use strict';
 
@@ -49,6 +51,9 @@ define([
 		// adding an initial item in the inventory with which you obtain the rest of the items
 		this.inventory.addItem(Items.collection.pickaxe, 9);
 
+        this.textBubble = new TextBubble().hide();
+
+        // animation related
 		this.tick = 0;
 		this.z = 0;
 	}
@@ -79,6 +84,7 @@ define([
 		this.level.draw(this.camera, this.tick);
 		this.inventory.draw();
 		this.player.draw(this.camera, this.tick);
+        this.textBubble.draw();
 	};
 
 	World.prototype.update = function () {

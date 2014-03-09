@@ -12,6 +12,11 @@ Try it:
 Changelog
 ---------
 
+### 0.3.6
+ + improved sprite sheet importer
+ + extended font
+ + added ability to print messages on *enter* and *use* rules
+
 ### 0.3.5
  + added sprite sheet importer
 

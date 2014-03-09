@@ -16,11 +16,10 @@ define([
 
 	Text.init = function() {
         var namedSprites = SpriteSheetGenerator.generate(Font.spritesByName, Font.colorBindings, 1);
-        var spritesByName = Util.arrayToObject(namedSprites, 'name', 'sprite');
 
-        for (var i = 0; i < 10; i++) {
-            Text.sprites[i + 48] = spritesByName[i];
-        }
+        namedSprites.forEach(function (namedSprite) {
+            Text.sprites[namedSprite.name.charCodeAt(0)] = namedSprite.sprite;
+        });
 	};
 
 	Text.drawAt = function(string, x, y) {
@@ -30,7 +29,9 @@ define([
 
 		for (var i = 0; i < chars.length; i++) {
 			var sprite = Text.sprites[chars[i]];
-			sprite.drawAt(x + i * 16, y);
+			if (sprite) {
+                sprite.drawAt(x + i * 16, y);
+            }
 		}
 	};
 

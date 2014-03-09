@@ -51,17 +51,23 @@ define([
 		this.sprite = this.spritesByName[this.direction];
 
 		SystemBus.addListener('keydown', '', function(data) {
-			if (data.key === 65) {
-				this.use();
-			} else if (data.key === 83 || data.key === 68) {
-				this.world.inventory.move(invDeltas[keyMapping[data.key]]);
-			} else {
-				if (keyMapping[data.key]) {
-					this.move(deltas[keyMapping[data.key]]);
-					this.direction = keyMapping[data.key];
-					this.sprite = this.spritesByName[this.direction];
-				}
-			}
+            if (this.world.textBubble.visible) {
+                if (data.key === 65) {
+                    this.world.textBubble.hide();
+                }
+            } else {
+                if (data.key === 65) {
+                    this.use();
+                } else if (data.key === 83 || data.key === 68) {
+                    this.world.inventory.move(invDeltas[keyMapping[data.key]]);
+                } else {
+                    if (keyMapping[data.key]) {
+                        this.move(deltas[keyMapping[data.key]]);
+                        this.direction = keyMapping[data.key];
+                        this.sprite = this.spritesByName[this.direction];
+                    }
+                }
+            }
 		}.bind(this));
 	};
 
@@ -221,6 +227,10 @@ define([
 			if (rule.teleport) {
 				this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
 			}
+
+            if (rule.message) {
+                this.world.textBubble.show().setText(rule.message);
+            }
 		}
 	};
 
@@ -269,6 +279,10 @@ define([
 					if (rule.teleport) {
 						this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
 					}
+
+                    if (rule.message) {
+                        this.world.textBubble.show().setText(rule.message);
+                    }
 				}
 			}
 		}

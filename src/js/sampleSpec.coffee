@@ -490,6 +490,7 @@ Keys -> floor ; give 1 _terrain
 
 
 USERULES
+
 tree pickaxe -> grass ; give 3 wood ; consume
 tree2 pickaxe -> grass ; give 2 wood ; consume
 pinetree pickaxe -> grass ; give 2 wood ; consume
