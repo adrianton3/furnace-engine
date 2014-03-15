@@ -223,9 +223,6 @@ define(['js/Util'], function (Util) {
         outTokensEditor.setValue(completeString);
 
         paintGrid();
-
-        var dimtext = document.getElementById('dimtext');
-        dimtext.value = dim;
     }
 
     function setupDimInput() {
