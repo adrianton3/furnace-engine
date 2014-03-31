@@ -147,18 +147,29 @@ define([
 				throw 'Color binding ' + colorChar + ' already declared';
 			}
 
-			tokens.expect('rgb', 'Expected rgb');
+            var alpha;
+            if (tokens.match('rgb')) { alpha = false; }
+            else if (tokens.match('rgba')) { alpha = true; }
+            else { throw 'Expected either rgb or rgba'; }
 
-			tokens.expect(RDP.tree.identifier, 'Expected red value');
-			var r = tokens.past().s;
+            tokens.adv();
 
-			tokens.expect(RDP.tree.identifier, 'Expected blue value');
-			var g = tokens.past().s;
+            tokens.expect(RDP.tree.identifier, 'Expected red value');
+            var r = tokens.past().s;
 
-			tokens.expect(RDP.tree.identifier, 'Expected green value');
-			var b = tokens.past().s;
+            tokens.expect(RDP.tree.identifier, 'Expected green value');
+            var g = tokens.past().s;
 
-			colors[colorChar] = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+            tokens.expect(RDP.tree.identifier, 'Expected blue value');
+            var b = tokens.past().s;
+
+            if (alpha) {
+                tokens.expect(RDP.tree.identifier, 'Expected alpha value');
+                var a = tokens.past().s;
+                colors[colorChar] = 'rgba(' + r + ', ' + g + ', ' + b + ', ' + a + ')';
+            } else {
+                colors[colorChar] = 'rgb(' + r + ', ' + g + ', ' + b + ')';
+            }
 
 			RDP.tree.chompNL(tokens, 'Expect new line between color bindings');
 		}

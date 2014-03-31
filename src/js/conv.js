@@ -52,7 +52,7 @@ define(['js/Util'], function (Util) {
         for (var i = 0; i < mat.length; i++) {
             for (var j = 0; j < mat[i].length; j++) {
                 var color = indexedColors[mat[i][j]];
-                con.fillStyle = 'rgb(' + color.com + ')';
+                con.fillStyle = 'rgba(' + color.com + ')';
                 con.fillRect(j * scale, i * scale, scale, scale);
             }
         }
@@ -73,12 +73,13 @@ define(['js/Util'], function (Util) {
             var r = data[i];
             var g = data[i + 1];
             var b = data[i + 2];
+            var a = data[i + 3] / 255;
 
-            var str = r + ',' + g + ',' + b;
+            var str = r + ',' + g + ',' + b + ',' + a;
             if (colors[str] === undefined) {
                 colors[str] = { freq: 1, index: currentIndex };
                 currentIndex++;
-                indexedColors.push({ com: str, r: r, g: g, b: b });
+                indexedColors.push({ com: str, r: r, g: g, b: b, a: a });
             } else {
                 colors[str].freq++;
             }
@@ -104,10 +105,77 @@ define(['js/Util'], function (Util) {
      * @param {Array.<Array>} mat
      * @returns {string}
      */
-    function matToString(mat) {
-        return mat.reduce(function (prev, cur) {
-            return prev + cur.map(function (i) { return alphabet[i]; }).join('') + '\n';
-        }, '');
+    function matToString(mat, alphabet) {
+        if (alphabet) {
+            return mat.reduce(function (prev, cur) {
+                return prev + cur.map(function (i) {
+                    return alphabet[i];
+                }).join('') + '\n';
+            }, '');
+        } else {
+            return mat.reduce(function (prev, cur) {
+                return prev + cur.map(function (i) {
+                    return i;
+                }).join('') + '\n';
+            }, '');
+        }
+    }
+
+    function prettyPrintObjectsPS(mat, dim, colors) {
+        var lines = Math.floor(mat[0].length / dim);
+        var columns = Math.floor(mat.length / dim);
+
+        function reindexMatrix(subMat) {
+            var map = {};
+            var reindexedColors = [];
+
+            var index = -1;
+            var reindexedMatrix = subMat.map(function (line) {
+                return line.map(function (originalIndex) {
+                    if (colors[originalIndex].a === 0) { console.log(colors[originalIndex]); return '.'; }
+                    if (map[originalIndex] === undefined) {
+                        index++;
+                        map[originalIndex] = index;
+                        reindexedColors.push(originalIndex);
+                    }
+                    return map[originalIndex];
+                });
+            });
+
+            reindexedColors = reindexedColors.map(function (index) {
+                return colors[index];
+            });
+
+            return {
+                reindexedColors: reindexedColors,
+                reindexedMatrix: reindexedMatrix
+            }
+        }
+
+        var strings = [];
+        for (var i = 0; i < lines; i++) {
+            for (var j = 0; j < columns; j++) {
+                strings.push('b_' + i + '_' + j);
+                var subMatrix = subMat(mat, i * dim, j * dim, dim, dim);
+                var reindexedData = reindexMatrix(subMatrix);
+                strings.push(reindexedData.reindexedColors.filter(function (color) {
+                    return color.a;
+                }).map(function (color) {
+                    var strR = color.r.toString(16);
+                    if (strR.length === 1) { strR = '0' + strR; }
+
+                    var strG = color.g.toString(16);
+                    if (strG.length === 1) { strG = '0' + strG; }
+
+                    var strB = color.b.toString(16);
+                    if (strB.length === 1) { strB = '0' + strB; }
+
+                    return '#' + strR + strG + strB;
+                }).join(' '));
+                strings.push(matToString(reindexedData.reindexedMatrix));
+            }
+        }
+        return strings.join('\n');
     }
 
     /**
@@ -116,7 +184,7 @@ define(['js/Util'], function (Util) {
      * @param {number} dim Size of the objects
      * @returns {string}
      */
-    function prettyPrintObjects(mat, dim) {
+    function prettyPrintObjectsFE(mat, dim) {
         var lines = Math.floor(mat[0].length / dim);
         var columns = Math.floor(mat.length / dim);
 
@@ -124,7 +192,7 @@ define(['js/Util'], function (Util) {
         for (var i = 0; i < lines; i++) {
             for (var j = 0; j < columns; j++) {
                 strings.push('b_' + i + '_' + j);
-                strings.push(matToString(subMat(mat, i * dim, j * dim, dim, dim)));
+                strings.push(matToString(subMat(mat, i * dim, j * dim, dim, dim), alphabet));
             }
         }
         return strings.join('\n');
@@ -199,6 +267,7 @@ define(['js/Util'], function (Util) {
     var scale = 4;
     var dim = 5;
     var gridColor = '#FFF';
+    var outputFormat = 'FE';
 
     function updateString() {
         dim = +this.value;
@@ -209,15 +278,27 @@ define(['js/Util'], function (Util) {
         if (!processedImage || !mat) { return; }
 
         // transform it into text
-        var stringedColors = processedImage.indexedColors.reduce(function (prev, cur, index) {
-            return prev + alphabet[index] + ' rgb ' + cur.r + ' ' + cur.g + ' ' + cur.b + '\n';
-        }, '');
-        var stringedObjects = prettyPrintObjects(mat, dim);
 
-        var completeString = 'COLORS\n\n' +
-            stringedColors + '\n' +
-            'OBJECTS\n\n' +
-            stringedObjects;
+        // if FE mode
+        if (outputFormat === 'FE') {
+            var stringedColors = processedImage.indexedColors.reduce(function (prev, cur, index) {
+                return prev + alphabet[index] + ' rgba ' +
+                    cur.r + ' ' + cur.g + ' ' + cur.b + ' ' + cur.a + '\n';
+            }, '');
+            var stringedObjects = prettyPrintObjectsFE(mat, dim);
+
+            var completeString = 'COLORS\n\n' +
+                stringedColors + '\n' +
+                'OBJECTS\n\n' +
+                stringedObjects;
+        } else {
+            var stringedObjects = prettyPrintObjectsPS(mat, dim, processedImage.indexedColors);
+
+            var completeString = '========\n' +
+                'OBJECTS\n' +
+                '========\n\n' +
+                stringedObjects;
+        }
 
         // and output it via codemirror
         outTokensEditor.setValue(completeString);
@@ -228,6 +309,15 @@ define(['js/Util'], function (Util) {
     function setupDimInput() {
         var dimElement = document.getElementById('dimslider');
         dimElement.addEventListener('change', updateString);
+    }
+
+    function setupFormatSelect() {
+        var dimElement = document.getElementById('formatselect');
+        dimElement.addEventListener('change', function () {
+            console.log(this.selectedIndex);
+            outputFormat = ['FE', 'PS'][this.selectedIndex];
+            updateString.apply({ value: dim });
+        });
     }
 
     /**
@@ -316,6 +406,7 @@ define(['js/Util'], function (Util) {
      */
     function run() {
         setupDimInput();
+        setupFormatSelect();
         setupDropZone();
         setupEditors();
         setupDropEventListener();

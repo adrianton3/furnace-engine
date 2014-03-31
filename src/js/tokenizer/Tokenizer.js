@@ -220,7 +220,7 @@ define([
 
 	Tokenizer.chop.alphanum.reserved = [
 		'PARAM', 'COLORS', 'PLAYER', 'OBJECTS', 'SETS', 'NEARRULES', 'LEAVERULES', 'ENTERRULES', 'USERULES', 'LEGEND', 'LEVELS',
-		'rgb',
+		'rgb', 'rgba',
 		'blocking',
 		'or', 'and', 'minus',
 		'consume', 'give', 'heal', 'hurt', 'teleport', 'message'
