@@ -12,6 +12,10 @@ Try it:
 Changelog
 ---------
 
+### 0.3.7
+ + added support for the alpha channel via `rgba <r> <g> <b> <a>`
+ + sprite sheet importer can output in *PuzzleScript* format too
+
 ### 0.3.6
  + improved sprite sheet importer
  + extended font
