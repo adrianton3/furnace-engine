@@ -50,13 +50,15 @@ define([
 		this.direction = 'down';
 		this.sprite = this.spritesByName[this.direction];
 
-		SystemBus.addListener('keydown', '', function(data) {
+		SystemBus.addListener('keydown', '', function (data) {
             if (this.world.textBubble.visible) {
                 if (data.key === 65) {
                     this.world.textBubble.hide();
                 }
             } else {
-                if (data.key === 65) {
+                if (data.key === 85) {
+                    this.restore();
+                } else if (data.key === 65) {
                     this.use();
                 } else if (data.key === 83 || data.key === 68) {
                     this.world.inventory.move(invDeltas[keyMapping[data.key]]);
@@ -231,8 +233,30 @@ define([
             if (rule.message) {
                 this.world.textBubble.show().setText(rule.message);
             }
+
+            if (rule.checkpoint) {
+                this.save();
+            }
 		}
 	};
+
+    /**
+     * Restores the game to a previously saved state
+     */
+    Player.prototype.restore = function () {
+        var serializedGameState = JSON.parse(localStorage['furnace-save']);
+        if (serializedGameState) {
+            this.world.deserialize(serializedGameState);
+        }
+    };
+
+    /**
+     * Saves the current game state
+     */
+    Player.prototype.save = function () {
+        var serializedGameState = JSON.stringify(this.world.serialize());
+        localStorage['furnace-save'] = serializedGameState;
+    };
 
 	/**
 	 * Uses the current inventory item on the terrain unit that it's facing
@@ -299,6 +323,23 @@ define([
 			(this.position.y - camera.position.y /*+ Math.floor(camera.dimensions.y / 2)*/) * this.blockHeight
 		);
 	};
+
+    Player.prototype.serialize = function () {
+        return {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            direction: this.direction
+        };
+    };
+
+    Player.prototype.deserialize = function (config) {
+        this.setPosition(config.position.x, config.position.y);
+
+        this.direction = config.direction;
+        this.sprite = this.spritesByName[this.direction];
+    };
 
 	return Player;
 });

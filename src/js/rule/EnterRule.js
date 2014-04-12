@@ -7,7 +7,8 @@ define([], function() {
 		outInventoryItems,
 		healthDelta,
 		teleport,
-		message
+		message,
+        checkpoint
 	) {
 		this.inTerrainItem = inTerrainItem;
 		this.outTerrainItem = outTerrainItem;
@@ -15,6 +16,7 @@ define([], function() {
 		this.healthDelta = healthDelta;
 		this.teleport = teleport;
 		this.message = message;
+        this.checkpoint = checkpoint;
 	}
 
 	return EnterRule;

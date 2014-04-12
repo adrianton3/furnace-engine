@@ -37,7 +37,10 @@ var optimizerConfig = {
     optimize: 'none',
     baseUrl: 'src/js',
     name: 'main',
-    out: outFile
+    out: outFile,
+    paths: {
+        'underscore': 'empty:'
+    }
 };
 
 requirejs.optimize(optimizerConfig, function (buildResponse) {

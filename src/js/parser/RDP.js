@@ -43,7 +43,7 @@ define([
 
 	RDP.errPref = 'Parsing exception: ';
 
-	RDP.parse = function(tokenArray) {
+	RDP.parse = function (tokenArray) {
 		var tokens = new TokenList(tokenArray);
 
 		var params = RDP.tree.params(tokens);
@@ -101,14 +101,14 @@ define([
 
 	RDP.tree.end = new TokEnd();
 
-	RDP.tree.chompNL = function(tokens, exMessage) {
+	RDP.tree.chompNL = function (tokens, exMessage) {
 		tokens.expect(RDP.tree.newLine, exMessage);
 		while (tokens.match(RDP.tree.newLine)) {
 			tokens.adv();
 		}
 	};
 
-	RDP.tree.params = function(tokens) {
+	RDP.tree.params = function (tokens) {
 		tokens.expect('PARAM', 'Specification must start with PARAM');
 		RDP.tree.chompNL(tokens, 'Expected new line after PARAM');
 
@@ -134,7 +134,7 @@ define([
 		return params;
 	};
 
-	RDP.tree.colors = function(tokens) {
+	RDP.tree.colors = function (tokens) {
 		tokens.expect('COLORS', 'Expected COLORS section after PARAM');
 		RDP.tree.chompNL(tokens, 'Expected new line after COLORS');
 
@@ -439,7 +439,11 @@ define([
 
 					tokens.expect(RDP.tree.str, 'Expected message');
 					rule.message = tokens.past();
-				}
+                } else if (tokens.match('checkpoint')) {
+                    tokens.adv();
+
+                    rule.checkpoint = true;
+                }
 			}
 
 			RDP.tree.chompNL(tokens, 'Expected new line between rules');

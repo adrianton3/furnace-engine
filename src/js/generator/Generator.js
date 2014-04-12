@@ -261,7 +261,8 @@ define([
 				outInventoryItems,
 				healthDelta,
 				teleport,
-				message
+				message,
+                ruleSpec.checkpoint
 			);
 		});
 
@@ -343,7 +344,7 @@ define([
 
 			var levelDimensions = new Vec2(data[0].length, data.length);
 
-			levelsByName[namedStringedLevel.levelName] = new Level(data, levelDimensions, tileDimensions);
+			levelsByName[namedStringedLevel.levelName] = new Level(namedStringedLevel.levelName, data, levelDimensions, tileDimensions);
 		});
 
 		return levelsByName;

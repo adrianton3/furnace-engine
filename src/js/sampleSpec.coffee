@@ -487,7 +487,7 @@ ENTERRULES
 cave -> cave ; teleport cave 7 9
 caveexit -> caveexit ; teleport entry 5 5
 Keys -> floor ; give 1 _terrain
-
+grass3 -> grass3 ; checkpoint
 
 USERULES
 

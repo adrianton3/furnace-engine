@@ -6,7 +6,9 @@ define([
     'rule/RuleSet',
 	'con2d',
 	'Camera',
-    'TextBubble'
+    'TextBubble',
+    'Util',
+    'underscore'
 	], function (
 		Player,
 		Inventory,
@@ -15,7 +17,9 @@ define([
         RuleSet,
 		con2d,
 		Camera,
-        TextBubble
+        TextBubble,
+        Util,
+        _
 	) {
 	'use strict';
 
@@ -94,6 +98,33 @@ define([
 			this.tick = 1 - this.tick;
 		}
 	};
+
+    World.prototype.serialize = function () {
+        var levels = Util.mapOnKeys(this.levelsByName, function (level) {
+            return level.serialize();
+        });
+
+        var currentLevel = this.level.id;
+
+        return {
+            player: this.player.serialize(),
+            inventory: this.inventory.serialize(),
+            levels: levels,
+            currentLevel: currentLevel
+        };
+    };
+
+    World.prototype.deserialize = function (config) {
+        _.each(config.levels, function (levelConfig, key) {
+            this.levelsByName[key].deserialize(levelConfig);
+        }.bind(this));
+
+        this.level = this.levelsByName[config.currentLevel];
+
+        this.player.deserialize(config.player);
+
+        this.inventory.deserialize(config.inventory);
+    };
 
 	return World;
 });

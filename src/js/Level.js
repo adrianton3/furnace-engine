@@ -7,7 +7,8 @@ define([
 	) {
 	'use strict';
 
-	function Level(data, levelDimensions, tileDimensions, uiOffset) {
+	function Level(id, data, levelDimensions, tileDimensions, uiOffset) {
+        this.id = id;
 		this.data = data;
 		this.width = levelDimensions.x;
 		this.height = levelDimensions.y;
@@ -40,6 +41,22 @@ define([
 	Level.prototype.withinBounds = function(x, y) {
 		return x >= 0 && x < this.width && y >= 0 && y < this.height;
 	};
+
+    Level.prototype.serialize = function () {
+        return this.data.map(function (line) {
+            return line.map(function (element) {
+                return element.id;
+            });
+        });
+    };
+
+    Level.prototype.deserialize = function (config) {
+        this.data = config.map(function (line) {
+            return line.map(function (element) {
+                return Items.collection[element];
+            });
+        });
+    };
 
 	return Level;
 });

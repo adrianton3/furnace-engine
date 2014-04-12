@@ -2,12 +2,14 @@ define([
 		'Items',
 		'Text',
 		'con2d',
-		'Util'
+		'Util',
+        'underscore'
 	], function (
 		Items,
 		Text,
 		con2d,
-		Util
+		Util,
+        _
 	) {
 	'use strict';
 
@@ -23,11 +25,11 @@ define([
 	/**
 	 * Draw the inventory
 	 */
-	Inventory.prototype.draw = function() {
+	Inventory.prototype.draw = function () {
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
-			(this.arrangement.length + 1) * this.tileDimensions.x, this.tileDimensions.y);
+			(/*this.arrangement.length + 1*/10) * this.tileDimensions.x, this.tileDimensions.y);
 
 		for (var i = 0; i < this.arrangement.length; i++) {
 			// if null then skip
@@ -61,7 +63,7 @@ define([
 	/**
 	 * Move the cursor left and right, changing the current inventory item
 	 */
-	Inventory.prototype.move = function(delta) {
+	Inventory.prototype.move = function (delta) {
 		this.current += delta + this.arrangement.length;
 		this.current %= this.arrangement.length;
 	};
@@ -70,7 +72,7 @@ define([
 	 * Checks if an item is present in the inventory
 	 * @param {Item} item
 	 */
-	Inventory.prototype.has = function(item) {
+	Inventory.prototype.has = function (item) {
 		return !!this.inventory[item.id];
 	};
 
@@ -78,7 +80,7 @@ define([
 	 * Consumes a specified item from the inventory
 	 * @param {Item} item
 	 */
-	Inventory.prototype.consume = function(item) {
+	Inventory.prototype.consume = function (item) {
 		this.inventory[item.id]--;
 		if (!this.inventory[item.id]) {
 			Util.remove(this.arrangement, item.id);
@@ -93,7 +95,7 @@ define([
 	 * @param {Item} item
  	 * @param {number} quantity
 	 */
-	Inventory.prototype.addItem = function(item, quantity) {
+	Inventory.prototype.addItem = function (item, quantity) {
 		if (typeof this.inventory[item.id] === 'number') {
 			if (this.inventory[item.id] === 0) {
 				this.arrangement.push(item.id);
@@ -108,10 +110,27 @@ define([
 	/**
 	 * Gets the current selected inventory item
 	 */
-	Inventory.prototype.getCurrent = function() {
+	Inventory.prototype.getCurrent = function () {
 		var itemName = this.arrangement[this.current];
 		return Items.collection[itemName];
 	};
+
+    Inventory.prototype.serialize = function () {
+        var inventory = _.clone(this.inventory);
+        var arrangement = _.clone(this.arrangement);
+
+        return {
+            inventory: inventory,
+            arrangement: arrangement,
+            current: this.current
+        };
+    };
+
+    Inventory.prototype.deserialize = function (config) {
+        this.inventory = _.clone(config.inventory);
+        this.arrangement = _.clone(config.arrangement);
+        this.current = config.current;
+    };
 
 	return Inventory;
 });
