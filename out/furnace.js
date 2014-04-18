@@ -455,23 +455,29 @@ define('Items',[], function () {
 define('Player',[
 	'SystemBus',
 	'Vec2',
-	'Items'
+	'Items',
+    'con2d'
 	], function(
 		SystemBus,
 		Vec2,
-		Items
+		Items,
+        con2d
 	) {
 	
 
-	function Player(world, spritesByName, tileDimensions, uiOffset) {
+	function Player(world, healthMax, spritesByName, tileDimensions, uiOffset) {
 		this.world = world;
+        this.healthMax = healthMax;
+        this.health = this.healthMax;
 		this.blockWidth = tileDimensions.x;
 		this.blockHeight = tileDimensions.y;
 		this.uiOffset = uiOffset || new Vec2(0, 0);
 		this.position = new Vec2(0, 0);
-		this.sprite = null;
 		this.spritesByName = spritesByName;
+        this.sprite = null;
+        this.healthSprite = spritesByName['health'];
 		this.direction = 'down';
+        this.alive = true;
 	}
 
 	var keyMapping = {
@@ -505,27 +511,52 @@ define('Player',[
 		this.sprite = this.spritesByName[this.direction];
 
 		SystemBus.addListener('keydown', '', function (data) {
-            if (this.world.textBubble.visible) {
-                if (data.key === 65) {
-                    this.world.textBubble.hide();
+            if (data.key === 75) {
+                delete localStorage['furnace-save'];
+            }
+
+            if (this.alive) {
+                if (this.world.textBubble.visible) {
+                    if (data.key === 65) {
+                        this.world.textBubble.hide();
+                    }
+                } else {
+                    if (data.key === 85) {
+                        this.restore();
+                    } else if (data.key === 65) {
+                        this.use();
+                    } else if (data.key === 83 || data.key === 68) {
+                        this.world.inventory.move(invDeltas[keyMapping[data.key]]);
+                    } else {
+                        if (keyMapping[data.key]) {
+                            this.move(deltas[keyMapping[data.key]]);
+                            this.direction = keyMapping[data.key];
+                            this.sprite = this.spritesByName[this.direction];
+                        }
+                    }
                 }
             } else {
-                if (data.key === 85) {
+                if (data.key === 82) {
+                    this.alive = true;
+                    this.world.textBubble.hide();
                     this.restore();
-                } else if (data.key === 65) {
-                    this.use();
-                } else if (data.key === 83 || data.key === 68) {
-                    this.world.inventory.move(invDeltas[keyMapping[data.key]]);
-                } else {
-                    if (keyMapping[data.key]) {
-                        this.move(deltas[keyMapping[data.key]]);
-                        this.direction = keyMapping[data.key];
-                        this.sprite = this.spritesByName[this.direction];
-                    }
                 }
             }
 		}.bind(this));
 	};
+
+    Player.prototype.healOrHurt = function (delta) {
+        if (this.healthMax > 0) {
+            this.health += delta;
+
+            if (this.health <= 0) {
+                this.alive = false;
+                this.world.textBubble.show().setText('Press R to restart');
+            } else if (this.health > this.healthMax) {
+                this.health = this.healthMax;
+            }
+        }
+    };
 
 	/**
 	 * Sets the position of the player
@@ -629,7 +660,7 @@ define('Player',[
                     Items.collection[
                         resolveItem(currentTerrainItem.id, -1, rule.outTerrainItem)]);
 
-                this.health += rule.healthDelta;
+                this.healOrHurt(rule.healthDelta);
             }
         }.bind(this));
     };
@@ -678,7 +709,7 @@ define('Player',[
 					item.quantity);
 			});
 
-			this.health += rule.healthDelta;
+            this.healOrHurt(rule.healthDelta);
 
 			if (rule.teleport) {
 				this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
@@ -698,9 +729,13 @@ define('Player',[
      * Restores the game to a previously saved state
      */
     Player.prototype.restore = function () {
-        var serializedGameState = JSON.parse(localStorage['furnace-save']);
-        if (serializedGameState) {
-            this.world.deserialize(serializedGameState);
+        if (localStorage['furnace-save']) {
+            var serializedGameState = JSON.parse(localStorage['furnace-save']);
+            if (serializedGameState) {
+                this.world.deserialize(serializedGameState);
+            }
+        } else {
+            this.world.deserialize(this.world.initialState);
         }
     };
 
@@ -754,7 +789,7 @@ define('Player',[
 							item.quantity);
 					});
 
-					this.health += rule.healthDelta;
+                    this.healOrHurt(rule.healthDelta);
 
 					if (rule.teleport) {
 						this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
@@ -778,6 +813,23 @@ define('Player',[
 			this.uiOffset.y +
 			(this.position.y - camera.position.y /*+ Math.floor(camera.dimensions.y / 2)*/) * this.blockHeight
 		);
+
+        // health
+        var offsetX = this.world.tileDimensions.x * (this.world.camera.dimensions.x - 1);
+        var offsetY = this.world.tileDimensions.y * this.world.camera.dimensions.y + 8;
+
+        con2d.fillStyle = '#000000';
+        con2d.fillRect(
+            offsetX - this.healthMax * this.world.tileDimensions.x, offsetY,
+            this.healthMax * this.world.tileDimensions.x, this.world.tileDimensions.y
+        );
+
+        for (var i = 0; i < this.health; i++) {
+            this.healthSprite.drawAt(
+                offsetX - i * this.world.tileDimensions.x,
+                offsetY
+            );
+        }
 	};
 
     Player.prototype.serialize = function () {
@@ -786,7 +838,8 @@ define('Player',[
                 x: this.position.x,
                 y: this.position.y
             },
-            direction: this.direction
+            direction: this.direction,
+            health: this.health
         };
     };
 
@@ -795,6 +848,8 @@ define('Player',[
 
         this.direction = config.direction;
         this.sprite = this.spritesByName[this.direction];
+
+        this.health = config.health;
     };
 
 	return Player;
@@ -834,7 +889,8 @@ define('Inventory',[
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
-			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y);
+			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y
+        );
 
 		for (var i = 0; i < this.sizeCurrent; i++) {
 			// if null then skip
@@ -957,7 +1013,9 @@ define('Inventory',[
         return {
             inventory: inventory,
             arrangement: arrangement,
-            current: this.current
+            current: this.current,
+            sizeCurrent: this.sizeCurrent,
+            offset: this.offset
         };
     };
 
@@ -965,6 +1023,8 @@ define('Inventory',[
         this.inventory = _.clone(config.inventory);
         this.arrangement = _.clone(config.arrangement);
         this.current = config.current;
+        this.sizeCurrent = config.sizeCurrent;
+        this.offset = config.offset;
     };
 
 	return Inventory;
@@ -1225,9 +1285,10 @@ define('World',[
 		useRuleSet,
 		tileDimensions,
 		cameraDimensions,
-        inventorySizeMax
+        inventorySizeMax,
+        playerMaxHealth
 		) {
-		this.player = new Player(this, playerSpritesByName, tileDimensions);
+		this.player = new Player(this, playerMaxHealth, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
 		this.levelsByName = levelsByName;
 		this.level = null;
@@ -1263,6 +1324,8 @@ define('World',[
 		con2d.fillRect(0, 0, con2d.canvas.width, con2d.canvas.height);
 
 		this.camera.centerOn(this.player.position.x, this.player.position.y, this.level.width, this.level.height);
+
+        this.initialState = this.serialize();
 	};
 
 	World.prototype.setLevel = function (levelName) {
@@ -1275,9 +1338,14 @@ define('World',[
 	};
 
 	World.prototype.draw = function () {
-		this.level.draw(this.camera, this.tick);
-		this.inventory.draw();
-		this.player.draw(this.camera, this.tick);
+        if (this.player.alive) {
+            this.level.draw(this.camera, this.tick);
+            this.inventory.draw();
+            this.player.draw(this.camera, this.tick);
+        } else {
+            con2d.fillStyle = '#000';
+            con2d.fillRect(0, 0, con2d.canvas.width, con2d.canvas.height);
+        }
         this.textBubble.draw();
 	};
 
@@ -1547,7 +1615,8 @@ define('generator/Generator',[
 			useRuleSet,
 			tileDimensions,
 			params.camera,
-            params.inventorySizeMax
+            params.inventorySizeMax,
+            params.healthMax
 		);
 
 		return world;
@@ -1566,7 +1635,8 @@ define('generator/Generator',[
 				y: +paramSpec.start_location[1].s || 2,
 				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
 			},
-            inventorySizeMax: +paramSpec.inventory_size_max.s || 5
+            inventorySizeMax: +paramSpec.inventory_size_max[0].s || 5,
+            healthMax: +paramSpec.health_max[0].s
 		};
 	};
 
