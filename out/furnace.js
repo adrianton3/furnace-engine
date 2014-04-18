@@ -504,13 +504,15 @@ define('Player',[
 		this.direction = 'down';
 		this.sprite = this.spritesByName[this.direction];
 
-		SystemBus.addListener('keydown', '', function(data) {
+		SystemBus.addListener('keydown', '', function (data) {
             if (this.world.textBubble.visible) {
                 if (data.key === 65) {
                     this.world.textBubble.hide();
                 }
             } else {
-                if (data.key === 65) {
+                if (data.key === 85) {
+                    this.restore();
+                } else if (data.key === 65) {
                     this.use();
                 } else if (data.key === 83 || data.key === 68) {
                     this.world.inventory.move(invDeltas[keyMapping[data.key]]);
@@ -685,8 +687,30 @@ define('Player',[
             if (rule.message) {
                 this.world.textBubble.show().setText(rule.message);
             }
+
+            if (rule.checkpoint) {
+                this.save();
+            }
 		}
 	};
+
+    /**
+     * Restores the game to a previously saved state
+     */
+    Player.prototype.restore = function () {
+        var serializedGameState = JSON.parse(localStorage['furnace-save']);
+        if (serializedGameState) {
+            this.world.deserialize(serializedGameState);
+        }
+    };
+
+    /**
+     * Saves the current game state
+     */
+    Player.prototype.save = function () {
+        var serializedGameState = JSON.stringify(this.world.serialize());
+        localStorage['furnace-save'] = serializedGameState;
+    };
 
 	/**
 	 * Uses the current inventory item on the terrain unit that it's facing
@@ -697,6 +721,8 @@ define('Player',[
 		var ruleSet = this.world.useRuleSet;
 
 		var currentInventoryItem = inventory.getCurrent();
+        if (!currentInventoryItem) { return; }
+
 		var facingPosition = this.getFacing();
 		if (level.withinBounds(facingPosition.x, facingPosition.y)) {
 			var currentTerrainItem = level.get(facingPosition.x, facingPosition.y);
@@ -754,6 +780,23 @@ define('Player',[
 		);
 	};
 
+    Player.prototype.serialize = function () {
+        return {
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            direction: this.direction
+        };
+    };
+
+    Player.prototype.deserialize = function (config) {
+        this.setPosition(config.position.x, config.position.y);
+
+        this.direction = config.direction;
+        this.sprite = this.spritesByName[this.direction];
+    };
+
 	return Player;
 });
 
@@ -761,36 +804,41 @@ define('Inventory',[
 		'Items',
 		'Text',
 		'con2d',
-		'Util'
+		'Util',
+        'underscore'
 	], function (
 		Items,
 		Text,
 		con2d,
-		Util
+		Util,
+        _
 	) {
 	
 
 	function Inventory(sizeMax, tileDimensions, uiOffset) {
-		this.sizeMax = sizeMax; // unused
+		this.sizeMax = sizeMax;
+        this.sizeCurrent = 0;
 		this.tileDimensions = tileDimensions;
 		this.uiOffset = uiOffset;
 		this.inventory = {};
 		this.arrangement = [];
 		this.current = 0;
+        this.offset = 0;
 	}
 
 	/**
 	 * Draw the inventory
 	 */
-	Inventory.prototype.draw = function() {
+	Inventory.prototype.draw = function () {
+        // wrap this in a procedure
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
-			(this.arrangement.length + 1) * this.tileDimensions.x, this.tileDimensions.y);
+			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y);
 
-		for (var i = 0; i < this.arrangement.length; i++) {
+		for (var i = 0; i < this.sizeCurrent; i++) {
 			// if null then skip
-			var itemName = this.arrangement[i];
+			var itemName = this.arrangement[(i + this.offset) % this.arrangement.length];
 			var sprite = Items.collection[itemName];
 			sprite.drawAt(
 				this.uiOffset.x + i * this.tileDimensions.x,
@@ -804,15 +852,17 @@ define('Inventory',[
 			Text.drawAt(text, offsetX, offsetY);
 		}
 
+        if (this.empty()) { return; }
+        // wrap this in a procedure
 		con2d.lineWidth = 2;
 		con2d.strokeStyle = '#FFF';
 		con2d.strokeRect(
-			this.uiOffset.x + this.current * this.tileDimensions.x + 1, this.uiOffset.y + 1,
+			this.uiOffset.x + (this.current - this.offset) * this.tileDimensions.x + 1, this.uiOffset.y + 1,
 			this.tileDimensions.x - 2, this.tileDimensions.y - 2
 		);
 		con2d.strokeStyle = '#000';
 		con2d.strokeRect(
-			this.uiOffset.x + this.current * this.tileDimensions.x + 2, this.uiOffset.y + 2,
+			this.uiOffset.x + (this.current - this.offset) * this.tileDimensions.x + 2, this.uiOffset.y + 2,
 			this.tileDimensions.x - 4, this.tileDimensions.y - 4
 		);
 	};
@@ -820,16 +870,40 @@ define('Inventory',[
 	/**
 	 * Move the cursor left and right, changing the current inventory item
 	 */
-	Inventory.prototype.move = function(delta) {
-		this.current += delta + this.arrangement.length;
-		this.current %= this.arrangement.length;
+	Inventory.prototype.move = function (delta) {
+        if (this.empty()) {
+            this.current = 0;
+            this.offset = 0;
+            return;
+        }
+
+        this.current += delta;
+
+        if (this.current < 0) {
+            this.current = 0;
+            this.offset = 0;
+        } else if (this.current < this.offset) {
+            this.offset = this.current;
+        } else if (this.current >= this.arrangement.length) {
+            this.current = this.arrangement.length - 1;
+            this.offset = this.current - this.sizeCurrent + 1;
+        } else if (this.current >= this.offset + this.sizeMax) {
+            this.offset = this.current - this.sizeCurrent + 1;
+        }
 	};
 
-	/**
+    /**
+     * Checks if the inventory is empty or not
+     */
+    Inventory.prototype.empty = function () {
+        return this.arrangement.length === 0;
+    };
+
+    /**
 	 * Checks if an item is present in the inventory
 	 * @param {Item} item
 	 */
-	Inventory.prototype.has = function(item) {
+	Inventory.prototype.has = function (item) {
 		return !!this.inventory[item.id];
 	};
 
@@ -837,22 +911,24 @@ define('Inventory',[
 	 * Consumes a specified item from the inventory
 	 * @param {Item} item
 	 */
-	Inventory.prototype.consume = function(item) {
+	Inventory.prototype.consume = function (item) {
 		this.inventory[item.id]--;
 		if (!this.inventory[item.id]) {
 			Util.remove(this.arrangement, item.id);
-			if (this.current === this.arrangement.length) {
+			if (this.current >= this.arrangement.length - this.offset - 1) {
 				this.current--;
+                this.offset = Math.max(this.offset - 1, 0);
 			}
+            this.sizeCurrent = Math.min(this.sizeMax, this.arrangement.length);
 		}
 	};
 
 	/**
-	 * Adds an item in the inventory
+	 * Adds an item to the inventory
 	 * @param {Item} item
  	 * @param {number} quantity
 	 */
-	Inventory.prototype.addItem = function(item, quantity) {
+	Inventory.prototype.addItem = function (item, quantity) {
 		if (typeof this.inventory[item.id] === 'number') {
 			if (this.inventory[item.id] === 0) {
 				this.arrangement.push(item.id);
@@ -862,15 +938,34 @@ define('Inventory',[
 			this.inventory[item.id] = quantity;
 			this.arrangement.push(item.id);
 		}
+
+        this.sizeCurrent = Math.min(this.sizeMax, this.arrangement.length);
 	};
 
 	/**
 	 * Gets the current selected inventory item
 	 */
-	Inventory.prototype.getCurrent = function() {
+	Inventory.prototype.getCurrent = function () {
 		var itemName = this.arrangement[this.current];
 		return Items.collection[itemName];
 	};
+
+    Inventory.prototype.serialize = function () {
+        var inventory = _.clone(this.inventory);
+        var arrangement = _.clone(this.arrangement);
+
+        return {
+            inventory: inventory,
+            arrangement: arrangement,
+            current: this.current
+        };
+    };
+
+    Inventory.prototype.deserialize = function (config) {
+        this.inventory = _.clone(config.inventory);
+        this.arrangement = _.clone(config.arrangement);
+        this.current = config.current;
+    };
 
 	return Inventory;
 });
@@ -1103,7 +1198,9 @@ define('World',[
     'rule/RuleSet',
 	'con2d',
 	'Camera',
-    'TextBubble'
+    'TextBubble',
+    'Util',
+    'underscore'
 	], function (
 		Player,
 		Inventory,
@@ -1112,7 +1209,9 @@ define('World',[
         RuleSet,
 		con2d,
 		Camera,
-        TextBubble
+        TextBubble,
+        Util,
+        _
 	) {
 	
 
@@ -1125,7 +1224,8 @@ define('World',[
 		enterRuleSet,
 		useRuleSet,
 		tileDimensions,
-		cameraDimensions
+		cameraDimensions,
+        inventorySizeMax
 		) {
 		this.player = new Player(this, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
@@ -1140,13 +1240,10 @@ define('World',[
 		this.camera = new Camera(new Vec2(0, 0), new Vec2(cameraDimensions.x, cameraDimensions.y));
 
 		this.inventory = new Inventory(
-			4,
+			inventorySizeMax,
 			tileDimensions,
 			new Vec2(0, this.tileDimensions.y * this.camera.dimensions.y + 8)
 		);
-
-		// adding an initial item in the inventory with which you obtain the rest of the items
-		this.inventory.addItem(Items.collection.pickaxe, 9);
 
         this.textBubble = new TextBubble().hide();
 
@@ -1191,6 +1288,33 @@ define('World',[
 			this.tick = 1 - this.tick;
 		}
 	};
+
+    World.prototype.serialize = function () {
+        var levels = Util.mapOnKeys(this.levelsByName, function (level) {
+            return level.serialize();
+        });
+
+        var currentLevel = this.level.id;
+
+        return {
+            player: this.player.serialize(),
+            inventory: this.inventory.serialize(),
+            levels: levels,
+            currentLevel: currentLevel
+        };
+    };
+
+    World.prototype.deserialize = function (config) {
+        _.each(config.levels, function (levelConfig, key) {
+            this.levelsByName[key].deserialize(levelConfig);
+        }.bind(this));
+
+        this.setLevel(config.currentLevel);
+
+        this.player.deserialize(config.player);
+
+        this.inventory.deserialize(config.inventory);
+    };
 
 	return World;
 });
@@ -1257,7 +1381,8 @@ define('rule/EnterRule',[], function() {
 		outInventoryItems,
 		healthDelta,
 		teleport,
-		message
+		message,
+        checkpoint
 	) {
 		this.inTerrainItem = inTerrainItem;
 		this.outTerrainItem = outTerrainItem;
@@ -1265,6 +1390,7 @@ define('rule/EnterRule',[], function() {
 		this.healthDelta = healthDelta;
 		this.teleport = teleport;
 		this.message = message;
+        this.checkpoint = checkpoint;
 	}
 
 	return EnterRule;
@@ -1305,7 +1431,8 @@ define('Level',[
 	) {
 	
 
-	function Level(data, levelDimensions, tileDimensions, uiOffset) {
+	function Level(id, data, levelDimensions, tileDimensions, uiOffset) {
+        this.id = id;
 		this.data = data;
 		this.width = levelDimensions.x;
 		this.height = levelDimensions.y;
@@ -1338,6 +1465,22 @@ define('Level',[
 	Level.prototype.withinBounds = function(x, y) {
 		return x >= 0 && x < this.width && y >= 0 && y < this.height;
 	};
+
+    Level.prototype.serialize = function () {
+        return this.data.map(function (line) {
+            return line.map(function (element) {
+                return element.id;
+            });
+        });
+    };
+
+    Level.prototype.deserialize = function (config) {
+        this.data = config.map(function (line) {
+            return line.map(function (element) {
+                return Items.collection[element];
+            });
+        });
+    };
 
 	return Level;
 });
@@ -1403,7 +1546,8 @@ define('generator/Generator',[
 			enterRuleSet,
 			useRuleSet,
 			tileDimensions,
-			params.camera
+			params.camera,
+            params.inventorySizeMax
 		);
 
 		return world;
@@ -1421,7 +1565,8 @@ define('generator/Generator',[
 				x: +paramSpec.start_location[0].s || 2,
 				y: +paramSpec.start_location[1].s || 2,
 				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
-			}
+			},
+            inventorySizeMax: +paramSpec.inventory_size_max.s || 5
 		};
 	};
 
@@ -1605,7 +1750,8 @@ define('generator/Generator',[
 				outInventoryItems,
 				healthDelta,
 				teleport,
-				message
+				message,
+                ruleSpec.checkpoint
 			);
 		});
 
@@ -1687,7 +1833,7 @@ define('generator/Generator',[
 
 			var levelDimensions = new Vec2(data[0].length, data.length);
 
-			levelsByName[namedStringedLevel.levelName] = new Level(data, levelDimensions, tileDimensions);
+			levelsByName[namedStringedLevel.levelName] = new Level(namedStringedLevel.levelName, data, levelDimensions, tileDimensions);
 		});
 
 		return levelsByName;
@@ -2191,65 +2337,53 @@ define('tokenizer/Tokenizer',[
 
 	var Tokenizer = {};
 
-	Tokenizer.chop = function(s, ws, comm) {
+	Tokenizer.chop = function (s, ws, comm) {
 		ws = !!ws;
 		comm = !!comm;
 
 		var str = new IterableString(s + ' ');
 		var tok = [];
 
-		while(str.hasNext()) {
+		while (str.hasNext()) {
 			var c = str.cur();
 
-			if(c == "'") {
+			if (c == "'") {
 				tok.push(Tokenizer.chop.strs(str));
-			}
-			else if(c == '"') {
+			} else if (c == '"') {
 				tok.push(Tokenizer.chop.strd(str));
-			}
-			else if(c == '/') {
+			} else if (c == '/') {
 				var n = str.next();
-				if(n == '/') {
+				if (n == '/') {
 					var tmp = Tokenizer.chop.commsl(str);
 					if(comm) tok.push(tmp);
-				}
-				else if(n == '*') {
+				} else if (n == '*') {
 					var tmp = Tokenizer.chop.commml(str);
 					if(comm) tok.push(tmp);
-				}
-				else {
+				} else {
 					tok.push(Tokenizer.chop.alphanum(str));
 				}
-			}
-			else if(c == '(') {
+			} else if (c == '(') {
 				tok.push(new TokLPar(str.getCoords()));
 				str.adv();
-			}
-			else if(c == ')') {
+			} else if (c == ')') {
 				tok.push(new TokRPar(str.getCoords()));
 				str.adv();
-			}
-			else if(c == '=') {
+			} else if (c == '=') {
 				tok.push(new TokAssignment(str.getCoords()));
 				str.adv();
-			}
-			else if(c == ',') {
+			} else if (c == ',') {
 				tok.push(new TokComma(str.getCoords()));
 				str.adv();
-			}
-			else if(c == ';') {
+			} else if (c == ';') {
 				tok.push(new TokSemicolon(str.getCoords()));
 				str.adv();
-			}
-			else if(c === '-' && str.next() === '>') {
+			} else if (c === '-' && str.next() === '>') {
 				tok.push(new TokArrow(str.getCoords()));
 				str.adv();
 				str.adv();
-			}
-			else if(c > ' ' && c <= '~') {
+			} else if (c > ' ' && c <= '~') {
 				tok.push(Tokenizer.chop.alphanum(str));
-			}
-			else if (c === '\n') {
+			} else if (c === '\n') {
 				tok.push(new TokNewLine(str.getCoords()));
 				str.adv();
 			} else {
@@ -2263,40 +2397,50 @@ define('tokenizer/Tokenizer',[
 		return tok;
 	};
 
-	Tokenizer.chop.strUnescape = function(s) {
+	Tokenizer.chop.strUnescape = function (s) {
 		return s.replace(/\\\'/g, '\'')
 				.replace(/\\\"/g, '\"')
 				.replace(/\\\\/g, '\\')
 				.replace(/\\\n/g, '\n');
 	};
 
-	Tokenizer.chop.strs = function(str) {
+	Tokenizer.chop.strs = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 		str.adv();
 
 		while (true) {
-			if(str.cur() == '\\') str.adv();
-			else if(str.cur() == "'") { str.adv(); return new TokStr(Tokenizer.chop.strUnescape(str.getMarked().slice(1, -1)), coords); }
-			else if(str.cur() == '\n' || !str.hasNext()) throw 'String did not end well ' + str.getCoords();
+			if (str.cur() == '\\') {
+                str.adv();
+            } else if (str.cur() == "'") {
+                str.adv();
+                return new TokStr(Tokenizer.chop.strUnescape(str.getMarked().slice(1, -1)), coords);
+            } else if (str.cur() == '\n' || !str.hasNext()) {
+                throw 'String did not end well ' + str.getCoords();
+            }
 			str.adv();
 		}
 	};
 
-	Tokenizer.chop.strd = function(str) {
+	Tokenizer.chop.strd = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 		str.adv();
 
 		while (true) {
-			if(str.cur() == '\\') str.adv();
-			else if(str.cur() == '"') { str.adv(); return new TokStr(Tokenizer.chop.strUnescape(str.getMarked().slice(1, -1)), coords); }
-			else if(str.cur() == '\n' || !str.hasNext()) throw 'String did not end well ' + str.getCoords();;
+			if (str.cur() == '\\') {
+                str.adv();
+            } else if (str.cur() == '"') {
+                str.adv();
+                return new TokStr(Tokenizer.chop.strUnescape(str.getMarked().slice(1, -1)), coords);
+            } else if (str.cur() == '\n' || !str.hasNext()) {
+                throw 'String did not end well ' + str.getCoords();
+            }
 			str.adv();
 		}
 	};
 
-	Tokenizer.chop.num = function(str) {
+	Tokenizer.chop.num = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 
@@ -2315,12 +2459,14 @@ define('tokenizer/Tokenizer',[
 			}
 		}
 
-		if (') \n\t'.indexOf(str.cur()) == -1) throw "Unexpected character '" + str.cur() + "' after \"" + str.getMarked() + '" ' + str.getCoords();
+		if (') \n\t'.indexOf(str.cur()) == -1) {
+            throw "Unexpected character '" + str.cur() + "' after \"" + str.getMarked() + '" ' + str.getCoords();
+        }
 
 		return new TokNum(str.getMarked(), coords);
 	};
 
-	Tokenizer.chop.commml = function(str) {
+	Tokenizer.chop.commml = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 		str.adv();
@@ -2331,43 +2477,47 @@ define('tokenizer/Tokenizer',[
 				str.adv();
 				str.adv();
 				return new TokCommML(str.getMarked(), coords);
-			}
-			else if (str.hasNext()) {
+			} else if (str.hasNext()) {
 				str.adv();
-			}
-			else throw 'Multiline comment not properly terminated ' + str.getCoords();;
+			} else {
+                throw 'Multiline comment not properly terminated ' + str.getCoords();
+            }
 		}
 	};
 
-	Tokenizer.chop.commsl = function(str) {
+	Tokenizer.chop.commsl = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 		str.adv();
 		str.adv(2);
 
 		while (true) {
-			if(str.cur() == '\n' || !str.hasNext()) {
+			if (str.cur() == '\n' || !str.hasNext()) {
 				str.adv();
 				return new TokCommSL(str.getMarked(), coords);
-			}
-			else str.adv();
+			} else {
+                str.adv();
+            }
 		}
 	};
 
-	Tokenizer.chop.alphanum = function(str) {
+	Tokenizer.chop.alphanum = function (str) {
 		var coords = str.getCoords();
 		str.setMarker();
 
 		var tmp = str.cur();
-		while(tmp > ' ' && tmp <= '~' && (tmp != '(' && tmp != ')')) {
+		while (tmp > ' ' && tmp <= '~' && (tmp != '(' && tmp != ')')) {
 			str.adv();
 			tmp = str.cur();
 		}
 
 		tmp = str.getMarked();
 
-		if(Tokenizer.chop.alphanum.reserved.indexOf(tmp) != -1) return new TokKeyword(tmp, coords);
-		else return new TokIdentifier(tmp, coords);
+		if (Tokenizer.chop.alphanum.reserved.indexOf(tmp) != -1) {
+            return new TokKeyword(tmp, coords);
+        } else {
+            return new TokIdentifier(tmp, coords);
+        }
 	};
 
 	Tokenizer.chop.alphanum.reserved = [
@@ -2375,10 +2525,10 @@ define('tokenizer/Tokenizer',[
 		'rgb', 'rgba',
 		'blocking',
 		'or', 'and', 'minus',
-		'consume', 'give', 'heal', 'hurt', 'teleport', 'message'
+		'consume', 'give', 'heal', 'hurt', 'teleport', 'message', 'checkpoint'
 	];
 
-	Tokenizer.chop.whitespace = function(str) {
+	Tokenizer.chop.whitespace = function (str) {
 		var tmp = str.cur();
 		str.adv();
 		return new TokWhitespace(tmp);
@@ -2516,7 +2666,7 @@ define('parser/RDP',[
 
 	RDP.errPref = 'Parsing exception: ';
 
-	RDP.parse = function(tokenArray) {
+	RDP.parse = function (tokenArray) {
 		var tokens = new TokenList(tokenArray);
 
 		var params = RDP.tree.params(tokens);
@@ -2574,14 +2724,14 @@ define('parser/RDP',[
 
 	RDP.tree.end = new TokEnd();
 
-	RDP.tree.chompNL = function(tokens, exMessage) {
+	RDP.tree.chompNL = function (tokens, exMessage) {
 		tokens.expect(RDP.tree.newLine, exMessage);
 		while (tokens.match(RDP.tree.newLine)) {
 			tokens.adv();
 		}
 	};
 
-	RDP.tree.params = function(tokens) {
+	RDP.tree.params = function (tokens) {
 		tokens.expect('PARAM', 'Specification must start with PARAM');
 		RDP.tree.chompNL(tokens, 'Expected new line after PARAM');
 
@@ -2607,7 +2757,7 @@ define('parser/RDP',[
 		return params;
 	};
 
-	RDP.tree.colors = function(tokens) {
+	RDP.tree.colors = function (tokens) {
 		tokens.expect('COLORS', 'Expected COLORS section after PARAM');
 		RDP.tree.chompNL(tokens, 'Expected new line after COLORS');
 
@@ -2912,7 +3062,11 @@ define('parser/RDP',[
 
 					tokens.expect(RDP.tree.str, 'Expected message');
 					rule.message = tokens.past();
-				}
+                } else if (tokens.match('checkpoint')) {
+                    tokens.adv();
+
+                    rule.checkpoint = true;
+                }
 			}
 
 			RDP.tree.chompNL(tokens, 'Expected new line between rules');
