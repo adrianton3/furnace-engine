@@ -60,7 +60,8 @@ define([
 			useRuleSet,
 			tileDimensions,
 			params.camera,
-            params.inventorySizeMax
+            params.inventorySizeMax,
+            params.healthMax
 		);
 
 		return world;
@@ -79,7 +80,8 @@ define([
 				y: +paramSpec.start_location[1].s || 2,
 				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
 			},
-            inventorySizeMax: +paramSpec.inventory_size_max.s || 5
+            inventorySizeMax: +paramSpec.inventory_size_max[0].s || 5,
+            healthMax: +paramSpec.health_max[0].s
 		};
 	};
 

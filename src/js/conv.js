@@ -314,7 +314,6 @@ define(['js/Util'], function (Util) {
     function setupFormatSelect() {
         var dimElement = document.getElementById('formatselect');
         dimElement.addEventListener('change', function () {
-            console.log(this.selectedIndex);
             outputFormat = ['FE', 'PS'][this.selectedIndex];
             updateString.apply({ value: dim });
         });

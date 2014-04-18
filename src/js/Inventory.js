@@ -32,7 +32,8 @@ define([
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
-			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y);
+			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y
+        );
 
 		for (var i = 0; i < this.sizeCurrent; i++) {
 			// if null then skip
@@ -155,7 +156,9 @@ define([
         return {
             inventory: inventory,
             arrangement: arrangement,
-            current: this.current
+            current: this.current,
+            sizeCurrent: this.sizeCurrent,
+            offset: this.offset
         };
     };
 
@@ -163,6 +166,8 @@ define([
         this.inventory = _.clone(config.inventory);
         this.arrangement = _.clone(config.arrangement);
         this.current = config.current;
+        this.sizeCurrent = config.sizeCurrent;
+        this.offset = config.offset;
     };
 
 	return Inventory;

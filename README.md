@@ -12,6 +12,10 @@ Try it:
 Changelog
 ---------
 
+### 0.4.0
+ + added health via `hurt <quantity>` or `heal <quantity>`
+ + can now reset progress by hitting `K`
+
 ### 0.3.8
  + checkpoints! use U to return to a previous saved state
  + inventory has fixed size

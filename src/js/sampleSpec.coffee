@@ -7,6 +7,7 @@ camera 11 9
 scale 8
 start_location 11 11 entry
 inventory_size_max 5
+health_max 0
 
 COLORS
 
@@ -67,6 +68,13 @@ BBB7B
 bbbbb
 bb77b
 bbbbb
+
+health
+0r0r0
+rrrrr
+rrrrr
+0rrr0
+00r00
 
 OBJECTS
 

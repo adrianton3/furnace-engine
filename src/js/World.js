@@ -33,9 +33,10 @@ define([
 		useRuleSet,
 		tileDimensions,
 		cameraDimensions,
-        inventorySizeMax
+        inventorySizeMax,
+        playerMaxHealth
 		) {
-		this.player = new Player(this, playerSpritesByName, tileDimensions);
+		this.player = new Player(this, playerMaxHealth, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
 		this.levelsByName = levelsByName;
 		this.level = null;
@@ -71,6 +72,8 @@ define([
 		con2d.fillRect(0, 0, con2d.canvas.width, con2d.canvas.height);
 
 		this.camera.centerOn(this.player.position.x, this.player.position.y, this.level.width, this.level.height);
+
+        this.initialState = this.serialize();
 	};
 
 	World.prototype.setLevel = function (levelName) {
@@ -83,9 +86,14 @@ define([
 	};
 
 	World.prototype.draw = function () {
-		this.level.draw(this.camera, this.tick);
-		this.inventory.draw();
-		this.player.draw(this.camera, this.tick);
+        if (this.player.alive) {
+            this.level.draw(this.camera, this.tick);
+            this.inventory.draw();
+            this.player.draw(this.camera, this.tick);
+        } else {
+            con2d.fillStyle = '#000';
+            con2d.fillRect(0, 0, con2d.canvas.width, con2d.canvas.height);
+        }
         this.textBubble.draw();
 	};
 
