@@ -28,6 +28,7 @@ define([
 	 * Draw the inventory
 	 */
 	Inventory.prototype.draw = function () {
+        // wrap this in a procedure
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
@@ -49,6 +50,7 @@ define([
 			Text.drawAt(text, offsetX, offsetY);
 		}
 
+        if (this.empty()) { return; }
         // wrap this in a procedure
 		con2d.lineWidth = 2;
 		con2d.strokeStyle = '#FFF';
@@ -67,6 +69,12 @@ define([
 	 * Move the cursor left and right, changing the current inventory item
 	 */
 	Inventory.prototype.move = function (delta) {
+        if (this.empty()) {
+            this.current = 0;
+            this.offset = 0;
+            return;
+        }
+
         this.current += delta;
 
         if (this.current < 0) {
@@ -82,7 +90,14 @@ define([
         }
 	};
 
-	/**
+    /**
+     * Checks if the inventory is empty or not
+     */
+    Inventory.prototype.empty = function () {
+        return this.arrangement.length === 0;
+    };
+
+    /**
 	 * Checks if an item is present in the inventory
 	 * @param {Item} item
 	 */

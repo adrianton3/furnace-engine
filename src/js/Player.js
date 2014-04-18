@@ -267,6 +267,8 @@ define([
 		var ruleSet = this.world.useRuleSet;
 
 		var currentInventoryItem = inventory.getCurrent();
+        if (!currentInventoryItem) { return; }
+
 		var facingPosition = this.getFacing();
 		if (level.withinBounds(facingPosition.x, facingPosition.y)) {
 			var currentTerrainItem = level.get(facingPosition.x, facingPosition.y);

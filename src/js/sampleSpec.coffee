@@ -488,7 +488,7 @@ ENTERRULES
 cave -> cave ; teleport cave 7 9
 caveexit -> caveexit ; teleport entry 5 5
 Keys -> floor ; give 1 _terrain
-grass3 -> grass3 ; checkpoint
+pickaxe -> grass ; give 9 pickaxe
 
 USERULES
 
@@ -565,6 +565,7 @@ Y dooriron
 9 cakeSW
 R cakeSE
 C cakeNE
+* pickaxe
 
 
 LEVELS
@@ -577,10 +578,10 @@ ww2TttTtgggGGGrggGGgGpggGgggG6ww10000000000000000007
 ww2gTuTtTgFGTGggggGGppGpprpgg6ww2gzZZZZZzZZZZZZZZZz6
 ww2GtrFTtGGTtgGGggggrggpGppgg6ww2gZJJJJJzJJJJJzJJJJ6
 ww2tTTGtTgGGgGtFggGGgpGpGpgpG6ww2gZjjKjjZjkjkjZjjjZ6
-ww2gtgggGtgggGGggGGGggppggppg6ww2gzZZjZZzZZjZZzjjjZ6
+ww2gtgggGtGggGGggGGGggppggppg6ww2gzZZjZZzZZjZZzjjjZ6
 ww2GgggTgGggggGGgpGGGrpGpppGGg00gyJJJXJJJJJYJJJyjyZ6
 ww2rGttFGggmFgggggGGgGGGrGprggggjjejjjjjEjjjjjYjjjZ6
-ww2ggTGtgggGGGrggGGrGggpGgggGgggjjejjjjjEjjjjjYjjjZ6
+ww2ggTGtggg*gGrggGGrGggpGgggGgggjjejjjjjEjjjjjYjjjZ6
 ww2ggtggggggGGgggGFgGGGGpggggg44gyzZZjZZzZZjZZzyjyZ6
 ww2GgggggGGrggGGgggGGgggppggg6ww2gZJJYJJZJJXJJZZXZZ6
 ww2grGGrggGGgGgggGGrggGgrggGG6ww2gZjkjkjZjKjKjZZYZZ6

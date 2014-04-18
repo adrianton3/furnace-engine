@@ -12,6 +12,12 @@ Try it:
 Changelog
 ---------
 
+### 0.3.8
+ + checkpoints! use U to return to a previous saved state
+ + inventory has fixed size
+ + fixed inventory bugs when inventory is empty
+ + no more mandatory *intial-pickaxe* item
+
 ### 0.3.7
  + added support for the alpha channel via `rgba <r> <g> <b> <a>`
  + sprite sheet importer can output in *PuzzleScript* format too
