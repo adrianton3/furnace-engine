@@ -6,6 +6,7 @@ PARAM
 camera 11 9
 scale 8
 start_location 11 11 entry
+inventory_size_max 5
 
 COLORS
 

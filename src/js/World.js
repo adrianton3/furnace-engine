@@ -32,7 +32,8 @@ define([
 		enterRuleSet,
 		useRuleSet,
 		tileDimensions,
-		cameraDimensions
+		cameraDimensions,
+        inventorySizeMax
 		) {
 		this.player = new Player(this, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
@@ -47,7 +48,7 @@ define([
 		this.camera = new Camera(new Vec2(0, 0), new Vec2(cameraDimensions.x, cameraDimensions.y));
 
 		this.inventory = new Inventory(
-			4,
+			inventorySizeMax,
 			tileDimensions,
 			new Vec2(0, this.tileDimensions.y * this.camera.dimensions.y + 8)
 		);
@@ -119,7 +120,7 @@ define([
             this.levelsByName[key].deserialize(levelConfig);
         }.bind(this));
 
-        this.level = this.levelsByName[config.currentLevel];
+        this.setLevel(config.currentLevel);
 
         this.player.deserialize(config.player);
 

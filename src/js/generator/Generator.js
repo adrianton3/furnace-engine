@@ -59,7 +59,8 @@ define([
 			enterRuleSet,
 			useRuleSet,
 			tileDimensions,
-			params.camera
+			params.camera,
+            params.inventorySizeMax
 		);
 
 		return world;
@@ -77,7 +78,8 @@ define([
 				x: +paramSpec.start_location[0].s || 2,
 				y: +paramSpec.start_location[1].s || 2,
 				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
-			}
+			},
+            inventorySizeMax: +paramSpec.inventory_size_max.s || 5
 		};
 	};
 

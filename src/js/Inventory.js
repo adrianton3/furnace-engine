@@ -14,12 +14,14 @@ define([
 	'use strict';
 
 	function Inventory(sizeMax, tileDimensions, uiOffset) {
-		this.sizeMax = sizeMax; // unused
+		this.sizeMax = sizeMax;
+        this.sizeCurrent = 0;
 		this.tileDimensions = tileDimensions;
 		this.uiOffset = uiOffset;
 		this.inventory = {};
 		this.arrangement = [];
 		this.current = 0;
+        this.offset = 0;
 	}
 
 	/**
@@ -29,11 +31,11 @@ define([
 		con2d.fillStyle = '#000000';
 		con2d.fillRect(
 			this.uiOffset.x, this.uiOffset.y,
-			(/*this.arrangement.length + 1*/10) * this.tileDimensions.x, this.tileDimensions.y);
+			this.sizeMax * this.tileDimensions.x, this.tileDimensions.y);
 
-		for (var i = 0; i < this.arrangement.length; i++) {
+		for (var i = 0; i < this.sizeCurrent; i++) {
 			// if null then skip
-			var itemName = this.arrangement[i];
+			var itemName = this.arrangement[(i + this.offset) % this.arrangement.length];
 			var sprite = Items.collection[itemName];
 			sprite.drawAt(
 				this.uiOffset.x + i * this.tileDimensions.x,
@@ -47,15 +49,16 @@ define([
 			Text.drawAt(text, offsetX, offsetY);
 		}
 
+        // wrap this in a procedure
 		con2d.lineWidth = 2;
 		con2d.strokeStyle = '#FFF';
 		con2d.strokeRect(
-			this.uiOffset.x + this.current * this.tileDimensions.x + 1, this.uiOffset.y + 1,
+			this.uiOffset.x + (this.current - this.offset) * this.tileDimensions.x + 1, this.uiOffset.y + 1,
 			this.tileDimensions.x - 2, this.tileDimensions.y - 2
 		);
 		con2d.strokeStyle = '#000';
 		con2d.strokeRect(
-			this.uiOffset.x + this.current * this.tileDimensions.x + 2, this.uiOffset.y + 2,
+			this.uiOffset.x + (this.current - this.offset) * this.tileDimensions.x + 2, this.uiOffset.y + 2,
 			this.tileDimensions.x - 4, this.tileDimensions.y - 4
 		);
 	};
@@ -64,8 +67,19 @@ define([
 	 * Move the cursor left and right, changing the current inventory item
 	 */
 	Inventory.prototype.move = function (delta) {
-		this.current += delta + this.arrangement.length;
-		this.current %= this.arrangement.length;
+        this.current += delta;
+
+        if (this.current < 0) {
+            this.current = 0;
+            this.offset = 0;
+        } else if (this.current < this.offset) {
+            this.offset = this.current;
+        } else if (this.current >= this.arrangement.length) {
+            this.current = this.arrangement.length - 1;
+            this.offset = this.current - this.sizeCurrent + 1;
+        } else if (this.current >= this.offset + this.sizeMax) {
+            this.offset = this.current - this.sizeCurrent + 1;
+        }
 	};
 
 	/**
@@ -84,14 +98,16 @@ define([
 		this.inventory[item.id]--;
 		if (!this.inventory[item.id]) {
 			Util.remove(this.arrangement, item.id);
-			if (this.current === this.arrangement.length) {
+			if (this.current >= this.arrangement.length - this.offset - 1) {
 				this.current--;
+                this.offset = Math.max(this.offset - 1, 0);
 			}
+            this.sizeCurrent = Math.min(this.sizeMax, this.arrangement.length);
 		}
 	};
 
 	/**
-	 * Adds an item in the inventory
+	 * Adds an item to the inventory
 	 * @param {Item} item
  	 * @param {number} quantity
 	 */
@@ -105,6 +121,8 @@ define([
 			this.inventory[item.id] = quantity;
 			this.arrangement.push(item.id);
 		}
+
+        this.sizeCurrent = Math.min(this.sizeMax, this.arrangement.length);
 	};
 
 	/**
