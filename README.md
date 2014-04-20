@@ -7,6 +7,7 @@ Try it:
 
 * [Sample game](http://madflame991.github.io/furnace-engine/src/)
 * [Sprite importer](http://madflame991.github.io/furnace-engine/src/conv.html)
+* [Furnace format](https://github.com/madflame991/furnace-engine/tree/master/doc/SPEC.md)
 * [Detailed parsing](http://madflame991.github.io/furnace-engine/src/parser.html)
 
 Changelog
