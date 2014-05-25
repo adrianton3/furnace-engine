@@ -1,6 +1,7 @@
 'use strict';
 
-window.sampleSpec = '''
+window.sampleSpecs ?= {}
+window.sampleSpecs['under-the-snow'] = '''
 PARAM
 
 camera 9 7

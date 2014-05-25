@@ -18,9 +18,19 @@
 		<!-- <div class="title">Input</div> -->
 		<!-- <br> -->
 		<textarea id="in" cols="50" rows="30" spellcheck="false"></textarea>
-        <script src="js/sampleSpec.js"></script>
+        <script src="js/sampleSpec_1.js"></script>
+        <script src="js/sampleSpec_2.js"></script>
+
         <script>
-            document.getElementById('in').value = sampleSpec;
+            'use strict';
+            var urlParams = purl(true).param();
+            if (urlParams.sample) {
+                var sample = window.sampleSpecs[urlParams.sample];
+                if (!sample) { sample = window.sampleSpecs['little-furnace']}
+                document.getElementById('in').value = sample;
+            } else {
+                document.getElementById('in').value = window.sampleSpecs['little-furnace'];
+            }
         </script>
 
 		<br>
