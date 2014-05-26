@@ -11,6 +11,7 @@ define [], ->
 
   FromPng.decode = (path, callback) ->
     image = new Image
+    image.crossOrigin = ''
     image.src = path
     image.addEventListener 'load', ->
       data = imageToData image

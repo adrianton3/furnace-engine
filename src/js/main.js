@@ -4,14 +4,18 @@ define([
 	'Game',
 	'tokenizer/Tokenizer',
 	'parser/RDP',
-	'KeyListener'
+	'KeyListener',
+	'import-export/FromPng',
+	'import-export/ToPng'
 	], function (
 		SystemBus,
 		Text,
 		Game,
 		Tokenizer,
 		RDP,
-		KeyListener
+		KeyListener,
+		FromPng,
+		ToPng
 	) {
 	'use strict';
 
@@ -117,6 +121,9 @@ define([
 		var getUrlButton = document.getElementById('geturl');
 		getUrlButton.addEventListener('click', setUrl);
 
+		var exportAsPngButton = document.getElementById('exportaspng');
+		exportAsPngButton.addEventListener('click', exportAsPng);
+
 		var editButton = document.getElementById('edit');
 		editButton.addEventListener('click', edit);
 
@@ -134,10 +141,36 @@ define([
 		urlTextarea.value = url;
 	}
 
-	function checkUrl() {
+	function exportAsPng() {
+		var spec = inWorldEditor.getValue();
+		var canvas = ToPng.encode(spec);
+
+		var image = document.createElement('img');
+		image.src = canvas.toDataURL();
+		image.id = 'exported-spec';
+
+		var existingImage = document.getElementById('exported-spec');
+		if (existingImage) {
+			existingImage.parentNode.removeChild(existingImage);
+		}
+
+		var container = document.getElementById('exported-container')
+		container.innerHTML = 'Exported spec as image<br>';
+		container.appendChild(image);
+	}
+
+	function checkUrl(callback) {
 		var urlParams = purl(true).param();
 		if (urlParams.spec) {
 			inWorldEditor.setValue(urlParams.spec);
+			callback();
+		} else if (urlParams.png) {
+			FromPng.decode(urlParams.png, function (text) {
+				inWorldEditor.setValue(text);
+				callback();
+			});
+		} else {
+			callback();
 		}
 	}
 
@@ -145,19 +178,17 @@ define([
 		setupEditors();
 		setupGUI();
 
-		checkUrl();
+		checkUrl(function () {
+			Text.init();
 
+			document.getElementById('can').tabIndex = 0;
+			KeyListener.init(document.getElementById('can'));
 
-        Text.init();
+			parse();
+			compile();
 
-        document.getElementById('can').tabIndex = 0;
-        KeyListener.init(document.getElementById('can'));
-
-        parse();
-        compile();
-
-        var canvas = document.getElementById('can');
-        canvas.focus();
+			document.getElementById('can').focus();
+		});
 	}
 
 	return { run: run };

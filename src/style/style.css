@@ -57,3 +57,15 @@ button {
 	text-align: left;
 	display: inline-block;
 }
+
+#exported-container {
+    font-family: sans-serif;
+    font-size: small;
+    color: #ffffff;
+}
+
+#exported-spec {
+    border: 1px solid white;
+    padding: 3px;
+    margin-top: 8px;
+}
