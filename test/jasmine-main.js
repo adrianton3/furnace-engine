@@ -5,10 +5,12 @@ require.config({
 	}
 });
 
-require(['test/all-tests'], function() {
-	'use strict';
+require(['test/lib/jasmine-2.0.0/boot'], function () {
 
-	var env = jasmine.getEnv();
-	env.addReporter(new jasmine.HtmlReporter());
-	env.execute();
+	// Load the specs
+	require(['test/all-tests'], function () {
+
+		// Initialize the HTML Reporter and execute the environment (setup by `boot.js`)
+		window.onload();
+	});
 });

@@ -7,3 +7,8 @@ node_modules
 src/js/sampleSpec_1.js
 src/js/sampleSpec_2.js
 src/js/Font.js
+src/js/import-export/*.js
+
+test/spec/backAndForth-test.js
+test/spec/FromPng-test.js
+test/spec/ToPng-test.js
