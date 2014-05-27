@@ -6,7 +6,8 @@ define([
 	'parser/RDP',
 	'KeyListener',
 	'import-export/FromPng',
-	'import-export/ToPng'
+	'import-export/ToPng',
+	'AjaxUtil'
 	], function (
 		SystemBus,
 		Text,
@@ -15,7 +16,8 @@ define([
 		RDP,
 		KeyListener,
 		FromPng,
-		ToPng
+		ToPng,
+		AjaxUtil
 	) {
 	'use strict';
 
@@ -83,7 +85,7 @@ define([
 
 	function hide() {
 		var editorDiv = document.getElementById('editor');
-		editor.style.display = 'none';
+		editorDiv.style.display = 'none';
 
 		var editButton = document.getElementById('edit');
 		editButton.style.display = 'block';
@@ -100,7 +102,7 @@ define([
 
 	function edit() {
 		var editorDiv = document.getElementById('editor');
-		editor.style.display = 'block';
+		editorDiv.style.display = 'block';
 
 		var editButton = document.getElementById('edit');
 		editButton.style.display = 'none';
@@ -166,6 +168,11 @@ define([
 			callback();
 		} else if (urlParams.png) {
 			FromPng.decode(urlParams.png, function (text) {
+				inWorldEditor.setValue(text);
+				callback();
+			});
+		} else if (urlParams.text) {
+			AjaxUtil.load(urlParams.text, function (text) {
 				inWorldEditor.setValue(text);
 				callback();
 			});
