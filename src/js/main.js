@@ -25,6 +25,7 @@ define([
 	var errorLine = null;
 	var inWorldEditor;
 	var game;
+	var baseUrl = 'http://madflame991.github.io/furnace-engine/src/index.html';
 
 	function setupEditors() {
 		inWorldEditor = CodeMirror.fromTextArea(document.getElementById('in'), {
@@ -135,7 +136,6 @@ define([
 
 	function setUrl() {
 		var spec = inWorldEditor.getValue();
-		var baseUrl = 'http://madflame991.github.io/furnace-engine/src/index.html';
 		var encodedLevel = encodeURIComponent(spec);
 		var url = baseUrl + '?spec=' + encodedLevel;
 
@@ -156,8 +156,11 @@ define([
 			existingImage.parentNode.removeChild(existingImage);
 		}
 
-		var container = document.getElementById('exported-container')
-		container.innerHTML = 'Exported spec as image<br>';
+		var urlTextarea = document.getElementById('url');
+		urlTextarea.value = 'Exported spec as image\n' +
+			'To decode the image access: ' + baseUrl + '?png=_image_url_';
+
+		var container = document.getElementById('exported-container');
 		container.appendChild(image);
 	}
 

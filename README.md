@@ -14,12 +14,17 @@ Try it:
 Changelog
 ---------
 
+### 0.4.1
+ + can access both sample games
+ + can export/import a game specification to/from a png image
+ + can import a game specification from an external text file
+
 ### 0.4.0
  + added health via `hurt <quantity>` or `heal <quantity>`
  + can now reset progress by hitting `K`
 
 ### 0.3.8
- + checkpoints! use U to return to a previous saved state
+ + checkpoints! use `U` to return to a previous saved state
  + inventory has fixed size
  + fixed inventory bugs when inventory is empty
  + no more mandatory *intial-pickaxe* item
