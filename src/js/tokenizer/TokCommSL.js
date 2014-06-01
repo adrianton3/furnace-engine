@@ -1,17 +1,17 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
-	function TokCommSL(s, coords) {
-		this.s = s;
+	function TokCommSL(value, coords) {
+		this.value = value;
 		this.coords = coords;
 	}
 
 	TokCommSL.prototype.toString = function() {
-		return "CommSL(" + this.s + ")";
+		return 'CommSL(' + this.value + ')';
 	};
 
 	TokCommSL.prototype.toHTML = function(c) {
-		return '<span style="color:' + c.commSL + '">' + this.s + '</span><br />';
+		return '<span style="color:' + c.commSL + '">' + this.value + '</span><br />';
 	};
 
 	return TokCommSL;

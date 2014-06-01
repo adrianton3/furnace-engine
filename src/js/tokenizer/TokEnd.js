@@ -1,19 +1,19 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
 	function TokEnd(coords) {
 		this.coords = coords;
 	}
 
-	TokEnd.prototype.match = function(that) {
+	TokEnd.prototype.match = function (that) {
 		return that instanceof TokEnd;
 	};
 
-	TokEnd.prototype.toString = function() {
-		return "END";
+	TokEnd.prototype.toString = function () {
+		return 'END';
 	};
 
-	TokEnd.prototype.toHTML = function(c) {
+	TokEnd.prototype.toHTML = function (c) {
 		return '';
 	};
 

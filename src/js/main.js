@@ -3,7 +3,8 @@ define([
 	'Text',
 	'Game',
 	'tokenizer/Tokenizer',
-	'parser/RDP',
+	'parser/Parser',
+	'extractor/ValueExtractor',
 	'KeyListener',
 	'import-export/FromPng',
 	'import-export/ToPng',
@@ -13,7 +14,8 @@ define([
 		Text,
 		Game,
 		Tokenizer,
-		RDP,
+		Parser,
+		ValueExtractor,
 		KeyListener,
 		FromPng,
 		ToPng,
@@ -42,7 +44,7 @@ define([
 
 		try {
 			var tokens = Tokenizer.chop(inText);
-			tree = RDP.parse(tokens);
+			tree = Parser.parse(tokens);
 
 			if (errorLine !== null) {
 				inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');
@@ -78,8 +80,9 @@ define([
 				game.cleanup();
 			}
 
+			var valueTree = ValueExtractor.extract(tree);
 			game = new Game();
-			game.init(tree);
+			game.init(valueTree);
 			game.start();
 		}
 	}

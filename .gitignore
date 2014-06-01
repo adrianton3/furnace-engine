@@ -9,7 +9,14 @@ src/js/sampleSpec_2.js
 src/js/Font.js
 src/js/import-export/*.js
 src/js/AjaxUtil.js
+src/js/extractor/*.js
+src/js/parser/Parser.js
+src/js/tokenizer/Tokenizer.js
+src/js/validator/TypeCheck.js
 
 test/spec/backAndForth-test.js
 test/spec/FromPng-test.js
 test/spec/ToPng-test.js
+test/spec/Parser-test.js
+test/spec/Tokenizer-test.js
+test/spec/ValueExtractor-test.js

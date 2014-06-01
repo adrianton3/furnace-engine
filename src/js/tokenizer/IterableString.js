@@ -1,67 +1,52 @@
 define([
 	'tokenizer/TokenCoords'
-	], function(
+	], function (
 		TokenCoords
 	) {
 	'use strict';
 
-	function IterableString(s) {
-		this.s = s;
+	function IterableString(str) {
+		this.str = str;
 		this.pointer = 0;
 		this.marker = 0;
 
-		this.line = 0;
-		this.col = 0;
+		this.line = 1;
+		this.col = 1;
 	}
 
-	IterableString.prototype.adv = function() {
-		if(this.s.charAt(this.pointer) == '\n') {
+	IterableString.prototype.advance = function () {
+		if (this.str.charAt(this.pointer) === '\n') {
 			this.line++;
-			this.col = 0;
+			this.col = 1;
 		}
 		else this.col++;
 
 		this.pointer++;
 	};
 
-	IterableString.prototype.setMarker = function() {
-		this.marker = this.pointer;
+	IterableString.prototype.setMarker = function (offset) {
+		offset = offset || 0;
+		this.marker = this.pointer + offset;
 	};
 
-	IterableString.prototype.cur = function() {
-		return this.s.charAt(this.pointer);
+	IterableString.prototype.current = function () {
+		return this.str.charAt(this.pointer);
 	};
 
-	IterableString.prototype.next = function() {
-		return this.s.charAt(this.pointer + 1);
+	IterableString.prototype.next = function () {
+		return this.str.charAt(this.pointer + 1);
 	};
 
-	IterableString.prototype.hasNext = function() {
-		return this.pointer < this.s.length;
+	IterableString.prototype.hasNext = function () {
+		return this.pointer < this.str.length;
 	};
 
-	IterableString.prototype.getMarked = function() {
-		return this.s.substring(this.marker, this.pointer);
+	IterableString.prototype.getMarked = function (offset) {
+		offset = offset || 0;
+		return this.str.substring(this.marker, this.pointer + offset);
 	};
 
-	IterableString.prototype.match = function(str) {
-		var substr = this.s.substring(this.pointer, this.pointer + str.length);
-		if(substr == str) {
-			this.pointer += str.length;
-
-			var count = str.match(/\n/g).length;
-			if(count > 0) {
-				this.line += count;
-				this.col = str.length - str.lastIndexOf('\n');
-			}
-			else this.col += str.length;
-
-			return true;
-		}
-		return false;
-	};
-
-	IterableString.prototype.getCoords = function() {
+	IterableString.prototype.getCoords = function () {
 		return new TokenCoords(this.line, this.col);
 	};
 

@@ -1,4 +1,4 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
 	function TokNewLine(coords) {

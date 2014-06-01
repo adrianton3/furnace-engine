@@ -1,19 +1,19 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
 	function TokComma(coords) {
 		this.coords = coords;
 	}
 
-	TokComma.prototype.match = function(that) {
+	TokComma.prototype.match = function (that) {
 		return that instanceof TokComma;
 	};
 
-	TokComma.prototype.toString = function() {
+	TokComma.prototype.toString = function () {
 		return 'Comma';
 	};
 
-	TokComma.prototype.toHTML = function(c) {
+	TokComma.prototype.toHTML = function (c) {
 		return '<span style="color:' + c.comma + '">)</span>';
 	};
 

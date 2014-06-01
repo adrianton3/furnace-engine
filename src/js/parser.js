@@ -1,10 +1,10 @@
 define([
 	'tokenizer/Tokenizer',
-	'parser/RDP',
+	'parser/Parser',
 	'prettyprinter/PrettyPrinter'
 	], function(
 		Tokenizer,
-		RDP,
+		Parser,
 		PrettyPrinter
 	) {
 	'use strict';
@@ -47,7 +47,7 @@ define([
 			outTokensEditor.setValue(outTokensText);
 
 
-			var tree = RDP.parse(tokens);
+			var tree = Parser.parse(tokens);
 			var outTreeText = PrettyPrinter.print(tree);
 
 			outInterpretedEditor.setValue(outTreeText);

@@ -6,7 +6,7 @@ define([], function () {
 		this.col = col;
 	}
 
-	TokenCoords.prototype.toString = function() {
+	TokenCoords.prototype.toString = function () {
 		return '(line: ' + this.line + ', col: ' + this.col + ')';
 	};
 

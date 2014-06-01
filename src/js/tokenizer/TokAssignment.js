@@ -1,19 +1,19 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
 	function TokAssignment(coords) {
 		this.coords = coords;
 	}
 
-	TokAssignment.prototype.match = function(that) {
+	TokAssignment.prototype.match = function (that) {
 		return that instanceof TokAssignment;
 	};
 
-	TokAssignment.prototype.toString = function() {
+	TokAssignment.prototype.toString = function () {
 		return 'Assignment';
 	};
 
-	TokAssignment.prototype.toHTML = function(c) {
+	TokAssignment.prototype.toHTML = function (c) {
 		return '<span style="color:' + c.assignment + '">)</span>';
 	};
 

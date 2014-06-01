@@ -67,21 +67,23 @@ define([
 		return world;
 	};
 
-	Generator.generate.params = function (paramSpec, levelsSpec) {
+	Generator.generate.params = function (params, levelsSpec) {
 		// needs rewriting using some variant of deepExend
+		var paramSpec = Util.arrayToObject(params, 'name', 'parts');
+
 		return {
 			camera: {
-				x: +paramSpec.camera[0].s || 7,
-				y: +paramSpec.camera[1].s || 7
+				x: +paramSpec.camera[0] || 7,
+				y: +paramSpec.camera[1] || 7
 			},
-			scale: +paramSpec.scale[0].s || 8,
+			scale: +paramSpec.scale[0] || 8,
 			startLocation: {
-				x: +paramSpec.start_location[0].s || 2,
-				y: +paramSpec.start_location[1].s || 2,
-				levelName: paramSpec.start_location[2].s || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
+				x: +paramSpec.start_location[0] || 2,
+				y: +paramSpec.start_location[1] || 2,
+				levelName: paramSpec.start_location[2] || (levelsByName.entry ? 'entry' : Object.keys(levelsByName)[0])
 			},
-            inventorySizeMax: +paramSpec.inventory_size_max[0].s || 5,
-            healthMax: +paramSpec.health_max[0].s
+            inventorySizeMax: +paramSpec.inventory_size_max[0] || 5,
+            healthMax: +paramSpec.health_max[0]
 		};
 	};
 
@@ -92,10 +94,14 @@ define([
 	};
 
 	Generator.generate.objects = function (objectsSpec, colorSpec, scale) {
-		var stringedObjects = Util.mapOnKeys(objectsSpec, function(object) {
-			return object.lines;
+		var namedSprites = SpriteSheetGenerator.generate(objectsSpec, colorSpec, scale);
+
+		var blockingObjects = {};
+		objectsSpec.forEach(function (objectSpec) {
+			if (objectSpec.blocking) {
+				blockingObjects[objectSpec.name] = true;
+			}
 		});
-		var namedSprites = SpriteSheetGenerator.generate(stringedObjects, colorSpec, scale);
 
 		function processSpriteName(nam) {
 			var separator = nam.lastIndexOf(':');
@@ -141,14 +147,14 @@ define([
 				namedSpriteGroup.groupName,
 				Util.capitalize(namedSpriteGroup.groupName),
 				sprites,
-				objectsSpec[namedSpriteGroup.groupName].blocking
+				!!blockingObjects[namedSpriteGroup.groupName]
 			);
 		});
 
 		return itemsByName;
 	};
 
-	Generator.generate.sets = function(spec) {
+	Generator.generate.sets = function (spec) {
 		var ops = {
 			'or': Set.prototype.union,
 			'and': Set.prototype.intersection,
@@ -167,9 +173,9 @@ define([
 					set.add(element);
 				});
 			} else {
-				var operand1 = setsByName[setDefinition.operand1.s];
-				var operand2 = setsByName[setDefinition.operand2.s];
-				var operator = ops[setDefinition.operator.s];
+				var operand1 = setsByName[setDefinition.operand1];
+				var operand2 = setsByName[setDefinition.operand2];
+				var operator = ops[setDefinition.operator];
 
 				set = operator.call(operand1, operand2);
 			}
@@ -180,17 +186,17 @@ define([
 		return setsByName;
 	};
 
-    Generator.generate.nearRules = function(rulesSpec, setsByName) {
+    Generator.generate.nearRules = function (rulesSpec, setsByName) {
         var rules = rulesSpec.map(function (ruleSpec) {
-            var inTerrainItemName = ruleSpec.inTerrainItemName.s;
-            var outTerrainItemName = ruleSpec.outTerrainItemName.s;
+            var inTerrainItemName = ruleSpec.inTerrainItemName;
+            var outTerrainItemName = ruleSpec.outTerrainItemName;
 
             var healthDelta = 0;
             if (ruleSpec.heal) {
-                healthDelta += +ruleSpec.heal.s;
+                healthDelta += +ruleSpec.heal;
             }
             if (ruleSpec.hurt) {
-                healthDelta -= +ruleSpec.hurt.s;
+                healthDelta -= +ruleSpec.hurt;
             }
 
             return new NearRule(
@@ -203,10 +209,10 @@ define([
         return new RuleSet(rules, setsByName);
     };
 
-	Generator.generate.leaveRules = function(rulesSpec, setsByName) {
+	Generator.generate.leaveRules = function (rulesSpec, setsByName) {
 		var rules = rulesSpec.map(function (ruleSpec) {
-			var inTerrainItemName = ruleSpec.inTerrainItemName.s;
-			var outTerrainItemName = ruleSpec.outTerrainItemName.s;
+			var inTerrainItemName = ruleSpec.inTerrainItemName;
+			var outTerrainItemName = ruleSpec.outTerrainItemName;
 
 			return new LeaveRule(
 				inTerrainItemName,
@@ -217,10 +223,10 @@ define([
 		return new RuleSet(rules, setsByName);
 	};
 
-	Generator.generate.enterRules = function(rulesSpec, setsByName) {
+	Generator.generate.enterRules = function (rulesSpec, setsByName) {
 		var rules = rulesSpec.map(function (ruleSpec) {
-			var inTerrainItemName = ruleSpec.inTerrainItemName.s;
-			var outTerrainItemName = ruleSpec.outTerrainItemName.s;
+			var inTerrainItemName = ruleSpec.inTerrainItemName;
+			var outTerrainItemName = ruleSpec.outTerrainItemName;
 
 			// some don't give back anything
 			var outInventoryItems;
@@ -228,8 +234,8 @@ define([
 			if (ruleSpec.give) {
 				outInventoryItems = ruleSpec.give.map(function (entry) {
 					return {
-						itemName: entry.itemName.s,
-						quantity: +entry.quantity.s
+						itemName: entry.itemName,
+						quantity: +entry.quantity
 					};
 				});
 			} else {
@@ -238,25 +244,25 @@ define([
 
 			var healthDelta = 0;
 			if (ruleSpec.heal) {
-				healthDelta += +ruleSpec.heal.s;
+				healthDelta += +ruleSpec.heal;
 			}
 			if (ruleSpec.hurt) {
-				healthDelta -= +ruleSpec.hurt.s;
+				healthDelta -= +ruleSpec.hurt;
 			}
 
 			var teleport;
 
 			if (ruleSpec.teleport) {
 				teleport = {
-					x: +ruleSpec.teleport.x.s,
-					y: +ruleSpec.teleport.y.s,
-					levelName: ruleSpec.teleport.levelName.s
+					x: +ruleSpec.teleport.x,
+					y: +ruleSpec.teleport.y,
+					levelName: ruleSpec.teleport.levelName
 				};
 			}
 
 			var message;
 			if (ruleSpec.message) {
-				message = ruleSpec.message.s;
+				message = ruleSpec.message;
 			}
 
 			return new EnterRule(
@@ -273,11 +279,11 @@ define([
 		return new RuleSet(rules, setsByName);
 	};
 
-	Generator.generate.useRules = function(rulesSpec, setsByName) {
+	Generator.generate.useRules = function (rulesSpec, setsByName) {
 		var rules = rulesSpec.map(function (ruleSpec) {
-			var inTerrainItemName = ruleSpec.inTerrainItemName.s;
-			var inInventoryItemName = ruleSpec.inInventoryItemName.s;
-			var outTerrainItemName = ruleSpec.outTerrainItemName.s;
+			var inTerrainItemName = ruleSpec.inTerrainItemName;
+			var inInventoryItemName = ruleSpec.inInventoryItemName;
+			var outTerrainItemName = ruleSpec.outTerrainItemName;
 
 			// some don't give back anything
 			var outInventoryItems;
@@ -285,8 +291,8 @@ define([
 			if (ruleSpec.give) {
 				outInventoryItems = ruleSpec.give.map(function (entry) {
 					return {
-						itemName: entry.itemName.s,
-						quantity: +entry.quantity.s
+						itemName: entry.itemName,
+						quantity: +entry.quantity
 					};
 				});
 			} else {
@@ -297,25 +303,25 @@ define([
 
 			var healthDelta = 0;
 			if (ruleSpec.heal) {
-				healthDelta += +ruleSpec.heal.s;
+				healthDelta += +ruleSpec.heal;
 			}
 			if (ruleSpec.hurt) {
-				healthDelta -= +ruleSpec.hurt.s;
+				healthDelta -= +ruleSpec.hurt;
 			}
 
 			var teleport;
 
 			if (ruleSpec.teleport) {
 				teleport = {
-					x: +ruleSpec.teleport.x.s,
-					y: +ruleSpec.teleport.y.s,
-					levelName: ruleSpec.teleport.levelName.s
+					x: +ruleSpec.teleport.x,
+					y: +ruleSpec.teleport.y,
+					levelName: ruleSpec.teleport.levelName
 				};
 			}
 
 			var message;
 			if (ruleSpec.message) {
-				message = ruleSpec.message.s;
+				message = ruleSpec.message;
 			}
 
 			return new UseRule(
@@ -333,14 +339,14 @@ define([
 		return new RuleSet(rules, setsByName);
 	};
 
-	Generator.generate.levels = function(levelsSpec, legendSpec, tileDimensions) {
+	Generator.generate.levels = function (levelsSpec, legendSpec, tileDimensions) {
 		var levelsByName = {};
 
 		var namedStringedLevels = Util.objectToArray(levelsSpec, 'levelName', 'lines');
 
 		namedStringedLevels.forEach(function (namedStringedLevel) {
 			var data = namedStringedLevel.lines.map(function (line) {
-				return line.s.split('').map(function (char) {
+				return line.split('').map(function (char) {
 					var itemName = legendSpec[char];
 					return Items.collection[itemName];
 				});

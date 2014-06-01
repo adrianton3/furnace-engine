@@ -1,21 +1,21 @@
-define([], function () {
+define(['tokenizer/Token'], function (Token) {
 	'use strict';
 
-	function TokKeyword(s, coords) {
-		this.s = s;
+	function TokKeyword(value, coords) {
+		this.value = value;
 		this.coords = coords;
 	}
 
-	TokKeyword.prototype.match = function(that) {
-		return that === this.s;
+	TokKeyword.prototype.match = function (that) {
+		return that === this.value;
 	};
 
-	TokKeyword.prototype.toString = function() {
-		return "Keyword(" + this.s + ' ' + this.coords + ")";
+	TokKeyword.prototype.toString = function () {
+		return 'Keyword(' + this.value + ' ' + this.coords + ')';
 	};
 
-	TokKeyword.prototype.toHTML = function(c) {
-		return '<span style="font-weight: 900;color:' + c.keyword + '">' + this.s + '</span>';
+	TokKeyword.prototype.toHTML = function (c) {
+		return '<span style="font-weight: 900;color:' + c.keyword + '">' + this.value + '</span>';
 	};
 
 	return TokKeyword;

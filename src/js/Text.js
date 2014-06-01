@@ -15,7 +15,7 @@ define([
 	Text.sprites = [];
 
 	Text.init = function() {
-        var namedSprites = SpriteSheetGenerator.generate(Font.spritesByName, Font.colorBindings, 1);
+        var namedSprites = SpriteSheetGenerator.generate(Font.namedSprites, Font.colorBindings, 1);
 
         namedSprites.forEach(function (namedSprite) {
             Text.sprites[namedSprite.name.charCodeAt(0)] = namedSprite.sprite;

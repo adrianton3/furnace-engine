@@ -8,14 +8,18 @@ define([
 
 	var SpriteSheetGenerator = {};
 
-	SpriteSheetGenerator.generate = function(stringedSpritesByName, colorBindings, scale) {
-		var stringedSprites = Util.objectToArray(stringedSpritesByName, 'name', 'data');
+	SpriteSheetGenerator.generate = function(stringedSprites, colorBindings, scale) {
+		var colorsByBinding = Util.arrayToObject(colorBindings.map(function (binding) {
+			var stringedColor = binding.alpha !== undefined ?
+				'rgba(' + binding.red + ',' + binding.green + ',' + binding.blue + ',' + binding.alpha + ')' :
+				'rgb(' + binding.red + ',' + binding.green + ',' + binding.blue + ')';
+
+			return { name: binding.name, stringedColor: stringedColor };
+		}), 'name', 'stringedColor');
 
 		var width = Math.ceil(Math.sqrt(stringedSprites.length));
 
 		var canvas = document.createElement('canvas');
-
-		//document.body.appendChild(canvas); //
 
 		canvas.width = stringedSprites[0].data.length * width * scale;
 		canvas.height = stringedSprites[0].data.length * width * scale;
@@ -32,8 +36,8 @@ define([
 
 			data.forEach(function (line, i) {
 				// should not need s
-				line.s.split('').forEach(function (char, j) {
-					var color = colorBindings[char];
+				line.split('').forEach(function (char, j) {
+					var color = colorsByBinding[char];
 					pixel(baseOffsetX + j, baseOffsetY + i, color);
 				});
 			});
