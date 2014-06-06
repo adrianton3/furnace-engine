@@ -4,6 +4,7 @@ define([
 	'Game',
 	'tokenizer/Tokenizer',
 	'parser/Parser',
+	'validator/Validator',
 	'extractor/ValueExtractor',
 	'KeyListener',
 	'import-export/FromPng',
@@ -15,6 +16,7 @@ define([
 		Game,
 		Tokenizer,
 		Parser,
+		Validator,
 		ValueExtractor,
 		KeyListener,
 		FromPng,
@@ -45,6 +47,7 @@ define([
 		try {
 			var tokens = Tokenizer.chop(inText);
 			tree = Parser.parse(tokens);
+			Validator.validate(tree);
 
 			if (errorLine !== null) {
 				inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');

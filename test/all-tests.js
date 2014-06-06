@@ -12,5 +12,6 @@ define([
 	'test/spec/backAndForth-test',
 	'test/spec/Tokenizer-test',
 	'test/spec/Parser-test',
+	'test/spec/Validator-test',
 	'test/spec/ValueExtractor-test'
 ], function () {});
