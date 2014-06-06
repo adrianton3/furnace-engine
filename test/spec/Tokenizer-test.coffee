@@ -3,8 +3,6 @@ define [
   'tokenizer/TokEnd'
   'tokenizer/TokIdentifier'
   'tokenizer/TokStr'
-  'tokenizer/TokLPar'
-  'tokenizer/TokRPar'
   'tokenizer/TokKeyword'
   'tokenizer/TokCommSL'
   'tokenizer/TokCommML'
@@ -19,8 +17,6 @@ define [
   TokEnd
   TokIdentifier
   TokStr
-  TokLPar
-  TokRPar
   TokKeyword
   TokCommSL
   TokCommML

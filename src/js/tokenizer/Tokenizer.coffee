@@ -3,8 +3,6 @@ define [
   'tokenizer/TokEnd'
   'tokenizer/TokIdentifier'
   'tokenizer/TokStr'
-  'tokenizer/TokLPar'
-  'tokenizer/TokRPar'
   'tokenizer/TokKeyword'
   'tokenizer/TokCommSL'
   'tokenizer/TokCommML'
@@ -18,8 +16,6 @@ define [
   TokEnd
   TokIdentifier
   TokStr
-  TokLPar
-  TokRPar
   TokKeyword
   TokCommSL
   TokCommML
@@ -50,12 +46,6 @@ define [
           commentMulti str
         else
           tok.push alphanum(str)
-      else if c is '('
-        tok.push new TokLPar(str.getCoords())
-        str.advance()
-      else if c is ')'
-        tok.push new TokRPar(str.getCoords())
-        str.advance()
       else if c is '='
         tok.push new TokAssignment(str.getCoords())
         str.advance()

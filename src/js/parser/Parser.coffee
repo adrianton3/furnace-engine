@@ -2,8 +2,6 @@ define [
   'tokenizer/TokEnd'
   'tokenizer/TokIdentifier'
   'tokenizer/TokStr'
-  'tokenizer/TokLPar'
-  'tokenizer/TokRPar'
   'tokenizer/TokKeyword'
   'tokenizer/TokCommSL'
   'tokenizer/TokCommML'
@@ -18,8 +16,6 @@ define [
   TokEnd
   TokIdentifier
   TokStr
-  TokLPar
-  TokRPar
   TokKeyword
   TokCommSL
   TokCommML
@@ -37,8 +33,6 @@ define [
 
   IDENTIFIER = new TokIdentifier()
   STR = new TokStr()
-  LPAR = new TokLPar()
-  RPAR = new TokRPar()
   COMMA = new TokComma()
   SEMICOLON = new TokSemicolon()
   ARROW = new TokArrow()
@@ -49,16 +43,16 @@ define [
   Parser = {}
 
   parse = (tokenArray) ->
-    tokens = new TokenList(tokenArray)
+    tokens = new TokenList tokenArray
 
     params = parseParams(tokens)
     colors = parseColors(tokens)
     player = parsePlayer(tokens)
     objects = parseObjects(tokens)
     sets = parseSets(tokens)
-    nearRules = parseNearRules(tokens) if tokens.match('NEARRULES')
-    leaveRules = parseLeaveRules(tokens) if tokens.match('LEAVERULES')
-    enterRules = parseEnterRules(tokens) if tokens.match('ENTERRULES')
+    nearRules = parseNearRules(tokens) if tokens.match 'NEARRULES'
+    leaveRules = parseLeaveRules(tokens) if tokens.match 'LEAVERULES'
+    enterRules = parseEnterRules(tokens) if tokens.match 'ENTERRULES'
 
     # use rules must always exist
     useRules = parseUseRules(tokens)
@@ -158,9 +152,9 @@ define [
 
       chompNL tokens, 'Expected new line after player frame binding'
       until tokens.match NEWLINE
-        tokens.expect IDENTIFIER, ''
+        tokens.expect IDENTIFIER, 'Expected sprite data line'
         data.push tokens.past()
-        tokens.expect NEWLINE, ''
+        tokens.expect NEWLINE, 'Expected new line after sprite data line'
 
       playerFrames.push { name: playerFrameName, data: data }
       chompNL tokens, 'Expected new line after player frame declaration'
@@ -175,7 +169,7 @@ define [
 
     objects = []
 
-    until tokens.match('SETS')
+    until tokens.match 'SETS'
       tokens.expect IDENTIFIER, 'Expected at least one object'
       objectName = tokens.past()
 
@@ -187,9 +181,9 @@ define [
       chompNL tokens, 'Expected new line after object name binding'
 
       until tokens.match NEWLINE
-        tokens.expect IDENTIFIER, ''
+        tokens.expect IDENTIFIER, 'Expected sprite data line'
         object.data.push tokens.past()
-        tokens.expect NEWLINE, ''
+        tokens.expect NEWLINE, 'Expected new line after sprite data line'
 
       objects.push object
       chompNL tokens, 'Expected new line after object declaration'
@@ -204,7 +198,7 @@ define [
 
     sets = []
 
-    while not tokens.match('NEARRULES') and not tokens.match('LEAVERULES') and not tokens.match('ENTERRULES') and not tokens.match('USERULES')
+    until tokens.match('NEARRULES') or tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
       tokens.expect IDENTIFIER, ''
       setName = tokens.past().value
       set = name: setName
@@ -276,6 +270,8 @@ define [
       rules.push rule
     rules
 
+  Parser.parseLeaveRules = parseLeaveRules # for debugging/testing only
+
   parseEnterRules = (tokens) ->
     tokens.expect 'ENTERRULES', 'Expected ENTERRULES section after LEAVERULES'
     chompNL tokens, 'Expected new line after ENTERRULES'
@@ -333,7 +329,10 @@ define [
           rule.checkpoint = true
       chompNL tokens, 'Expected new line between rules'
       rules.push rule
+
     rules
+
+  Parser.parseEnterRules = parseEnterRules # for debugging/testing only
 
   parseUseRules = (tokens) ->
     tokens.expect 'USERULES', 'Expected USERULES section after SETS'
@@ -392,41 +391,56 @@ define [
           rule.message = tokens.past()
       chompNL tokens, 'Expected new line between rules'
       rules.push rule
+
     rules
+
+  Parser.parseUseRules = parseUseRules # for debugging/testing only
 
   parseLegend = (tokens) ->
     tokens.expect 'LEGEND', 'Expected LEGEND section after RULES'
     chompNL tokens, 'Expected new line after LEGEND'
 
-    legend = {}
+    legend = []
 
-    until tokens.match('LEVELS')
+    until tokens.match 'LEVELS'
       tokens.expect IDENTIFIER, ''
       terrainChar = tokens.past().value
-      throw terrainChar + ' already declared' if legend[terrainChar]
+
       tokens.expect IDENTIFIER, 'Expected terrain binding'
-      legend[terrainChar] = tokens.past().value
-      chompNL tokens, 'Expected new line'
+      objectName = tokens.past().value
+
+      legend.push { name: terrainChar, objectName: objectName }
+      chompNL tokens, 'Expected new line between terrain bindings'
+
     legend
+
+  Parser.parseLegend = parseLegend # for debugging/testing only
 
   parseLevels = (tokens) ->
     tokens.expect 'LEVELS', 'Expected LEVELS section after LEGEND'
     chompNL tokens, 'Expected new line after LEVELS'
 
-    levels = {}
+    levels = []
 
     until tokens.match END
       tokens.expect IDENTIFIER, 'Expected at least one level'
       levelName = tokens.past().value
-      throw levelName + ' already declared' if levels[levelName]
+
       lines = []
       chompNL tokens, 'Expected new line after level name binding'
-      until tokens.match(NEWLINE)
-        tokens.expect IDENTIFIER, ''
+      until tokens.match(NEWLINE) or tokens.match(END)
+        tokens.expect IDENTIFIER, 'Expected level data line'
         lines.push tokens.past()
-        tokens.expect NEWLINE, ''
-      levels[levelName] = lines
-      chompNL tokens, 'Expected new line after level declaration'
+        if not tokens.match END
+          tokens.expect NEWLINE, 'Expected new line after level data line'
+
+      levels.push { name: levelName, data: lines }
+
+      if not tokens.match END
+        chompNL tokens, 'Expected new line after level declaration'
+
     levels
+
+  Parser.parseLevels = parseLevels # for debugging/testing only
 
   Parser

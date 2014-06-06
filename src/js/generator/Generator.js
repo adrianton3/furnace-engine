@@ -339,22 +339,22 @@ define([
 		return new RuleSet(rules, setsByName);
 	};
 
-	Generator.generate.levels = function (levelsSpec, legendSpec, tileDimensions) {
+	Generator.generate.levels = function (namedStringedLevels, legendSpec, tileDimensions) {
 		var levelsByName = {};
 
-		var namedStringedLevels = Util.objectToArray(levelsSpec, 'levelName', 'lines');
+		var legend = Util.arrayToObject(legendSpec, 'name', 'objectName');
 
 		namedStringedLevels.forEach(function (namedStringedLevel) {
-			var data = namedStringedLevel.lines.map(function (line) {
+			var data = namedStringedLevel.data.map(function (line) {
 				return line.split('').map(function (char) {
-					var itemName = legendSpec[char];
+					var itemName = legend[char];
 					return Items.collection[itemName];
 				});
 			});
 
 			var levelDimensions = new Vec2(data[0].length, data.length);
 
-			levelsByName[namedStringedLevel.levelName] = new Level(namedStringedLevel.levelName, data, levelDimensions, tileDimensions);
+			levelsByName[namedStringedLevel.name] = new Level(namedStringedLevel.name, data, levelDimensions, tileDimensions);
 		});
 
 		return levelsByName;
