@@ -20,6 +20,14 @@ define [
     validateLevels spec.levels, spec.legend
     true
 
+  checkCollisions = (namedElements, err) ->
+    elementsByName = {}
+    namedElements.forEach (element) ->
+      name = element.name.value
+      if elementsByName[name]
+        throw new ValidatorError element.name, err
+      elementsByName[name] = true
+
   validateColorComponent = (component, name, min, max) ->
     if isNaN component.value
       throw new ValidatorError component, "#{name} value must be a number"
@@ -29,13 +37,9 @@ define [
     true
 
   validateColors = (colorsSpec) ->
-    colors = {}
-    colorsSpec.forEach (color) ->
-      colorName = color.name.value
-      if colors[colorName]
-        throw new ValidatorError color.name, 'Color binding already declared'
-      colors[colorName] = true
+    checkCollisions colorsSpec, 'Color binding already declared'
 
+    colorsSpec.forEach (color) ->
       validateColorComponent color.red, 'Red', 0, 255
       validateColorComponent color.green, 'Green', 0, 255
       validateColorComponent color.blue, 'Blue', 0, 255
