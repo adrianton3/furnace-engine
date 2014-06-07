@@ -11,7 +11,7 @@ define [], ->
 
     imageData = context.createImageData sqrt, sqrt
 
-    imageData.data[0] = Math.floor(data.length / 256)
+    imageData.data[0] = data.length // 256
     imageData.data[1] = data.length % 256
     imageData.data[3] = 255
 

@@ -13,5 +13,6 @@ src/js/extractor/*.js
 src/js/parser/Parser.js
 src/js/tokenizer/Tokenizer.js
 src/js/validator/*.js
+src/js/generator/*.js
 
 test/spec/*.js
