@@ -44,3 +44,110 @@ define [
           a rgb 11 22 33 2
           PLAYER
         ''').toThrow()
+
+    describe 'PLAYER', ->
+      getColorsSpec = (str) -> Parser.parseColors chop str
+
+      stdColorsSpec = getColorsSpec '''
+        COLORS
+        a rgb 11 22 33
+        b rgb 44 55 66
+        PLAYER
+      '''
+
+      validate = (str) ->
+        Validator.validatePlayer (Parser.parsePlayer chop str), stdColorsSpec
+
+      it 'validates a correct player spec', ->
+        validate '''
+          PLAYER
+          up
+          aa
+          ab
+
+          left
+          aa
+          ba
+
+          down
+          aa
+          aa
+
+          right
+          aa
+          aa
+
+          health
+          aa
+          aa
+
+          OBJECTS
+        '''
+        console.log 'asd'
+        expect(true).toBeTruthy()
+
+      it 'throws an error if not all the required frames are defined', ->
+        expect(-> validate '''
+            PLAYER
+            up
+            aa
+            ab
+
+            left
+            aa
+            ba
+
+            OBJECTS
+          ''').toThrow()
+
+      it 'throws an error if the frames are of different sizes', ->
+        expect(-> validate '''
+            PLAYER
+            up
+            aa
+            ab
+
+            left
+            aa
+            baa
+
+            down
+            aa
+            aa
+
+            right
+            aa
+            aa
+
+            health
+            aa
+            aa
+
+            OBJECTS
+          ''').toThrow()
+
+      it 'throws an error if the frames use undefined colors', ->
+        expect(-> validate '''
+            PLAYER
+            up
+            aa
+            ab
+
+            left
+            aa
+            ba
+
+            down
+            aa
+            ac
+
+            right
+            aa
+            aa
+
+            health
+            aa
+            aa
+
+            OBJECTS
+          ''').toThrow()

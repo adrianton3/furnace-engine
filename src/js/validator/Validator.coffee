@@ -1,7 +1,9 @@
 define [
   'validator/ValidatorError'
+  'Util'
 ], (
   ValidatorError
+  Util
 ) ->
   'use strict'
 
@@ -21,12 +23,10 @@ define [
     true
 
   checkCollisions = (namedElements, err) ->
-    elementsByName = {}
-    namedElements.forEach (element) ->
-      name = element.name.value
-      if elementsByName[name]
-        throw new ValidatorError element.name, err
-      elementsByName[name] = true
+    plucked = namedElements.map (namedElement) -> namedElement.name
+    maybeDuplicate = Util.getDuplicate plucked
+    if maybeDuplicate?
+      throw new ValidatorError maybeDuplicate, err
 
   validateColorComponent = (component, name, min, max) ->
     if isNaN component.value
@@ -51,9 +51,42 @@ define [
 
   Validator.validateColors = validateColors
 
-  validatePlayer = (playerSpec, colorsSpec) ->
-    true
+  validateSprites = (spritesSpec, colorsSpec) ->
+    checkCollisions spritesSpec, 'Sprite binding already declared'
 
+    # check for the same size
+    width = spritesSpec[0].data[0].value.length
+    height = spritesSpec[0].data.length
+
+    spritesSpec.forEach (spriteSpec) ->
+      if spriteSpec.data.length != height
+        throw new ValidatorError spriteSpec.data[0], 'Sprites must be of the same size'
+      else
+        spriteSpec.data.forEach (line, i) ->
+          if line.value.length != width
+            throw new ValidatorError line, 'Sprites must be of the same size'
+
+    colorChars = {}
+    colorsSpec.forEach (colorSpec) ->
+      colorChars[colorSpec.name.value] = true
+
+    # check for undefined color bindings
+    spritesSpec.forEach (spriteSpec) ->
+      spriteSpec.data.forEach (line) ->
+        line.value.split('').forEach (char) ->
+          if not colorChars[char]
+            throw new ValidatorError line, 'No color is bound to character ' + char
+
+
+  validatePlayer = (playerSpec, colorsSpec) ->
+    validateSprites(playerSpec, colorsSpec)
+
+    spriteNames = {}
+    playerSpec.forEach (frameSpec) -> spriteNames[frameSpec.name.value] = true
+
+    ['up', 'left', 'down', 'right', 'health'].forEach (name) ->
+      if not spriteNames[name]
+        throw new ValidatorError null, 'Missing player frame: ' + name
 
   Validator.validatePlayer = validatePlayer
 
