@@ -9,6 +9,7 @@ src/js/sampleSpec_2.js
 src/js/Font.js
 src/js/import-export/*.js
 src/js/AjaxUtil.js
+src/js/Util.js
 src/js/extractor/*.js
 src/js/parser/Parser.js
 src/js/tokenizer/Tokenizer.js
