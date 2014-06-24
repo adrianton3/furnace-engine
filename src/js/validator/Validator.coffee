@@ -79,7 +79,7 @@ define [
 
 
   validatePlayer = (playerSpec, colorsSpec) ->
-    validateSprites(playerSpec, colorsSpec)
+    validateSprites playerSpec, colorsSpec
 
     spriteNames = {}
     playerSpec.forEach (frameSpec) -> spriteNames[frameSpec.name.value] = true
@@ -91,7 +91,8 @@ define [
   Validator.validatePlayer = validatePlayer
 
   validateObjects = (objectsSpec, colorsSpec) ->
-    true
+    validateSprites objectsSpec, colorsSpec
+    #validate animation notation
 
 
   Validator.validateObjects = validateObjects
