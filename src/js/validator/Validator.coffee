@@ -127,7 +127,7 @@ define [
   Validator.validateUseRules = validateUseRules
 
   validateLegend = (legendSpec, objectsSpec) ->
-    true
+    checkCollisions legendSpec, 'Terrain unit binding already declared'
 
 
   Validator.validateLegend = validateLegend

@@ -13,5 +13,6 @@ define([
 	'test/spec/Tokenizer-test',
 	'test/spec/Parser-test',
 	'test/spec/Validator-test',
-	'test/spec/ValueExtractor-test'
+	'test/spec/ValueExtractor-test',
+	'test/spec/Util-test'
 ], function () {});

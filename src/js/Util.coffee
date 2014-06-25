@@ -77,7 +77,7 @@ define [], ->
         duplicate = element
         false
       else
-        elementsByName[name] = true
+        elementsByName[element] = true
         true
 
     duplicate

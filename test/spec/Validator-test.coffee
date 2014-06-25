@@ -163,7 +163,7 @@ define [
       validate = (str) ->
         Validator.validateObjects (Parser.parseObjects chop str), stdColorsSpec
 
-      it 'validates a correct player spec', ->
+      it 'validates a correct objects spec', ->
         expect(-> validate '''
           OBJECTS
           stone
@@ -203,4 +203,27 @@ define [
           bc
 
           SETS
+        ''').toThrow()
+
+    describe 'LEGEND', ->
+      validate = (str) ->
+        Validator.validateLegend Parser.parseLegend chop str
+
+      it 'validates a correct legend spec', ->
+        expect(-> validate '''
+          LEGEND
+          s stone
+          d dirt
+
+          LEVELS
+        ''').not.toThrow()
+
+      it 'throws an error if the same binding is used twice', ->
+        expect(-> validate '''
+          LEGEND
+          s stone
+          d dirt
+          s sand
+
+          LEVELS
         ''').toThrow()
