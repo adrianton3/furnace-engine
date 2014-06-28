@@ -14,6 +14,11 @@ Try it:
 Changelog
 ---------
 
+### 0.4.2
+ + added validation for COLORS, PLAYER, OBJECTS and LEGEND
+ + better error reporting
+ + fixed parsing related bugs
+
 ### 0.4.1
  + can access both sample games
  + can export/import a game specification to/from a png image
