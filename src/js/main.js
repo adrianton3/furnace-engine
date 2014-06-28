@@ -50,7 +50,7 @@ define([
 			Validator.validate(tree);
 
 			if (errorLine !== null) {
-				inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');
+				inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error');
 				errorLine = null;
 			}
 
@@ -63,12 +63,13 @@ define([
 			tree = null;
 			document.getElementById('compile').disabled = true;
 
-			if (ex.line !== undefined) {
-				if (ex.line !== errorLine && errorLine !== null) {
-					inWorldEditor.removeLineClass(errorLine, 'background', 'line-error');
+			if (ex.line || ex.token) {
+				var line = ex.line || ex.token.coords.line;
+				if (line !== errorLine && errorLine !== null) {
+					inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error');
 				}
-				errorLine = ex.line;
-				inWorldEditor.addLineClass(errorLine, 'background', 'line-error');
+				errorLine = line;
+				inWorldEditor.addLineClass(errorLine - 1, 'background', 'line-error');
 			}
 
 			document.getElementById('status').classList.add('err');
