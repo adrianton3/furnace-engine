@@ -549,7 +549,6 @@ w water
 6 sandE
 7 sandNE
 m table
-D door
 j floor
 J wallside
 Z wall
