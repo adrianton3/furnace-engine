@@ -922,7 +922,6 @@ C crowbar
 d dirt1
 D dirt2
 e bed
-E bottle-empty
 f floor
 g granite
 i drill-unpowered
@@ -978,7 +977,7 @@ ddDfffmdddd2fddddddd1000007dgddddddd
 dfBfmdDDddDdfdd00ddd2fTcfe6dd0000007
 dfDDddmmddddffffffffffff*fffffffBBC6
 dfddDDDddddddgdd4ddd2ffffx6dd2ffaiP6
-dBbdDddggDdddgddDddd2fffEp6dd3444445
+dBbdDddggDdddgddDddd2fffWp6dd3444445
 ddddddddDDdddddddddd3444445ddddddddd
 
 
