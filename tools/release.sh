@@ -20,7 +20,8 @@ git checkout master -- src/parser.html
 git checkout master -- src/style/style.css
 
 git checkout master -- src/js/Util.js
-git checkout master -- src/js/main.js
 git checkout master -- src/js/conv.js
+
+git add -u
 
 git status
