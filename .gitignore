@@ -17,3 +17,5 @@ src/js/validator/*.js
 src/js/generator/*.js
 
 test/spec/*.js
+
+out/
