@@ -71,16 +71,19 @@ define [], ->
   Util.getDuplicate = (array) ->
     elementsByName = {}
     duplicate = null
+    index = -1
 
-    array.every (element) ->
+    array.every (element, i) ->
       if elementsByName[element]?
         duplicate = element
+        index = i
         false
       else
         elementsByName[element] = true
         true
 
-    duplicate
+    value: duplicate
+    index: index
 
   Util.capitalize = (string) ->
     string.substring(0, 1).toUpperCase() + string.substring(1)

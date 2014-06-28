@@ -404,10 +404,10 @@ define [
 
     until tokens.match 'LEVELS'
       tokens.expect IDENTIFIER, ''
-      terrainChar = tokens.past().value
+      terrainChar = tokens.past()
 
       tokens.expect IDENTIFIER, 'Expected terrain binding'
-      objectName = tokens.past().value
+      objectName = tokens.past()
 
       legend.push { name: terrainChar, objectName: objectName }
       chompNL tokens, 'Expected new line between terrain bindings'

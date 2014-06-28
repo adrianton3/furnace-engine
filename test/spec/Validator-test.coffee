@@ -150,6 +150,36 @@ define [
           OBJECTS
         ''').toThrow()
 
+      it 'throws an error if the same frame has been declared twice', ->
+        expect(-> validate '''
+          PLAYER
+          up
+          aa
+          ab
+
+          left
+          aa
+          ba
+
+          down
+          aa
+          aa
+
+          right
+          aa
+          aa
+
+          health
+          aa
+          aa
+
+          down
+          aa
+          aa
+
+          OBJECTS
+        ''').toThrow()
+
     describe 'OBJECTS', ->
       getColorsSpec = (str) -> Parser.parseColors chop str
 
@@ -205,6 +235,24 @@ define [
           SETS
         ''').toThrow()
 
+      it 'throws an error if the same object was declared twice', ->
+        expect(-> validate '''
+          OBJECTS
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ba
+
+          stone
+          aa
+          ba
+
+          SETS
+        ''').toThrow()
+
     describe 'LEGEND', ->
       validate = (str) ->
         Validator.validateLegend Parser.parseLegend chop str
@@ -224,6 +272,16 @@ define [
           s stone
           d dirt
           s sand
+
+          LEVELS
+        ''').toThrow()
+
+      it 'throws an error if the same object is bound to more than one chars', ->
+        expect(-> validate '''
+          LEGEND
+          s stone
+          d dirt
+          a stone
 
           LEVELS
         ''').toThrow()

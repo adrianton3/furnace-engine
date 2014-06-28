@@ -22,11 +22,11 @@ define [
     validateLevels spec.levels, spec.legend
     true
 
-  checkCollisions = (namedElements, err) ->
-    plucked = namedElements.map (namedElement) -> namedElement.name
+  checkCollisions = (array, valueExtractor, tokenExtractor, err) ->
+    plucked = array.map valueExtractor
     maybeDuplicate = Util.getDuplicate plucked
-    if maybeDuplicate?
-      throw new ValidatorError maybeDuplicate, err
+    if maybeDuplicate.value?
+      throw new ValidatorError tokenExtractor(array[maybeDuplicate.index]), err
 
   validateColorComponent = (component, name, min, max) ->
     if isNaN component.value
@@ -37,7 +37,12 @@ define [
     true
 
   validateColors = (colorsSpec) ->
-    checkCollisions colorsSpec, 'Color binding already declared'
+    checkCollisions(
+      colorsSpec
+      (colorSpec) -> colorSpec.name.value
+      (colorSpec) -> colorSpec.name
+      'Color binding already declared'
+    )
 
     colorsSpec.forEach (color) ->
       validateColorComponent color.red, 'Red', 0, 255
@@ -52,7 +57,12 @@ define [
   Validator.validateColors = validateColors
 
   validateSprites = (spritesSpec, colorsSpec) ->
-    checkCollisions spritesSpec, 'Sprite binding already declared'
+    checkCollisions(
+      spritesSpec
+      (spriteSpec) -> spriteSpec.name.value
+      (spriteSpec) -> spriteSpec.name
+      'Sprite binding already declared'
+    )
 
     # check for the same size
     width = spritesSpec[0].data[0].value.length
@@ -94,47 +104,56 @@ define [
     validateSprites objectsSpec, colorsSpec
     #validate animation notation
 
-
   Validator.validateObjects = validateObjects
-  validateSets = (setSpec, objectsSpec) ->
-    true
 
+  validateSets = (setSpec, objectsSpec) ->
+    # check for collisions
+    # check for referencing undefined objects or sets
 
   Validator.validateSets = validateSets
 
   validateNearRules = (rulesSpec, setSpec, objectsSpec) ->
-    true
-
+    # check for referencing undefined objects or sets
 
   Validator.validateNearRules = validateNearRules
 
   validateLeaveRules = (rulesSpec, setSpec, objectsSpec) ->
-    true
-
+    # check for referencing undefined objects or sets
 
   Validator.validateLeaveRules = validateLeaveRules
 
   validateEnterRules = (rulesSpec, setSpec, objectsSpec) ->
-    true
-
+    # check for referencing undefined objects or sets
 
   Validator.validateEnterRules = validateEnterRules
 
   validateUseRules = (rulesSpec, setSpec, objectsSpec) ->
-    true
-
+    # check for referencing undefined objects or sets
 
   Validator.validateUseRules = validateUseRules
 
   validateLegend = (legendSpec, objectsSpec) ->
-    checkCollisions legendSpec, 'Terrain unit binding already declared'
+    checkCollisions(
+      legendSpec
+      (bindingSpec) -> bindingSpec.name.value
+      (bindingSpec) -> bindingSpec.name
+      'Terrain unit binding already declared'
+    )
 
+    inverseMapping = legendSpec.map (terrainBinding) -> terrainBinding.objectName
+
+    checkCollisions(
+      inverseMapping
+      (bindingSpec) -> bindingSpec.value
+      (bindingSpec) -> bindingSpec
+      'Object already bound'
+    )
+    # check referencing undefined objects
 
   Validator.validateLegend = validateLegend
 
   validateLevels = (levelsSpec, legendSpec) ->
-    true
-
+    # check for non-rectangular levels
 
   Validator.validateLevels = validateLevels
 

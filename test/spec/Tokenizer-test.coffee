@@ -54,6 +54,42 @@ define [
         new TokEnd new TokenCoords 1, 8
       ]
 
+    describe 'new line', ->
+      it 'can tokenize a new line char', ->
+        expect(chop '\n'). toEqual [
+          new TokNewLine new TokenCoords 1, 1
+          new TokEnd new TokenCoords 2, 1
+        ]
+
+      it 'can tokenize more new lines', ->
+        expect(chop '\n\n\n'). toEqual [
+          new TokNewLine new TokenCoords 1, 1
+          new TokNewLine new TokenCoords 2, 1
+          new TokNewLine new TokenCoords 3, 1
+          new TokEnd new TokenCoords 4, 1
+        ]
+
+      it 'can tokenize new lines after whitespace', ->
+        expect(chop '  \n \n\n   \n'). toEqual [
+          new TokNewLine new TokenCoords 1, 3
+          new TokNewLine new TokenCoords 2, 2
+          new TokNewLine new TokenCoords 3, 1
+          new TokNewLine new TokenCoords 4, 4
+          new TokEnd new TokenCoords 5, 1
+        ]
+
+      it 'can tokenize new lines after alphanumerics', ->
+        expect(chop 'asd\nfgh\n\njhg\n'). toEqual [
+          new TokIdentifier 'asd', new TokenCoords 1, 1
+          new TokNewLine new TokenCoords 1, 4
+          new TokIdentifier 'fgh', new TokenCoords 2, 1
+          new TokNewLine new TokenCoords 2, 4
+          new TokNewLine new TokenCoords 3, 1
+          new TokIdentifier 'jhg', new TokenCoords 4, 1
+          new TokNewLine new TokenCoords 4, 4
+          new TokEnd new TokenCoords 5, 1
+        ]
+
     describe 'comments', ->
       it 'can ignore single line comments', ->
         expect(chop '//PARAM').toEqual [

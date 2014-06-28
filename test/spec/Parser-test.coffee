@@ -199,14 +199,14 @@ define [
             LEVELS
           ''').toEqual []
 
-      it 'can parse a color binding', ->
+      it 'can parse a terrain binding', ->
         expect(parse '''
             LEGEND
             a asd
             LEVELS
           ''').toEqual [{ name: 'a', objectName: 'asd' }]
 
-      it 'can parse more color bindings', ->
+      it 'can parse more terrain bindings', ->
         expect(parse '''
             LEGEND
             a asd

@@ -18,8 +18,9 @@ define([
 		if (this.str.charAt(this.pointer) === '\n') {
 			this.line++;
 			this.col = 1;
+		} else {
+			this.col++;
 		}
-		else this.col++;
 
 		this.pointer++;
 	};
