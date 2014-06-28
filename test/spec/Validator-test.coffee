@@ -31,6 +31,13 @@ define [
           PLAYER
         ''').toThrow()
 
+      it 'throws an error if the bindings are too long', ->
+        expect(-> validate '''
+          COLORS
+          aa rgb 11 22 33
+          PLAYER
+        ''').toThrow()
+
       it 'throws an error if the ranges are not right', ->
         expect(-> validate '''
           COLORS
@@ -282,6 +289,15 @@ define [
           s stone
           d dirt
           a stone
+
+          LEVELS
+        ''').toThrow()
+
+      it 'throws an error if bindings are too long', ->
+        expect(-> validate '''
+          LEGEND
+          st stone
+          d dirt
 
           LEVELS
         ''').toThrow()

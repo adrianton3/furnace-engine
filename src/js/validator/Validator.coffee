@@ -45,6 +45,9 @@ define [
     )
 
     colorsSpec.forEach (color) ->
+      if color.name.value.length != 1
+        throw new ValidatorError color.name, 'Color bindings must have one character in length'
+
       validateColorComponent color.red, 'Red', 0, 255
       validateColorComponent color.green, 'Green', 0, 255
       validateColorComponent color.blue, 'Blue', 0, 255
@@ -135,19 +138,24 @@ define [
   validateLegend = (legendSpec, objectsSpec) ->
     checkCollisions(
       legendSpec
-      (bindingSpec) -> bindingSpec.name.value
-      (bindingSpec) -> bindingSpec.name
+      (binding) -> binding.name.value
+      (binding) -> binding.name
       'Terrain unit binding already declared'
     )
 
-    inverseMapping = legendSpec.map (terrainBinding) -> terrainBinding.objectName
+    inverseMapping = legendSpec.map (binding) -> binding.objectName
 
     checkCollisions(
       inverseMapping
-      (bindingSpec) -> bindingSpec.value
-      (bindingSpec) -> bindingSpec
+      (binding) -> binding.value
+      (binding) -> binding
       'Object already bound'
     )
+
+    legendSpec.forEach (binding) ->
+      if binding.name.value.length != 1
+        throw new ValidatorError binding.name, 'Terrain bindings must have one character in length'
+
     # check referencing undefined objects
 
   Validator.validateLegend = validateLegend
