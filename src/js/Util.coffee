@@ -3,6 +3,7 @@ define [], ->
 
   Util = {}
 
+
   Util.maptree = (tree, fun, predicate) ->
     return fun(tree)  if predicate(tree)
     if tree instanceof Array
@@ -14,6 +15,7 @@ define [], ->
       for key of tree
         newObj[key] = Util.maptree(tree[key], fun, predicate)
       newObj
+
 
   Util.findFirst = (array, predicate) ->
     i = 0
@@ -27,15 +29,18 @@ define [], ->
       i++
     return
 
+
   Util.removeFirst = (array, predicate) ->
     firstMatch = Util.findFirst(array, predicate)
     array.splice firstMatch.index, 1  if firstMatch
     return
 
+
   Util.remove = (array, element) ->
     Util.removeFirst array, (entry) ->
       entry is element
     return
+
 
   Util.objectToArray = (object, nameProperty, dataProperty) ->
     array = []
@@ -46,6 +51,7 @@ define [], ->
       array.push entry
     array
 
+
   Util.arrayToObject = (array, nameProperty, dataProperty) ->
     object = {}
     array.forEach (element) ->
@@ -53,11 +59,24 @@ define [], ->
       return
     object
 
+
+  Util.pluck = (array, propertyName) ->
+    array.map (element) -> element[propertyName]
+
+
+  Util.getSet = (array, nameProperty) ->
+    set = {}
+    array.forEach (element) ->
+      set[element[nameProperty]] = true
+    set
+
+
   Util.mapOnKeys = (object, fun) ->
     ret = {}
     for key of object
       ret[key] = fun(object[key])
     ret
+
 
   Util.groupBy = (array, fun) ->
     groups = {}
@@ -67,6 +86,7 @@ define [], ->
       groups[ret].push element
       return
     groups
+
 
   Util.getDuplicate = (array) ->
     elementsByName = {}
@@ -85,8 +105,10 @@ define [], ->
     value: duplicate
     index: index
 
+
   Util.capitalize = (string) ->
     string.substring(0, 1).toUpperCase() + string.substring(1)
+
 
   Util.isCapitalized = (string) ->
     string.substring(0, 1).toUpperCase() is string.substring(0, 1)

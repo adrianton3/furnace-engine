@@ -260,9 +260,34 @@ define [
           SETS
         ''').toThrow()
 
+    # sets
+    # near
+    # leave
+    # enter
+    # use
+
     describe 'LEGEND', ->
-      validate = (str) ->
-        Validator.validateLegend Parser.parseLegend chop str
+      stdObjectSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      validate = (legendSource) ->
+        legendSpec = Parser.parseLegend chop legendSource
+        Validator.validateLegend legendSpec, stdObjectSpec
 
       it 'validates a correct legend spec', ->
         expect(-> validate '''
@@ -301,3 +326,14 @@ define [
 
           LEVELS
         ''').toThrow()
+
+      it 'throws an error if the bound object is undefined', ->
+        expect(-> validate '''
+          LEGEND
+          m marble
+          d dirt
+
+          LEVELS
+        ''').toThrow()
+
+    # levels

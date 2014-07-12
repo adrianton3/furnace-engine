@@ -189,6 +189,12 @@ define [
           name: 'b', data: ['456', '645', '564']
         }]
 
+    # sets
+    # near
+    # leave
+    # enter
+    # use
+
     describe 'LEGEND', ->
       parse = (str) ->
         extract Parser.parseLegend chop str

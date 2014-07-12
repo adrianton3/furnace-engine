@@ -152,11 +152,14 @@ define [
       'Object already bound'
     )
 
+    objectsSet = Util.getSet (Util.pluck objectsSpec, 'name'), 'value'
+    legendSpec.forEach (binding) ->
+      if not objectsSet[binding.objectName.value]
+        throw new ValidatorError binding.objectName, 'Bound object is undefined'
+
     legendSpec.forEach (binding) ->
       if binding.name.value.length != 1
         throw new ValidatorError binding.name, 'Terrain bindings must have one character in length'
-
-    # check referencing undefined objects
 
   Validator.validateLegend = validateLegend
 
