@@ -2,16 +2,21 @@ define [
   'tokenizer/Tokenizer'
   'parser/TokenList'
   'parser/Parser'
-  'validator/Validator'
+  'validator/Validator',
+  'test/CustomMatchers'
 ], (
   Tokenizer
   TokenList
   Parser
   Validator
+  CustomMatchers
 ) ->
   describe 'Validator', ->
     chop = (str) ->
       new TokenList Tokenizer.chop str
+
+    beforeEach ->
+      jasmine.addMatchers CustomMatchers
 
     describe 'COLOR', ->
       validate = (str) ->
@@ -260,9 +265,129 @@ define [
           SETS
         ''').toThrow()
 
+    describe 'SETS', ->
+      stdObjectSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      validate = (setsSource) ->
+        setsSpec = Parser.parseSets chop setsSource
+        Validator.validateSets setsSpec, stdObjectSpec
+
+      it 'validates a correct sets spec', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = stone sand
+
+            NEARRULES
+          ''').not.toThrow()
+
+      it 'throws an error if bound set is not capitalized', ->
+        expect(-> validate '''
+            SETS
+            Aa = stone dirt
+            bb = stone sand
+
+            NEARRULES
+          ''').toThrow()
+
+      it 'throws an error if bound set was already bound', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            A = stone sand
+
+            NEARRULES
+          ''').toThrow()
+
+      it 'throws an error when referencing undefined objects', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = sand marble
+
+            NEARRULES
+          ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing sets in enumerations', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = sand A
+
+            NEARRULES
+          ''').toThrowWithMessage 'Elements of an enumeration must be objects'
+
+      it 'throws an error when referencing objects as operands', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and sand
+
+            NEARRULES
+          ''').toThrowWithMessage 'Can only perform set operations on sets'
+
+      it 'throws an error when referencing undefined sets', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and C
+            C = sand
+
+            NEARRULES
+          ''').toThrowWithMessage 'Set C was not defined'
+
+      it 'throws an error when defining self-referential sets', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and B
+
+            NEARRULES
+          ''').toThrowWithMessage 'Cannot reference a set in its own definition'
+
+    # near
+    # leave
+    # enter
+    # use
+
     describe 'LEGEND', ->
-      validate = (str) ->
-        Validator.validateLegend Parser.parseLegend chop str
+      stdObjectSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      validate = (legendSource) ->
+        legendSpec = Parser.parseLegend chop legendSource
+        Validator.validateLegend legendSpec, stdObjectSpec
 
       it 'validates a correct legend spec', ->
         expect(-> validate '''
@@ -301,3 +426,76 @@ define [
 
           LEVELS
         ''').toThrow()
+
+      it 'throws an error if the bound object is undefined', ->
+        expect(-> validate '''
+          LEGEND
+          m marble
+          d dirt
+
+          LEVELS
+        ''').toThrow()
+
+    describe 'LEVELS', ->
+      stdLegendSpec = Parser.parseLegend chop '''
+          LEGEND
+
+          s stone
+          d dirt
+          m marble
+
+          LEVELS
+        '''
+
+      validate = (levelsSource) ->
+        levelsSpec = Parser.parseLevels chop levelsSource
+        Validator.validateLevels levelsSpec, stdLegendSpec
+
+      it 'validates a correct levels spec', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dd
+
+          second
+          sdmm
+          ddmm
+          ddmm
+        ''').not.toThrow()
+
+      it 'throws an error when redefining a level', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dd
+
+          second
+          sd
+          dd
+
+          first
+          sd
+          dd
+        ''').toThrowWithMessage 'Level already declared'
+
+      it 'throws an error when defining a non-rectangular level', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          d
+        ''').toThrowWithMessage 'All level lines must have the same length'
+
+      it 'throws an error when using unbound chars', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dz
+        ''').toThrowWithMessage 'No terrain unit is bound to character "z"'

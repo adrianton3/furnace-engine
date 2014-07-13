@@ -17,5 +17,8 @@ src/js/validator/*.js
 src/js/generator/*.js
 
 test/spec/*.js
+test/all-tests.js
+test/CustomMatchers.js
+test/jasmine-main.js
 
-out/
+out

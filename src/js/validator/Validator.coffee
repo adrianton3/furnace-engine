@@ -110,8 +110,47 @@ define [
   Validator.validateObjects = validateObjects
 
   validateSets = (setSpec, objectsSpec) ->
-    # check for collisions
-    # check for referencing undefined objects or sets
+    checkCollisions(
+      setSpec
+      (setSpec) -> setSpec.name.value
+      (setSpec) -> setSpec.name
+      'Set binding already declared'
+    )
+
+    setSpec.forEach (binding) ->
+      if not Util.isCapitalized binding.name.value
+        throw new ValidatorError binding.name, 'Set bindings must be capitalized'
+
+    objectsSet = Util.getSet (Util.pluck objectsSpec, 'name'), 'value'
+
+    setsDefined = {}
+    setSpec.forEach (binding) ->
+      setsDefined[binding.name.value] = true
+      if binding.operator?
+        if not Util.isCapitalized binding.operand1.value
+          throw new ValidatorError binding.operand1, 'Can only perform set operations on sets'
+        if not Util.isCapitalized binding.operand2.value
+          throw new ValidatorError binding.operand2, 'Can only perform set operations on sets'
+
+        if not setsDefined[binding.operand1.value]
+          throw new ValidatorError binding.operand1, "Set #{binding.operand1.value} was not defined"
+        if not setsDefined[binding.operand2.value]
+          throw new ValidatorError binding.operand2, "Set #{binding.operand2.value} was not defined"
+
+        if binding.operand1.value == binding.name.value or binding.operand2.value == binding.name.value
+          throw new ValidatorError binding.operand1, 'Cannot reference a set in its own definition'
+      else
+        binding.elements.forEach (element) ->
+          if Util.isCapitalized element.value
+            throw new ValidatorError element, 'Elements of an enumeration must be objects'
+
+          if not objectsSet[element.value]
+            throw new ValidatorError element, "Object #{element.value} was not defined"
+
+
+
+  # check for referencing  undefined objects or sets
+    # check for misuse of sets and elements
 
   Validator.validateSets = validateSets
 
@@ -152,16 +191,37 @@ define [
       'Object already bound'
     )
 
+    objectsSet = Util.getSet (Util.pluck objectsSpec, 'name'), 'value'
+
+    legendSpec.forEach (binding) ->
+      if not objectsSet[binding.objectName.value]
+        throw new ValidatorError binding.objectName, 'Bound object is undefined'
+
     legendSpec.forEach (binding) ->
       if binding.name.value.length != 1
         throw new ValidatorError binding.name, 'Terrain bindings must have one character in length'
 
-    # check referencing undefined objects
-
   Validator.validateLegend = validateLegend
 
   validateLevels = (levelsSpec, legendSpec) ->
-    # check for non-rectangular levels
+    checkCollisions(
+      levelsSpec
+      (binding) -> binding.name.value
+      (binding) -> binding.name
+      'Level already declared'
+    )
+
+    terrainChars = Util.getSet (Util.pluck legendSpec, 'name'), 'value'
+
+    levelsSpec.forEach (levelsSpec) ->
+      levelWidth = levelsSpec.data[0].value.length
+      levelsSpec.data.forEach (line) ->
+        if line.value.length != levelWidth
+          throw new ValidatorError line, 'All level lines must have the same length'
+
+        line.value.split('').forEach (char) ->
+          if not terrainChars[char]
+            throw new ValidatorError line, 'No terrain unit is bound to character "' + char + '"'
 
   Validator.validateLevels = validateLevels
 
