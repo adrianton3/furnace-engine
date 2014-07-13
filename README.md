@@ -3,7 +3,7 @@ furnace-engine
 
 A PuzzleScript like engine
 
-Try it:
+**Try it:**
 
 * [Sample game: Little furnace](http://madflame991.github.io/furnace-engine/src/index.html?sample=little-furnace)
 * [Sample game: Under the snow](http://madflame991.github.io/furnace-engine/src/index.html?sample=under-the-snow)
@@ -13,6 +13,9 @@ Try it:
 
 Changelog
 ---------
+
+### 0.4.3
+ + added validation for SETS and LEVELS
 
 ### 0.4.2
  + added validation for COLORS, PLAYER, OBJECTS and LEGEND
