@@ -68,6 +68,19 @@
       });
       return object;
     };
+    Util.pluck = function(array, propertyName) {
+      return array.map(function(element) {
+        return element[propertyName];
+      });
+    };
+    Util.getSet = function(array, nameProperty) {
+      var set;
+      set = {};
+      array.forEach(function(element) {
+        return set[element[nameProperty]] = true;
+      });
+      return set;
+    };
     Util.mapOnKeys = function(object, fun) {
       var key, ret;
       ret = {};
@@ -2087,6 +2100,9 @@ define('tokenizer/TokStr',['tokenizer/Token'], function (Token) {
 		this.coords = coords;
 	}
 
+	TokStr.prototype = Object.create(Token.prototype);
+	TokStr.prototype.constructor = TokStr;
+
 	TokStr.prototype.match = function (that) {
 		return that instanceof TokStr;
 	};
@@ -2109,6 +2125,9 @@ define('tokenizer/TokKeyword',['tokenizer/Token'], function (Token) {
 		this.value = value;
 		this.coords = coords;
 	}
+
+	TokKeyword.prototype = Object.create(Token.prototype);
+	TokKeyword.prototype.constructor = TokKeyword;
 
 	TokKeyword.prototype.match = function (that) {
 		return that === this.value;
@@ -2701,24 +2720,24 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       sets = [];
       while (!(tokens.match('NEARRULES') || tokens.match('LEAVERULES') || tokens.match('ENTERRULES') || tokens.match('USERULES'))) {
         tokens.expect(IDENTIFIER, '');
-        setName = tokens.past().value;
+        setName = tokens.past();
         set = {
           name: setName
         };
         tokens.expect(ASSIGNMENT, 'Expecting assignment operator');
         tokens.expect(IDENTIFIER, 'Expecting identifier after assignment');
-        firstOperandOrElement = tokens.past().value;
+        firstOperandOrElement = tokens.past();
         if (tokens.match('or') || tokens.match('and') || tokens.match('minus')) {
-          operator = tokens.next().value;
+          operator = tokens.next();
           tokens.expect(IDENTIFIER);
-          secondOperand = tokens.past().value;
+          secondOperand = tokens.past();
           set.operator = operator;
           set.operand1 = firstOperandOrElement;
           set.operand2 = secondOperand;
         } else {
           elements = [firstOperandOrElement];
           while (tokens.match(IDENTIFIER)) {
-            elements.push(tokens.next().value);
+            elements.push(tokens.next());
           }
           set.elements = elements;
         }
@@ -2930,7 +2949,7 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       levels = [];
       while (!tokens.match(END)) {
         tokens.expect(IDENTIFIER, 'Expected at least one level');
-        levelName = tokens.past().value;
+        levelName = tokens.past();
         lines = [];
         chompNL(tokens, 'Expected new line after level name binding');
         while (!(tokens.match(NEWLINE) || tokens.match(END))) {
@@ -3081,7 +3100,50 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       return validateSprites(objectsSpec, colorsSpec);
     };
     Validator.validateObjects = validateObjects;
-    validateSets = function(setSpec, objectsSpec) {};
+    validateSets = function(setSpec, objectsSpec) {
+      var objectsSet, setsDefined;
+      checkCollisions(setSpec, function(setSpec) {
+        return setSpec.name.value;
+      }, function(setSpec) {
+        return setSpec.name;
+      }, 'Set binding already declared');
+      setSpec.forEach(function(binding) {
+        if (!Util.isCapitalized(binding.name.value)) {
+          throw new ValidatorError(binding.name, 'Set bindings must be capitalized');
+        }
+      });
+      objectsSet = Util.getSet(Util.pluck(objectsSpec, 'name'), 'value');
+      setsDefined = {};
+      return setSpec.forEach(function(binding) {
+        setsDefined[binding.name.value] = true;
+        if (binding.operator != null) {
+          if (!Util.isCapitalized(binding.operand1.value)) {
+            throw new ValidatorError(binding.operand1, 'Can only perform set operations on sets');
+          }
+          if (!Util.isCapitalized(binding.operand2.value)) {
+            throw new ValidatorError(binding.operand2, 'Can only perform set operations on sets');
+          }
+          if (!setsDefined[binding.operand1.value]) {
+            throw new ValidatorError(binding.operand1, "Set " + binding.operand1.value + " was not defined");
+          }
+          if (!setsDefined[binding.operand2.value]) {
+            throw new ValidatorError(binding.operand2, "Set " + binding.operand2.value + " was not defined");
+          }
+          if (binding.operand1.value === binding.name.value || binding.operand2.value === binding.name.value) {
+            throw new ValidatorError(binding.operand1, 'Cannot reference a set in its own definition');
+          }
+        } else {
+          return binding.elements.forEach(function(element) {
+            if (Util.isCapitalized(element.value)) {
+              throw new ValidatorError(element, 'Elements of an enumeration must be objects');
+            }
+            if (!objectsSet[element.value]) {
+              throw new ValidatorError(element, "Object " + element.value + " was not defined");
+            }
+          });
+        }
+      });
+    };
     Validator.validateSets = validateSets;
     validateNearRules = function(rulesSpec, setSpec, objectsSpec) {};
     Validator.validateNearRules = validateNearRules;
@@ -3092,7 +3154,7 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
     validateUseRules = function(rulesSpec, setSpec, objectsSpec) {};
     Validator.validateUseRules = validateUseRules;
     validateLegend = function(legendSpec, objectsSpec) {
-      var inverseMapping;
+      var inverseMapping, objectsSet;
       checkCollisions(legendSpec, function(binding) {
         return binding.name.value;
       }, function(binding) {
@@ -3106,6 +3168,12 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       }, function(binding) {
         return binding;
       }, 'Object already bound');
+      objectsSet = Util.getSet(Util.pluck(objectsSpec, 'name'), 'value');
+      legendSpec.forEach(function(binding) {
+        if (!objectsSet[binding.objectName.value]) {
+          throw new ValidatorError(binding.objectName, 'Bound object is undefined');
+        }
+      });
       return legendSpec.forEach(function(binding) {
         if (binding.name.value.length !== 1) {
           throw new ValidatorError(binding.name, 'Terrain bindings must have one character in length');
@@ -3113,7 +3181,29 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       });
     };
     Validator.validateLegend = validateLegend;
-    validateLevels = function(levelsSpec, legendSpec) {};
+    validateLevels = function(levelsSpec, legendSpec) {
+      var terrainChars;
+      checkCollisions(levelsSpec, function(binding) {
+        return binding.name.value;
+      }, function(binding) {
+        return binding.name;
+      }, 'Level already declared');
+      terrainChars = Util.getSet(Util.pluck(legendSpec, 'name'), 'value');
+      return levelsSpec.forEach(function(levelsSpec) {
+        var levelWidth;
+        levelWidth = levelsSpec.data[0].value.length;
+        return levelsSpec.data.forEach(function(line) {
+          if (line.value.length !== levelWidth) {
+            throw new ValidatorError(line, 'All level lines must have the same length');
+          }
+          return line.value.split('').forEach(function(char) {
+            if (!terrainChars[char]) {
+              throw new ValidatorError(line, 'No terrain unit is bound to character "' + char + '"');
+            }
+          });
+        });
+      });
+    };
     Validator.validateLevels = validateLevels;
     return Validator;
   });
