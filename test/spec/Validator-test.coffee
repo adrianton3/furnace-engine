@@ -260,7 +260,56 @@ define [
           SETS
         ''').toThrow()
 
-    # sets
+    describe 'SETS', ->
+      stdObjectSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      validate = (setsSource) ->
+        setsSpec = Parser.parseSets chop setsSource
+        Validator.validateSets setsSpec, stdObjectSpec
+
+      it 'validates a correct sets spec', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = stone sand
+
+            NEARRULES
+          ''').not.toThrow()
+
+      it 'throws an error if bound set is not capitalized', ->
+        expect(-> validate '''
+            SETS
+            Aa = stone dirt
+            bb = stone sand
+
+            NEARRULES
+          ''').toThrow()
+
+      it 'throws an error if bound set was already bound', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            A = stone sand
+
+            NEARRULES
+          ''').toThrow()
+
     # near
     # leave
     # enter

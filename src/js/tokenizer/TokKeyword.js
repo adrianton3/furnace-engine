@@ -6,6 +6,9 @@ define(['tokenizer/Token'], function (Token) {
 		this.coords = coords;
 	}
 
+	TokKeyword.prototype = Object.create(Token.prototype);
+	TokKeyword.prototype.constructor = TokKeyword;
+
 	TokKeyword.prototype.match = function (that) {
 		return that === this.value;
 	};

@@ -189,7 +189,43 @@ define [
           name: 'b', data: ['456', '645', '564']
         }]
 
-    # sets
+    describe 'SETS', ->
+      parse = (str) ->
+        extract Parser.parseSets chop str
+
+      it 'can parse no sets', ->
+        expect(parse '''
+            SETS
+            NEARRULES
+          ''').toEqual []
+
+      it 'can parse a one element set', ->
+        expect(parse '''
+            SETS
+            S = stone
+            NEARRULES
+          ''').toEqual [{
+          name: 'S', elements: ['stone']
+        }]
+
+      it 'can parse a multiple element set', ->
+        expect(parse '''
+            SETS
+            S = stone dirt sand
+            NEARRULES
+          ''').toEqual [{
+          name: 'S', elements: ['stone', 'dirt', 'sand']
+        }]
+
+      it 'can parse a set obtained from 2 other sets', ->
+        expect(parse '''
+            SETS
+            S = A and B
+            NEARRULES
+          ''').toEqual [{
+          name: 'S', operator: 'and', operand1: 'A', operand2: 'B'
+        }]
+
     # near
     # leave
     # enter

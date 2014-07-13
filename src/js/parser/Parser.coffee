@@ -200,21 +200,21 @@ define [
 
     until tokens.match('NEARRULES') or tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
       tokens.expect IDENTIFIER, ''
-      setName = tokens.past().value
+      setName = tokens.past()
       set = name: setName
       tokens.expect ASSIGNMENT, 'Expecting assignment operator'
       tokens.expect IDENTIFIER, 'Expecting identifier after assignment'
-      firstOperandOrElement = tokens.past().value
+      firstOperandOrElement = tokens.past()
       if tokens.match('or') or tokens.match('and') or tokens.match('minus')
-        operator = tokens.next().value
+        operator = tokens.next()
         tokens.expect IDENTIFIER
-        secondOperand = tokens.past().value
+        secondOperand = tokens.past()
         set.operator = operator
         set.operand1 = firstOperandOrElement
         set.operand2 = secondOperand
       else
         elements = [firstOperandOrElement]
-        elements.push tokens.next().value while tokens.match(IDENTIFIER)
+        elements.push tokens.next() while tokens.match(IDENTIFIER)
         set.elements = elements
       sets.push set
       chompNL tokens, 'Expected new line after set declaration'

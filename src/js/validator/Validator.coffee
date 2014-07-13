@@ -110,8 +110,20 @@ define [
   Validator.validateObjects = validateObjects
 
   validateSets = (setSpec, objectsSpec) ->
-    # check for collisions
-    # check for referencing undefined objects or sets
+    checkCollisions(
+      setSpec
+      (setSpec) -> setSpec.name.value
+      (setSpec) -> setSpec.name
+      'Set binding already declared'
+    )
+
+    setSpec.forEach (binding) ->
+      firstChar = binding.name.value[0]
+      if firstChar < 'A' or firstChar > 'Z'
+        throw new ValidatorError binding.name, 'Set bindings must be capitalized'
+
+    # check for referencing  undefined objects or sets
+    # check for misuse of sets and elements
 
   Validator.validateSets = validateSets
 
