@@ -192,6 +192,7 @@ define [
     )
 
     objectsSet = Util.getSet (Util.pluck objectsSpec, 'name'), 'value'
+
     legendSpec.forEach (binding) ->
       if not objectsSet[binding.objectName.value]
         throw new ValidatorError binding.objectName, 'Bound object is undefined'
@@ -203,7 +204,24 @@ define [
   Validator.validateLegend = validateLegend
 
   validateLevels = (levelsSpec, legendSpec) ->
-    # check for non-rectangular levels
+    checkCollisions(
+      levelsSpec
+      (binding) -> binding.name.value
+      (binding) -> binding.name
+      'Level already declared'
+    )
+
+    terrainChars = Util.getSet (Util.pluck legendSpec, 'name'), 'value'
+
+    levelsSpec.forEach (levelsSpec) ->
+      levelWidth = levelsSpec.data[0].value.length
+      levelsSpec.data.forEach (line) ->
+        if line.value.length != levelWidth
+          throw new ValidatorError line, 'All level lines must have the same length'
+
+        line.value.split('').forEach (char) ->
+          if not terrainChars[char]
+            throw new ValidatorError line, 'No terrain unit is bound to character "' + char + '"'
 
   Validator.validateLevels = validateLevels
 

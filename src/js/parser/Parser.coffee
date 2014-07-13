@@ -424,7 +424,7 @@ define [
 
     until tokens.match END
       tokens.expect IDENTIFIER, 'Expected at least one level'
-      levelName = tokens.past().value
+      levelName = tokens.past()
 
       lines = []
       chompNL tokens, 'Expected new line after level name binding'

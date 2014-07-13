@@ -436,4 +436,66 @@ define [
           LEVELS
         ''').toThrow()
 
-    # levels
+    describe 'LEVELS', ->
+      stdLegendSpec = Parser.parseLegend chop '''
+          LEGEND
+
+          s stone
+          d dirt
+          m marble
+
+          LEVELS
+        '''
+
+      validate = (levelsSource) ->
+        levelsSpec = Parser.parseLevels chop levelsSource
+        Validator.validateLevels levelsSpec, stdLegendSpec
+
+      it 'validates a correct levels spec', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dd
+
+          second
+          sdmm
+          ddmm
+          ddmm
+        ''').not.toThrow()
+
+      it 'throws an error when redefining a level', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dd
+
+          second
+          sd
+          dd
+
+          first
+          sd
+          dd
+        ''').toThrowWithMessage 'Level already declared'
+
+      it 'throws an error when defining a non-rectangular level', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          d
+        ''').toThrowWithMessage 'All level lines must have the same length'
+
+      it 'throws an error when using unbound chars', ->
+        expect(-> validate '''
+          LEVELS
+
+          first
+          sd
+          dz
+        ''').toThrowWithMessage 'No terrain unit is bound to character "z"'
