@@ -2,16 +2,21 @@ define [
   'tokenizer/Tokenizer'
   'parser/TokenList'
   'parser/Parser'
-  'validator/Validator'
+  'validator/Validator',
+  'test/CustomMatchers'
 ], (
   Tokenizer
   TokenList
   Parser
   Validator
+  CustomMatchers
 ) ->
   describe 'Validator', ->
     chop = (str) ->
       new TokenList Tokenizer.chop str
+
+    beforeEach ->
+      jasmine.addMatchers CustomMatchers
 
     describe 'COLOR', ->
       validate = (str) ->
@@ -309,6 +314,52 @@ define [
 
             NEARRULES
           ''').toThrow()
+
+      it 'throws an error when referencing undefined objects', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = sand marble
+
+            NEARRULES
+          ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing sets in enumerations', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = sand A
+
+            NEARRULES
+          ''').toThrowWithMessage 'Elements of an enumeration must be objects'
+
+      it 'throws an error when referencing objects as operands', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and sand
+
+            NEARRULES
+          ''').toThrowWithMessage 'Can only perform set operations on sets'
+
+      it 'throws an error when referencing undefined sets', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and C
+            C = sand
+
+            NEARRULES
+          ''').toThrowWithMessage 'Set C was not defined'
+
+      it 'throws an error when defining self-referential sets', ->
+        expect(-> validate '''
+            SETS
+            A = stone dirt
+            B = A and B
+
+            NEARRULES
+          ''').toThrowWithMessage 'Cannot reference a set in its own definition'
 
     # near
     # leave

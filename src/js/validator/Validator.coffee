@@ -118,11 +118,38 @@ define [
     )
 
     setSpec.forEach (binding) ->
-      firstChar = binding.name.value[0]
-      if firstChar < 'A' or firstChar > 'Z'
+      if not Util.isCapitalized binding.name.value
         throw new ValidatorError binding.name, 'Set bindings must be capitalized'
 
-    # check for referencing  undefined objects or sets
+    objectsSet = Util.getSet (Util.pluck objectsSpec, 'name'), 'value'
+
+    setsDefined = {}
+    setSpec.forEach (binding) ->
+      setsDefined[binding.name.value] = true
+      if binding.operator?
+        if not Util.isCapitalized binding.operand1.value
+          throw new ValidatorError binding.operand1, 'Can only perform set operations on sets'
+        if not Util.isCapitalized binding.operand2.value
+          throw new ValidatorError binding.operand2, 'Can only perform set operations on sets'
+
+        if not setsDefined[binding.operand1.value]
+          throw new ValidatorError binding.operand1, "Set #{binding.operand1.value} was not defined"
+        if not setsDefined[binding.operand2.value]
+          throw new ValidatorError binding.operand2, "Set #{binding.operand2.value} was not defined"
+
+        if binding.operand1.value == binding.name.value or binding.operand2.value == binding.name.value
+          throw new ValidatorError binding.operand1, 'Cannot reference a set in its own definition'
+      else
+        binding.elements.forEach (element) ->
+          if Util.isCapitalized element.value
+            throw new ValidatorError element, 'Elements of an enumeration must be objects'
+
+          if not objectsSet[element.value]
+            throw new ValidatorError element, "Object #{element.value} was not defined"
+
+
+
+  # check for referencing  undefined objects or sets
     # check for misuse of sets and elements
 
   Validator.validateSets = validateSets
