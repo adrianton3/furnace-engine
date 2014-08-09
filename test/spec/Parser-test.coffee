@@ -60,6 +60,7 @@ define [
               parts: ['fgh', 'jkl']
             }])
 
+
     describe 'COLORS', ->
       parse = (str) ->
         extract Parser.parseColors chop str
@@ -95,6 +96,7 @@ define [
             a rgba 11 22 33 44
             PLAYER
           ''').toEqual [{ name: 'a', red: '11', green: '22', blue: '33', alpha: '44' }]
+
 
     describe 'PLAYER', ->
       parse = (str) ->
@@ -136,6 +138,7 @@ define [
           }, {
             name: 'b', data: ['456', '645', '564']
           }]
+
 
     describe 'OBJECTS', ->
       parse = (str) ->
@@ -189,6 +192,7 @@ define [
           name: 'b', data: ['456', '645', '564']
         }]
 
+
     describe 'SETS', ->
       parse = (str) ->
         extract Parser.parseSets chop str
@@ -226,10 +230,288 @@ define [
           name: 'S', operator: 'and', operand1: 'A', operand2: 'B'
         }]
 
-    # near
-    # leave
-    # enter
-    # use
+
+    describe 'NEARRULES', ->
+      parse = (str) ->
+        extract Parser.parseNearRules chop str
+
+      it 'can parse no rules', ->
+        expect(parse '''
+            NEARRULES
+            LEAVERULES
+          ''').toEqual []
+
+      it 'can parse a simple rule', ->
+        expect(parse '''
+            NEARRULES
+            a -> b
+            LEAVERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }]
+
+      it 'can parse a rule with heal', ->
+        expect(parse '''
+            NEARRULES
+            a -> b ; heal 3
+            LEAVERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          heal: '3'
+        }]
+
+      it 'can parse a rule with hurt', ->
+        expect(parse '''
+            NEARRULES
+            a -> b ; hurt 10
+            LEAVERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          hurt: '10'
+        }]
+
+
+    describe 'LEAVERULES', ->
+      parse = (str) ->
+        extract Parser.parseLeaveRules chop str
+
+      it 'can parse no rules', ->
+        expect(parse '''
+            LEAVERULES
+            ENTERRULES
+          ''').toEqual []
+
+      it 'can parse a rule', ->
+        expect(parse '''
+            LEAVERULES
+            a -> b
+            ENTERRULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }]
+
+      it 'can parse more rules', ->
+        expect(parse '''
+            LEAVERULES
+            a -> b
+            c -> d
+            ENTERRULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }, {
+          inTerrainItemName: 'c'
+          outTerrainItemName: 'd'
+        }]
+
+
+    describe 'ENTERRULES', ->
+      parse = (str) ->
+        extract Parser.parseEnterRules chop str
+
+      it 'can parse no rules', ->
+        expect(parse '''
+            ENTERRULES
+            USERULES
+          ''').toEqual []
+
+      it 'can parse a simple rule', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }]
+
+      it 'can parse a rule with heal', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; heal 3
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          heal: '3'
+        }]
+
+      it 'can parse a rule with hurt', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; hurt 10
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          hurt: '10'
+        }]
+
+      it 'can parse a rule with teleport', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; teleport second 10 20
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          teleport:
+            levelName: 'second'
+            x: '10'
+            y: '20'
+        }]
+
+      it 'can parse a rule with message', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; message "ala bala portocala"
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          message: 'ala bala portocala'
+        }]
+
+      it 'can parse a rule with checkpoint', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; checkpoint
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          checkpoint: true
+        }]
+
+      it 'can parse a rule with one give item', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; give 5 stone
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          give: [{
+            itemName: 'stone'
+            quantity: '5'
+          }]
+        }]
+
+      it 'can parse a rule with more give items', ->
+        expect(parse '''
+            ENTERRULES
+            a -> b ; give 5 stone , 7 marble
+            USERULES
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          give: [{
+            itemName: 'stone'
+            quantity: '5'
+          }, {
+            itemName: 'marble'
+            quantity: '7'
+          }]
+        }]
+
+
+    describe 'USERULES', ->
+      parse = (str) ->
+        extract Parser.parseUseRules chop str
+
+      it 'can parse no rules', ->
+        expect(parse '''
+            USERULES
+            LEGEND
+          ''').toEqual []
+
+      it 'can parse a simple rule', ->
+        expect(parse '''
+            USERULES
+            a b -> c
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+        }]
+
+      it 'can parse a rule with heal', ->
+        expect(parse '''
+            USERULES
+            a b -> c ; heal 3
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          heal: '3'
+        }]
+
+      it 'can parse a rule with hurt', ->
+        expect(parse '''
+            USERULES
+            a b -> c ; hurt 10
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          hurt: '10'
+        }]
+
+      it 'can parse a rule with teleport', ->
+        expect(parse '''
+            USERULES
+            a b -> c ; teleport second 10 20
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          teleport:
+            levelName: 'second'
+            x: '10'
+            y: '20'
+        }]
+
+      it 'can parse a rule with one give item', ->
+        expect(parse '''
+            USERULES
+            a b -> c ; give 5 stone
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          give: [{
+            itemName: 'stone'
+            quantity: '5'
+          }]
+        }]
+
+      it 'can parse a rule with more give items', ->
+        expect(parse '''
+            USERULES
+            a b -> c ; give 5 stone , 7 marble
+            LEGEND
+          ''').toEqual [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          give: [{
+            itemName: 'stone'
+            quantity: '5'
+          }, {
+            itemName: 'marble'
+            quantity: '7'
+          }]
+        }]
+
 
     describe 'LEGEND', ->
       parse = (str) ->
@@ -259,6 +541,7 @@ define [
           }, {
             name: 'b', objectName: 'fgh'
           }]
+
 
     describe 'LEVELS', ->
       parse = (str) ->
