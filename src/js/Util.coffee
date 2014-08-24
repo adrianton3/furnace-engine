@@ -60,14 +60,34 @@ define [], ->
     object
 
 
+  Util.indexBy = (array, nameProperty) ->
+    map = {}
+    if typeof nameProperty == 'string'
+      array.forEach (element) ->
+        map[element[nameProperty]] = element
+        return
+    else
+      array.forEach (element) ->
+        map[nameProperty(element)] = element
+        return
+    map
+
+
   Util.pluck = (array, propertyName) ->
     array.map (element) -> element[propertyName]
 
 
   Util.getSet = (array, nameProperty) ->
     set = {}
-    array.forEach (element) ->
-      set[element[nameProperty]] = true
+
+    if nameProperty?
+      array.forEach (element) ->
+        set[element[nameProperty]] = true
+        return
+    else
+      array.forEach (element) ->
+        set[element] = true
+        return
     set
 
 
@@ -111,6 +131,7 @@ define [], ->
 
 
   Util.isCapitalized = (string) ->
-    string.substring(0, 1).toUpperCase() is string.substring(0, 1)
+    'A' <= string[0] <= 'Z'
+#    string.substring(0, 1).toUpperCase() == string.substring(0, 1)
 
   Util

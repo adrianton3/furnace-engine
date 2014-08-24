@@ -361,7 +361,87 @@ define [
             NEARRULES
           ''').toThrowWithMessage 'Cannot reference a set in its own definition'
 
-    # near
+
+    describe 'NEARRULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      validate = (nearRulesSource) ->
+        nearRulesSpec = Parser.parseNearRules chop nearRulesSource
+        Validator.validateNearRules nearRulesSpec, stdObjectsSpec, stdSetsSpec
+
+      it 'validates a correct near rules spec', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; hurt 10
+          A -> stone ; heal 10
+          A -> _terrain
+          LEAVERULES
+        ''').not.toThrow()
+
+      it 'throws an error when referencing undefined objects in the right hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          marble -> dirt
+          LEAVERULES
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing undefined sets in the right hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          D -> dirt
+          LEAVERULES
+        ''').toThrowWithMessage 'Set D was not defined'
+
+      it 'throws an error when referencing undefined objects in the left hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> marble
+          LEAVERULES
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing sets in the left hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> A
+          LEAVERULES
+        ''').toThrowWithMessage 'Sets are not allowed in the left hand side of rules'
+
+      it 'throws an error if heal quantity is not a number', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; heal asd
+          LEAVERULES
+        ''').toThrowWithMessage 'Heal quantity must be a number'
+
+      it 'throws an error if hurt quantity is not a number', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; hurt asd
+          LEAVERULES
+        ''').toThrowWithMessage 'Hurt quantity must be a number'
+
     # leave
     # enter
     # use
