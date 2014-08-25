@@ -443,7 +443,74 @@ define [
         ''').toThrowWithMessage 'Hurt quantity must be a number'
 
     # leave
-    # enter
+
+    describe 'ENTERRULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      stdLevelsSpec = Parser.parseLevels chop '''
+          LEVELS
+
+          level1
+          aaabb
+          bbaaa
+        '''
+
+      validate = (enterRulesSource) ->
+        enterRulesSpec = Parser.parseEnterRules chop enterRulesSource
+        Validator.validateEnterRules enterRulesSpec, stdObjectsSpec, stdSetsSpec, stdLevelsSpec
+
+      it 'validates a correct enter rules spec', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> stone ; teleport level1 3 1
+          A -> stone ; heal 10
+          A -> _terrain
+          USERULES
+        ''').not.toThrow()
+
+      it 'throws an error if teleport points to an inexistent level', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level2 3 1
+          USERULES
+        ''').toThrowWithMessage 'Level level2 does not exist'
+
+      it 'throws an error if teleportation coordinates are not numbers', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level1 a1 3
+          USERULES
+        ''').toThrowWithMessage 'X teleport coordinate must be a number'
+
+      it 'throws an error if teleportation coordinates lie outside the bound of the level', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level1 1 3
+          USERULES
+        ''').toThrowWithMessage 'Teleport coordinates must be within level bounds'
+
     # use
 
     describe 'LEGEND', ->
