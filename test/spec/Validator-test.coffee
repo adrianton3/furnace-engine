@@ -442,7 +442,44 @@ define [
           LEAVERULES
         ''').toThrowWithMessage 'Hurt quantity must be a number'
 
-    # leave
+
+    describe 'LEAVERULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      validate = (leaveRulesSource) ->
+        leaveRulesSpec = Parser.parseLeaveRules chop leaveRulesSource
+        Validator.validateLeaveRules leaveRulesSpec, stdObjectsSpec, stdSetsSpec
+
+      it 'validates a correct leave rules spec', ->
+        expect(-> validate '''
+          LEAVERULES
+          stone -> dirt
+          A -> stone
+          ENTERRULES
+        ''').not.toThrow()
+
 
     describe 'ENTERRULES', ->
       stdObjectsSpec = Parser.parseObjects chop '''
@@ -511,7 +548,53 @@ define [
           USERULES
         ''').toThrowWithMessage 'Teleport coordinates must be within level bounds'
 
-    # use
+
+    describe 'USERULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      stdLevelsSpec = Parser.parseLevels chop '''
+          LEVELS
+
+          level1
+          aaabb
+          bbaaa
+        '''
+
+      validate = (useRulesSource) ->
+        useRulesSpec = Parser.parseUseRules chop useRulesSource
+        Validator.validateUseRules useRulesSpec, stdObjectsSpec, stdSetsSpec, stdLevelsSpec
+
+      it 'validates a correct use rules spec', ->
+        expect(-> validate '''
+          USERULES
+          stone sand -> sand ; teleport level1 3 1
+          A sand -> _inventory ; heal 10
+          stone A -> _terrain
+          LEGEND
+        ''').not.toThrow()
+
 
     describe 'LEGEND', ->
       stdObjectSpec = Parser.parseObjects chop '''
