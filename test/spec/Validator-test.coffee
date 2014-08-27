@@ -595,6 +595,34 @@ define [
           LEGEND
         ''').not.toThrow()
 
+      it 'throws an error if the terrain item was not defined', ->
+        expect(-> validate '''
+          USERULES
+          marble sand -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error if the terrain item was not defined', ->
+        expect(-> validate '''
+          USERULES
+          sand marble -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error if the terrain set was not defined', ->
+        expect(-> validate '''
+          USERULES
+          B sand -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Set B was not defined'
+
+      it 'throws an error if the terrain set was not defined', ->
+        expect(-> validate '''
+          USERULES
+          sand B -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Set B was not defined'
+
 
     describe 'LEGEND', ->
       stdObjectSpec = Parser.parseObjects chop '''

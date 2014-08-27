@@ -309,7 +309,7 @@ define [
 
     rulesSpec.forEach (rule) ->
       validateInTerrainItem rule.inTerrainItemName, objectsSet, setsSet
-      validateInInventoryItem rule.inTerrainItemName, objectsSet, setsSet
+      validateInInventoryItem rule.inInventoryItemName, objectsSet, setsSet
       validateOutTerrainItem rule.outTerrainItemName, objectsSet, extrasSet
       if rule.give? then validateGive rule.give, objectsSet, extrasSet
       if rule.heal? then validateHeal rule.heal
