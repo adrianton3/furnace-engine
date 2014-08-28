@@ -68,6 +68,20 @@
       });
       return object;
     };
+    Util.indexBy = function(array, nameProperty) {
+      var map;
+      map = {};
+      if (typeof nameProperty === 'string') {
+        array.forEach(function(element) {
+          map[element[nameProperty]] = element;
+        });
+      } else {
+        array.forEach(function(element) {
+          map[nameProperty(element)] = element;
+        });
+      }
+      return map;
+    };
     Util.pluck = function(array, propertyName) {
       return array.map(function(element) {
         return element[propertyName];
@@ -76,9 +90,15 @@
     Util.getSet = function(array, nameProperty) {
       var set;
       set = {};
-      array.forEach(function(element) {
-        return set[element[nameProperty]] = true;
-      });
+      if (nameProperty != null) {
+        array.forEach(function(element) {
+          set[element[nameProperty]] = true;
+        });
+      } else {
+        array.forEach(function(element) {
+          set[element] = true;
+        });
+      }
       return set;
     };
     Util.mapOnKeys = function(object, fun) {
@@ -126,7 +146,8 @@
       return string.substring(0, 1).toUpperCase() + string.substring(1);
     };
     Util.isCapitalized = function(string) {
-      return string.substring(0, 1).toUpperCase() === string.substring(0, 1);
+      var _ref;
+      return ('A' <= (_ref = string[0]) && _ref <= 'Z');
     };
     return Util;
   });
@@ -2994,17 +3015,25 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
 (function() {
   define('validator/Validator',['validator/ValidatorError', 'Util'], function(ValidatorError, Util) {
     
-    var Validator, checkCollisions, validateColorComponent, validateColors, validateEnterRules, validateLeaveRules, validateLegend, validateLevels, validateNearRules, validateObjects, validatePlayer, validateSets, validateSprites, validateUseRules;
+    var Validator, checkCollisions, validateColorComponent, validateColors, validateEnterRules, validateGive, validateHeal, validateHurt, validateInInventoryItem, validateInTerrainItem, validateLeaveRules, validateLegend, validateLevels, validateNearRules, validateObjects, validateOutTerrainItem, validatePlayer, validateSets, validateSprites, validateTeleport, validateUseRules;
     Validator = {};
     Validator.validate = function(spec) {
       validateColors(spec.colors);
       validatePlayer(spec.player, spec.colors);
       validateObjects(spec.objects, spec.colors);
       validateSets(spec.sets, spec.objects);
-      validateNearRules(spec.nearRules, spec.sets, spec.objects);
-      validateLeaveRules(spec.leaveRules, spec.sets, spec.objects);
-      validateEnterRules(spec.enterRules, spec.sets, spec.objects);
-      validateUseRules(spec.useRules, spec.sets, spec.objects);
+      if (spec.nearRules.length) {
+        validateNearRules(spec.nearRules, spec.objects, spec.sets);
+      }
+      if (spec.leaveRules.length) {
+        validateLeaveRules(spec.leaveRules, spec.objects, spec.sets);
+      }
+      if (spec.enterRules.length) {
+        validateEnterRules(spec.enterRules, spec.objects, spec.sets, spec.levels);
+      }
+      if (spec.useRules.length) {
+        validateUseRules(spec.useRules, spec.objects, spec.sets, spec.levels);
+      }
       validateLegend(spec.legend, spec.objects);
       validateLevels(spec.levels, spec.legend);
       return true;
@@ -3145,13 +3174,184 @@ define('parser/TokenList',['ParserError'], function(ParserError) {
       });
     };
     Validator.validateSets = validateSets;
-    validateNearRules = function(rulesSpec, setSpec, objectsSpec) {};
+    validateInTerrainItem = function(inTerrainItemName, objectsSet, setsSet) {
+      if (Util.isCapitalized(inTerrainItemName.value)) {
+        if (setsSet[inTerrainItemName.value] == null) {
+          throw new ValidatorError(inTerrainItemName, "Set " + inTerrainItemName.value + " was not defined");
+        }
+      } else {
+        if (objectsSet[inTerrainItemName.value] == null) {
+          throw new ValidatorError(inTerrainItemName, "Object " + inTerrainItemName.value + " was not defined");
+        }
+      }
+    };
+    validateInInventoryItem = function(inInventoryItemName, objectsSet, setsSet) {
+      if (Util.isCapitalized(inInventoryItemName.value)) {
+        if (setsSet[inInventoryItemName.value] == null) {
+          throw new ValidatorError(inInventoryItemName, "Set " + inInventoryItemName.value + " was not defined");
+        }
+      } else {
+        if (objectsSet[inInventoryItemName.value] == null) {
+          throw new ValidatorError(inInventoryItemName, "Object " + inInventoryItemName.value + " was not defined");
+        }
+      }
+    };
+    validateOutTerrainItem = function(outTerrainItemName, objectsSet, extrasSet) {
+      if (extrasSet[outTerrainItemName.value]) {
+        return;
+      }
+      if (Util.isCapitalized(outTerrainItemName.value)) {
+        throw new ValidatorError(outTerrainItemName, "Sets are not allowed in the left hand side of rules");
+      }
+      if (!((objectsSet[outTerrainItemName.value] != null) || outTerrainItemName.value === '_terrain')) {
+        throw new ValidatorError(outTerrainItemName, "Object " + outTerrainItemName.value + " was not defined");
+      }
+    };
+    validateGive = function(giveSpec, objectsSet, extrasSet) {
+      return giveSpec.forEach(function(entry) {
+        if (isNaN(entry.quantity.value)) {
+          throw new ValidatorError(entry.quantity, "Quantity must be a number");
+        }
+        if (extrasSet[entry.itemName.value]) {
+          return;
+        }
+        if (objectsSet[entry.itemName.value] == null) {
+          throw new ValidatorError(entry.itemName, "Object " + entry.itemName.value + " was not defined");
+        }
+      });
+    };
+    validateTeleport = function(teleportSpec, levelsSet) {
+      var level, _ref, _ref1;
+      if (isNaN(teleportSpec.x.value)) {
+        throw new ValidatorError(teleportSpec.x, "X teleport coordinate must be a number");
+      }
+      if (isNaN(teleportSpec.y.value)) {
+        throw new ValidatorError(teleportSpec.y, "Y teleport coordinate must be a number");
+      }
+      if (levelsSet[teleportSpec.levelName.value] == null) {
+        throw new ValidatorError(teleportSpec.levelName, "Level " + teleportSpec.levelName.value + " does not exist");
+      }
+      level = levelsSet[teleportSpec.levelName.value];
+      if (!((0 <= (_ref = +teleportSpec.x.value) && _ref <= level.data[0].value.length))) {
+        throw new ValidatorError(teleportSpec.x, "Teleport coordinates must be within level bounds");
+      }
+      if (!((0 <= (_ref1 = +teleportSpec.y.value) && _ref1 <= level.data.length))) {
+        throw new ValidatorError(teleportSpec.y, "Teleport coordinates must be within level bounds");
+      }
+    };
+    validateHeal = function(healSpec) {
+      if (isNaN(healSpec.value)) {
+        throw new ValidatorError(healSpec, "Heal quantity must be a number");
+      }
+    };
+    validateHurt = function(hurtSpec) {
+      if (isNaN(hurtSpec.value)) {
+        throw new ValidatorError(hurtSpec, "Hurt quantity must be a number");
+      }
+    };
+    validateNearRules = function(rulesSpec, objectsSpec, setsSpec) {
+      var extrasSet, objectsSet, setsSet;
+      objectsSet = Util.getSet(objectsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      setsSet = Util.getSet(setsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      extrasSet = {
+        _terrain: true
+      };
+      return rulesSpec.forEach(function(rule) {
+        validateInTerrainItem(rule.inTerrainItemName, objectsSet, setsSet);
+        validateOutTerrainItem(rule.outTerrainItemName, objectsSet, extrasSet);
+        if (rule.heal != null) {
+          validateHeal(rule.heal);
+        }
+        if (rule.hurt != null) {
+          return validateHurt(rule.hurt);
+        }
+      });
+    };
     Validator.validateNearRules = validateNearRules;
-    validateLeaveRules = function(rulesSpec, setSpec, objectsSpec) {};
+    validateLeaveRules = function(rulesSpec, objectsSpec, setsSpec) {
+      var extrasSet, objectsSet, setsSet;
+      objectsSet = Util.getSet(objectsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      setsSet = Util.getSet(setsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      extrasSet = {};
+      return rulesSpec.forEach(function(rule) {
+        validateInTerrainItem(rule.inTerrainItemName, objectsSet, setsSet);
+        return validateOutTerrainItem(rule.outTerrainItemName, objectsSet, extrasSet);
+      });
+    };
     Validator.validateLeaveRules = validateLeaveRules;
-    validateEnterRules = function(rulesSpec, setSpec, objectsSpec) {};
+    validateEnterRules = function(rulesSpec, objectsSpec, setsSpec, levelsSpec) {
+      var extrasSet, levelsSet, objectsSet, setsSet;
+      objectsSet = Util.getSet(objectsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      setsSet = Util.getSet(setsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      extrasSet = {
+        '_terrain': true
+      };
+      levelsSet = Util.indexBy(levelsSpec, function(entry) {
+        return entry.name.value;
+      });
+      return rulesSpec.forEach(function(rule) {
+        validateInTerrainItem(rule.inTerrainItemName, objectsSet, setsSet);
+        validateOutTerrainItem(rule.outTerrainItemName, objectsSet, extrasSet);
+        if (rule.give != null) {
+          validateGive(rule.give, objectsSet, extrasSet);
+        }
+        if (rule.heal != null) {
+          validateHeal(rule.heal);
+        }
+        if (rule.hurt != null) {
+          validateHurt(rule.hurt);
+        }
+        if (rule.teleport != null) {
+          return validateTeleport(rule.teleport, levelsSet);
+        }
+      });
+    };
     Validator.validateEnterRules = validateEnterRules;
-    validateUseRules = function(rulesSpec, setSpec, objectsSpec) {};
+    validateUseRules = function(rulesSpec, objectsSpec, setsSpec, levelsSpec) {
+      var extrasSet, levelsSet, objectsSet, setsSet;
+      objectsSet = Util.getSet(objectsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      setsSet = Util.getSet(setsSpec.map(function(entry) {
+        return entry.name.value;
+      }));
+      extrasSet = {
+        _terrain: true,
+        _inventory: true
+      };
+      levelsSet = Util.indexBy(levelsSpec, function(entry) {
+        return entry.name.value;
+      });
+      return rulesSpec.forEach(function(rule) {
+        validateInTerrainItem(rule.inTerrainItemName, objectsSet, setsSet);
+        validateInInventoryItem(rule.inInventoryItemName, objectsSet, setsSet);
+        validateOutTerrainItem(rule.outTerrainItemName, objectsSet, extrasSet);
+        if (rule.give != null) {
+          validateGive(rule.give, objectsSet, extrasSet);
+        }
+        if (rule.heal != null) {
+          validateHeal(rule.heal);
+        }
+        if (rule.hurt != null) {
+          validateHurt(rule.hurt);
+        }
+        if (rule.teleport != null) {
+          return validateTeleport(rule.teleport, levelsSet);
+        }
+      });
+    };
     Validator.validateUseRules = validateUseRules;
     validateLegend = function(legendSpec, objectsSpec) {
       var inverseMapping, objectsSet;
