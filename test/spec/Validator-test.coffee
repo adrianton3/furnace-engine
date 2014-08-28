@@ -361,10 +361,268 @@ define [
             NEARRULES
           ''').toThrowWithMessage 'Cannot reference a set in its own definition'
 
-    # near
-    # leave
-    # enter
-    # use
+
+    describe 'NEARRULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      validate = (nearRulesSource) ->
+        nearRulesSpec = Parser.parseNearRules chop nearRulesSource
+        Validator.validateNearRules nearRulesSpec, stdObjectsSpec, stdSetsSpec
+
+      it 'validates a correct near rules spec', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; hurt 10
+          A -> stone ; heal 10
+          A -> _terrain
+          LEAVERULES
+        ''').not.toThrow()
+
+      it 'throws an error when referencing undefined objects in the right hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          marble -> dirt
+          LEAVERULES
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing undefined sets in the right hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          D -> dirt
+          LEAVERULES
+        ''').toThrowWithMessage 'Set D was not defined'
+
+      it 'throws an error when referencing undefined objects in the left hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> marble
+          LEAVERULES
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error when referencing sets in the left hand side', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> A
+          LEAVERULES
+        ''').toThrowWithMessage 'Sets are not allowed in the left hand side of rules'
+
+      it 'throws an error if heal quantity is not a number', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; heal asd
+          LEAVERULES
+        ''').toThrowWithMessage 'Heal quantity must be a number'
+
+      it 'throws an error if hurt quantity is not a number', ->
+        expect(-> validate '''
+          NEARRULES
+          stone -> dirt ; hurt asd
+          LEAVERULES
+        ''').toThrowWithMessage 'Hurt quantity must be a number'
+
+
+    describe 'LEAVERULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      validate = (leaveRulesSource) ->
+        leaveRulesSpec = Parser.parseLeaveRules chop leaveRulesSource
+        Validator.validateLeaveRules leaveRulesSpec, stdObjectsSpec, stdSetsSpec
+
+      it 'validates a correct leave rules spec', ->
+        expect(-> validate '''
+          LEAVERULES
+          stone -> dirt
+          A -> stone
+          ENTERRULES
+        ''').not.toThrow()
+
+
+    describe 'ENTERRULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      stdLevelsSpec = Parser.parseLevels chop '''
+          LEVELS
+
+          level1
+          aaabb
+          bbaaa
+        '''
+
+      validate = (enterRulesSource) ->
+        enterRulesSpec = Parser.parseEnterRules chop enterRulesSource
+        Validator.validateEnterRules enterRulesSpec, stdObjectsSpec, stdSetsSpec, stdLevelsSpec
+
+      it 'validates a correct enter rules spec', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> stone ; teleport level1 3 1
+          A -> stone ; heal 10
+          A -> _terrain
+          USERULES
+        ''').not.toThrow()
+
+      it 'throws an error if teleport points to an inexistent level', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level2 3 1
+          USERULES
+        ''').toThrowWithMessage 'Level level2 does not exist'
+
+      it 'throws an error if teleportation coordinates are not numbers', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level1 a1 3
+          USERULES
+        ''').toThrowWithMessage 'X teleport coordinate must be a number'
+
+      it 'throws an error if teleportation coordinates lie outside the bound of the level', ->
+        expect(-> validate '''
+          ENTERRULES
+          stone -> dirt ; teleport level1 1 3
+          USERULES
+        ''').toThrowWithMessage 'Teleport coordinates must be within level bounds'
+
+
+    describe 'USERULES', ->
+      stdObjectsSpec = Parser.parseObjects chop '''
+          OBJECTS
+
+          stone
+          aa
+          ab
+
+          dirt
+          aa
+          ac
+
+          sand
+          aa
+          ad
+
+          SETS
+        '''
+
+      stdSetsSpec = Parser.parseSets chop '''
+          SETS
+          A = stone dirt
+          NEARRULES
+        '''
+
+      stdLevelsSpec = Parser.parseLevels chop '''
+          LEVELS
+
+          level1
+          aaabb
+          bbaaa
+        '''
+
+      validate = (useRulesSource) ->
+        useRulesSpec = Parser.parseUseRules chop useRulesSource
+        Validator.validateUseRules useRulesSpec, stdObjectsSpec, stdSetsSpec, stdLevelsSpec
+
+      it 'validates a correct use rules spec', ->
+        expect(-> validate '''
+          USERULES
+          stone sand -> sand ; teleport level1 3 1
+          A sand -> _inventory ; heal 10
+          stone A -> _terrain
+          LEGEND
+        ''').not.toThrow()
+
+      it 'throws an error if the terrain item was not defined', ->
+        expect(-> validate '''
+          USERULES
+          marble sand -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error if the terrain item was not defined', ->
+        expect(-> validate '''
+          USERULES
+          sand marble -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Object marble was not defined'
+
+      it 'throws an error if the terrain set was not defined', ->
+        expect(-> validate '''
+          USERULES
+          B sand -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Set B was not defined'
+
+      it 'throws an error if the terrain set was not defined', ->
+        expect(-> validate '''
+          USERULES
+          sand B -> sand
+          LEGEND
+        ''').toThrowWithMessage 'Set B was not defined'
+
 
     describe 'LEGEND', ->
       stdObjectSpec = Parser.parseObjects chop '''

@@ -14,10 +14,10 @@ define [
     validatePlayer spec.player, spec.colors
     validateObjects spec.objects, spec.colors
     validateSets spec.sets, spec.objects
-    validateNearRules spec.nearRules, spec.sets, spec.objects
-    validateLeaveRules spec.leaveRules, spec.sets, spec.objects
-    validateEnterRules spec.enterRules, spec.sets, spec.objects
-    validateUseRules spec.useRules, spec.sets, spec.objects
+    if spec.nearRules.length then validateNearRules spec.nearRules, spec.objects, spec.sets
+    if spec.leaveRules.length then validateLeaveRules spec.leaveRules, spec.objects, spec.sets
+    if spec.enterRules.length then validateEnterRules spec.enterRules, spec.objects, spec.sets, spec.levels
+    if spec.useRules.length then validateUseRules spec.useRules, spec.objects, spec.sets, spec.levels
     validateLegend spec.legend, spec.objects
     validateLevels spec.levels, spec.legend
     true
@@ -147,32 +147,177 @@ define [
           if not objectsSet[element.value]
             throw new ValidatorError element, "Object #{element.value} was not defined"
 
-
-
-  # check for referencing  undefined objects or sets
-    # check for misuse of sets and elements
-
   Validator.validateSets = validateSets
 
-  validateNearRules = (rulesSpec, setSpec, objectsSpec) ->
-    # check for referencing undefined objects or sets
+
+  validateInTerrainItem = (inTerrainItemName, objectsSet, setsSet) ->
+    if Util.isCapitalized inTerrainItemName.value
+      unless setsSet[inTerrainItemName.value]?
+        throw new ValidatorError(
+          inTerrainItemName
+          "Set #{inTerrainItemName.value} was not defined"
+        )
+    else
+      unless objectsSet[inTerrainItemName.value]?
+        throw new ValidatorError(
+          inTerrainItemName
+          "Object #{inTerrainItemName.value} was not defined"
+        )
+
+  validateInInventoryItem = (inInventoryItemName, objectsSet, setsSet) ->
+    if Util.isCapitalized inInventoryItemName.value
+      unless setsSet[inInventoryItemName.value]?
+        throw new ValidatorError(
+          inInventoryItemName
+          "Set #{inInventoryItemName.value} was not defined"
+        )
+    else
+      unless objectsSet[inInventoryItemName.value]?
+        throw new ValidatorError(
+          inInventoryItemName
+          "Object #{inInventoryItemName.value} was not defined"
+        )
+
+  validateOutTerrainItem = (outTerrainItemName, objectsSet, extrasSet) ->
+    return if extrasSet[outTerrainItemName.value]
+
+    if Util.isCapitalized outTerrainItemName.value
+      throw new ValidatorError(
+        outTerrainItemName
+        "Sets are not allowed in the left hand side of rules"
+      )
+
+    unless objectsSet[outTerrainItemName.value]? or outTerrainItemName.value == '_terrain'
+      throw new ValidatorError(
+        outTerrainItemName
+        "Object #{outTerrainItemName.value} was not defined"
+      )
+
+  validateGive = (giveSpec, objectsSet, extrasSet) ->
+    giveSpec.forEach (entry) ->
+      if isNaN entry.quantity.value
+        throw new ValidatorError(
+          entry.quantity
+          "Quantity must be a number"
+        )
+
+      return if extrasSet[entry.itemName.value]
+
+      unless objectsSet[entry.itemName.value]?
+        throw new ValidatorError(
+          entry.itemName
+          "Object #{entry.itemName.value} was not defined"
+        )
+
+  validateTeleport = (teleportSpec, levelsSet) ->
+    # verify if coords are numbers
+    if isNaN teleportSpec.x.value
+      throw new ValidatorError(
+        teleportSpec.x
+        "X teleport coordinate must be a number"
+      )
+
+    if isNaN teleportSpec.y.value
+      throw new ValidatorError(
+        teleportSpec.y
+        "Y teleport coordinate must be a number"
+      )
+
+    # verify is level exists
+    unless levelsSet[teleportSpec.levelName.value]?
+      throw new ValidatorError(
+        teleportSpec.levelName
+        "Level #{teleportSpec.levelName.value} does not exist"
+      )
+
+    # verify if coords are within level bounds
+    level = levelsSet[teleportSpec.levelName.value]
+    unless 0 <= +teleportSpec.x.value <= level.data[0].value.length
+      throw new ValidatorError(
+        teleportSpec.x
+        "Teleport coordinates must be within level bounds"
+      )
+
+    unless 0 <= +teleportSpec.y.value <= level.data.length
+      throw new ValidatorError(
+        teleportSpec.y
+        "Teleport coordinates must be within level bounds"
+      )
+
+  validateHeal = (healSpec) ->
+    if isNaN healSpec.value
+      throw new ValidatorError(
+        healSpec
+        "Heal quantity must be a number"
+      )
+
+  validateHurt = (hurtSpec) ->
+    if isNaN hurtSpec.value
+      throw new ValidatorError(
+        hurtSpec
+        "Hurt quantity must be a number"
+      )
+
+  validateNearRules = (rulesSpec, objectsSpec, setsSpec) ->
+    objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
+    setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
+    extrasSet = _terrain: true
+
+    rulesSpec.forEach (rule) ->
+      validateInTerrainItem rule.inTerrainItemName, objectsSet, setsSet
+      validateOutTerrainItem rule.outTerrainItemName, objectsSet, extrasSet
+      if rule.heal? then validateHeal rule.heal
+      if rule.hurt? then validateHurt rule.hurt
 
   Validator.validateNearRules = validateNearRules
 
-  validateLeaveRules = (rulesSpec, setSpec, objectsSpec) ->
-    # check for referencing undefined objects or sets
+
+  validateLeaveRules = (rulesSpec, objectsSpec, setsSpec) ->
+    objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
+    setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
+    extrasSet = {}
+
+    rulesSpec.forEach (rule) ->
+      validateInTerrainItem rule.inTerrainItemName, objectsSet, setsSet
+      validateOutTerrainItem rule.outTerrainItemName, objectsSet, extrasSet
 
   Validator.validateLeaveRules = validateLeaveRules
 
-  validateEnterRules = (rulesSpec, setSpec, objectsSpec) ->
-    # check for referencing undefined objects or sets
+
+  validateEnterRules = (rulesSpec, objectsSpec, setsSpec, levelsSpec) ->
+    objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
+    setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
+    extrasSet = '_terrain': true
+    levelsSet = Util.indexBy levelsSpec, (entry) -> entry.name.value
+
+    rulesSpec.forEach (rule) ->
+      validateInTerrainItem rule.inTerrainItemName, objectsSet, setsSet
+      validateOutTerrainItem rule.outTerrainItemName, objectsSet, extrasSet
+      if rule.give? then validateGive rule.give, objectsSet, extrasSet
+      if rule.heal? then validateHeal rule.heal
+      if rule.hurt? then validateHurt rule.hurt
+      if rule.teleport? then validateTeleport rule.teleport, levelsSet
 
   Validator.validateEnterRules = validateEnterRules
 
-  validateUseRules = (rulesSpec, setSpec, objectsSpec) ->
-    # check for referencing undefined objects or sets
+
+  validateUseRules = (rulesSpec, objectsSpec, setsSpec, levelsSpec) ->
+    objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
+    setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
+    extrasSet = _terrain: true, _inventory: true
+    levelsSet = Util.indexBy levelsSpec, (entry) -> entry.name.value
+
+    rulesSpec.forEach (rule) ->
+      validateInTerrainItem rule.inTerrainItemName, objectsSet, setsSet
+      validateInInventoryItem rule.inInventoryItemName, objectsSet, setsSet
+      validateOutTerrainItem rule.outTerrainItemName, objectsSet, extrasSet
+      if rule.give? then validateGive rule.give, objectsSet, extrasSet
+      if rule.heal? then validateHeal rule.heal
+      if rule.hurt? then validateHurt rule.hurt
+      if rule.teleport? then validateTeleport rule.teleport, levelsSet
 
   Validator.validateUseRules = validateUseRules
+
 
   validateLegend = (legendSpec, objectsSpec) ->
     checkCollisions(
@@ -203,6 +348,7 @@ define [
 
   Validator.validateLegend = validateLegend
 
+
   validateLevels = (levelsSpec, legendSpec) ->
     checkCollisions(
       levelsSpec
@@ -224,5 +370,6 @@ define [
             throw new ValidatorError line, 'No terrain unit is bound to character "' + char + '"'
 
   Validator.validateLevels = validateLevels
+
 
   Validator

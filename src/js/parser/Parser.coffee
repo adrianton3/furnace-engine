@@ -287,7 +287,7 @@ define [
       rule.outTerrainItemName = tokens.past()
       while tokens.match SEMICOLON
         tokens.adv()
-        if tokens.match('give')
+        if tokens.match 'give'
           tokens.adv()
           item = {}
           tokens.expect IDENTIFIER, 'Expected give quantity'
@@ -303,15 +303,15 @@ define [
             tokens.expect IDENTIFIER, 'Expected give item name'
             item.itemName = tokens.past()
             rule.give.push item
-        else if tokens.match('heal')
+        else if tokens.match 'heal'
           tokens.adv()
           tokens.expect IDENTIFIER, 'Expected heal quantity'
           rule.heal = tokens.past()
-        else if tokens.match('hurt')
+        else if tokens.match 'hurt'
           tokens.adv()
           tokens.expect IDENTIFIER, 'Expected hurt quantity'
           rule.hurt = tokens.past()
-        else if tokens.match('teleport')
+        else if tokens.match 'teleport'
           tokens.adv()
           rule.teleport = {}
           tokens.expect IDENTIFIER, 'Expected teleport level name'
@@ -320,11 +320,11 @@ define [
           rule.teleport.x = tokens.past()
           tokens.expect IDENTIFIER, 'Expected teleport position Y'
           rule.teleport.y = tokens.past()
-        else if tokens.match('message')
+        else if tokens.match 'message'
           tokens.adv()
           tokens.expect STR, 'Expected message'
           rule.message = tokens.past()
-        else if tokens.match('checkpoint')
+        else if tokens.match 'checkpoint'
           tokens.adv()
           rule.checkpoint = true
       chompNL tokens, 'Expected new line between rules'
