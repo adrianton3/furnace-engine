@@ -14,6 +14,9 @@ A PuzzleScript like engine
 Changelog
 ---------
 
+### 0.5.0
+ + added validation for NEAR/LEAVE/ENTER/USE RULES
+
 ### 0.4.3
  + added validation for SETS and LEVELS
 
