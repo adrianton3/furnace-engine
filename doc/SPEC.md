@@ -21,13 +21,13 @@ Spaces are usually used as separators between tokens. In some cases, however, a 
 Single line comments start with `//`
 Multi-line comments start with `/*` and end with `*/`
 
-### PARAMS
+### PARAM
 This section contains a list of general parameters (one on each line).
 All parameters must be mentioned and their order is not important. The example below illustrates all the supported parameters.
 
 Example:
 
-    PARAMS
+    PARAM
 
     camera 11 9                // the size of the camera measured in tiles
     scale 8                    // the scale used when painting pixels
