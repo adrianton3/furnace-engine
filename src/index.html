@@ -14,42 +14,11 @@
     <script src="../out/furnace.js"></script>
 </head>
 <body>
-	<div id="editor" class="con" style="display: none">
-		<!-- <div class="title">Input</div> -->
-		<!-- <br> -->
-		<textarea id="in" cols="50" rows="30" spellcheck="false"></textarea>
-        <script src="js/sampleSpec_1.js"></script>
-        <script src="js/sampleSpec_2.js"></script>
-
-        <script>
-            'use strict';
-            var urlParams = purl(true).param();
-            if (urlParams.sample) {
-                var sample = window.sampleSpecs[urlParams.sample];
-                if (!sample) { sample = window.sampleSpecs['little-furnace']}
-                document.getElementById('in').value = sample;
-            } else {
-                document.getElementById('in').value = window.sampleSpecs['little-furnace'];
-            }
-        </script>
-
-		<br>
-		<div id="status">...</div>
-		<br>
-		<button id="compile" style="height: 30px; float: left; margin: 1px">Compile</button>
-		<button id="geturl" style="height: 30px; float: left; margin: 1px">Get URL</button>
-        <button id="exportaspng" style="height: 30px; margin: 1px">Get PNG</button>
-		<br><br>
-		<textarea id="url" cols="46" rows="4">...</textarea>
-        <br>
-        <div id="exported-container"></div>
-	</div>
-
 	<div id="gamecont" class="centeredcont">
 		<div id="game" class="centered">
 			<canvas id="can" width="0" height="0"></canvas>
 			<br><br>
-			<span class="info">
+			<section class="info">
 				Arrow keys to move<br>
 				A to use current item<br>
 				S, D to change item<br>
@@ -57,11 +26,15 @@
                 U to revert to previous checkpoint<br>
                 K to erase your progress<br>
 				<br>
-				<button id="hide" style="float:left;height:20px;display:none">Hide</button>
-				<button id="edit" style="float:left;height:20px">Edit</button>
-			</span>
+				<div>
+					<button id="edit">Edit</button>
+				</div>
+			</section>
 		</div>
 	</div>
+
+	<script src="js/sampleSpec_1.js"></script>
+	<script src="js/sampleSpec_2.js"></script>
 
     <script>
         require(['main'], function (main) {

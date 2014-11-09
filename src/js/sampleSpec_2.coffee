@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 window.sampleSpecs ?= {}
 window.sampleSpecs['under-the-snow'] = '''

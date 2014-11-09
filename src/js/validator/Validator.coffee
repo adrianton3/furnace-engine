@@ -10,7 +10,7 @@ define [
 	Validator = {}
 
 	Validator.validate = (spec) ->
-		validateParam spec.param, spec.levels
+		validateParam spec.params, spec.levels
 		validateColors spec.colors
 		validatePlayer spec.player, spec.colors
 		validateObjects spec.objects, spec.colors
