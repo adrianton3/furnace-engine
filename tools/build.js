@@ -36,7 +36,7 @@ var outFile = outBaseDir + '/furnace.js';
 var optimizerConfig = {
     optimize: 'none',
     baseUrl: 'src/js',
-    name: 'main',
+    name: 'furnace',
     out: outFile,
     paths: {
         'underscore': 'empty:'

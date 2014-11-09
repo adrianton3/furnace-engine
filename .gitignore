@@ -4,6 +4,7 @@
 node_modules
 
 # individual compiled files until there are no js files left
+src/js/furnace.js
 src/js/main.js
 src/js/main-editor.js
 src/js/sampleSpec_1.js
