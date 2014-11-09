@@ -14,6 +14,7 @@ cp tmp/sampleSpec_2.js src/js/sampleSpec_2.js
 rm -rf tmp
 
 git checkout master -- src/index.html
+git checkout master -- src/editor.html
 git checkout master -- src/conv.html
 git checkout master -- src/parser.html
 
