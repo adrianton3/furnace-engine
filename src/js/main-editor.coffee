@@ -13,14 +13,14 @@ define [
 ) ->
   'use strict'
 
+
   baseUrl = 'http://madflame991.github.io/furnace-engine/src/index.html'
-  tree = null
   errorLine = null
   inWorldEditor = null
 
 
   onChange = ->
-    tree = parse inWorldEditor.getValue()
+    parse inWorldEditor.getValue()
 
 
   setupEditors = ->
@@ -50,19 +50,29 @@ define [
     emit type: 'request-source'
 
 
+  compile = ->
+    emit
+      type: 'compile'
+      source: inWorldEditor.getValue()
+    return
+
+
+  mainEventHandlers =
+    'source': (data) ->
+      inWorldEditor.setValue data.source
+
+
+  mainListener = (e) ->
+    e.preventDefault()
+
+    data = e.data
+    if data.type?
+      mainEventHandlers[data.type](data)
+    return
+
+
   setupComm = ->
-    window.addEventListener(
-      'message',
-      (e) ->
-        e.preventDefault()
-
-        data = e.data
-        if data.type == 'source'
-          inWorldEditor.setValue data.source
-
-        return
-    , false)
-
+    window.addEventListener 'message', mainListener, false
     return
 
 
@@ -105,15 +115,10 @@ define [
       return null
 
 
-  compile = ->
-    emit { type: 'compile', tree }
-    return
-
-
   setUrl = ->
     spec = inWorldEditor.getValue()
     encodedLevel = encodeURIComponent spec
-    url = baseUrl + '?spec=' + encodedLevel
+    url = "#{baseUrl}?spec=#{encodedLevel}"
 
     urlTextarea = document.getElementById 'url'
     urlTextarea.value = url

@@ -25,9 +25,9 @@ define [
 
 
   source = ''
-  tree = null
   game = null
   editorWindow = null
+  editorListenerInstalled = false
 
 
   parse = (inText) ->
@@ -36,8 +36,9 @@ define [
       tree = Parser.parse tokens
       Validator.validate tree
 
-      return ValueExtractor.extract(tree)
+      return ValueExtractor.extract tree
     catch ex
+      console.error ex
       return null
 
 
@@ -51,28 +52,40 @@ define [
     return
 
 
+  editorEventHandlers =
+    'compile': (data) ->
+      tree = parse data.source
+      compile tree
+    'request-source': (data) ->
+      emit { type: 'source', source }
+
+
   originUrl = '*'
 
   editorListener = (e) ->
     e.preventDefault()
 
     data = e.data
-    if data.type == 'compile'
-      compile data.tree
-    else if data.type == 'request-source'
-      emit { type: 'source', source }
+    if data.type?
+      editorEventHandlers[data.type](data)
 
     return
 
 
   edit = ->
-    window.addEventListener 'message', editorListener, false
+    if not editorListenerInstalled
+      editorListenerInstalled = true
+      window.addEventListener 'message', editorListener, false
 
-    editorWindow = window.open(
-      'editor.html'
-      '_blank'
-      'menubar=no, location=no, width=656, height=640'
-    )
+    if not editorWindow? or editorWindow.closed
+      editorWindow = window.open(
+        'editor.html'
+        '_blank'
+        'menubar=no, location=no, width=656, height=640'
+      )
+    else
+      editorWindow.focus()
+
     return
 
 
@@ -114,11 +127,9 @@ define [
       document.getElementById('can').tabIndex = 0
       KeyListener.init document.getElementById 'can'
 
-      if editorWindow
-        emit { type: 'source', _source }
-
       tree = parse _source
       compile tree
+
       document.getElementById('can').focus()
       return
 
