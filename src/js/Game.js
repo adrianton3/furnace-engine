@@ -22,7 +22,7 @@ define([
 	Game.prototype.start = function () {
 		var loop = function () {
 			this.world.update();
-			this.world.draw();
+			//this.world.draw();
 			this.requestId = window.requestAnimationFrame(loop);
 		}.bind(this);
 

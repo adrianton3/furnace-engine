@@ -4,12 +4,16 @@ define [
   'validator/Validator'
   'extractor/ValueExtractor'
   'import-export/ToPng'
+  'sound/Sound'
+  'sound/SoundUtil'
 ], (
   Tokenizer
   Parser
   Validator
   ValueExtractor
   ToPng
+  Sound
+  SoundUtil
 ) ->
   'use strict'
 
@@ -31,6 +35,29 @@ define [
     inWorldEditor.setSize 600, 400
     inWorldEditor.setOption 'theme', 'cobalt'
     inWorldEditor.on 'change', onChange
+    return
+
+
+  playing = false
+  randomSound = (type) ->
+    return if playing
+    playing = true
+
+    parameters = Sound.getRandomParameters type
+#    encoded = SoundUtil.encode generation, type, parameters, spec
+#    document.getElementById('sound-encoded').value = encoded
+
+    Sound.generate Sound.CURRENT_GENERATION, type, parameters
+    .then ->
+      Sound.play type, -> playing = false
+    return
+
+
+  setupSoundPanel = ->
+    for i in [0...2]
+      do (i) ->
+        sXButton = document.getElementById "s#{i}"
+        sXButton.addEventListener 'click', -> randomSound i
     return
 
 
@@ -149,6 +176,7 @@ define [
   run = ->
     setupEditors()
     setupGui()
+    setupSoundPanel()
     setupComm()
     requestSource()
 
