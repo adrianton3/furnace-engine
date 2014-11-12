@@ -31,6 +31,11 @@ define [
     synths[key] = synth
 
 
+  getSpec = (generation, type) ->
+    synth = synthForKey generation, type
+    synth.spec
+
+
   CURRENT_GENERATION = 0
   getRandomParameters = (type) ->
     synth = synthForKey CURRENT_GENERATION, type
@@ -90,6 +95,7 @@ define [
 
   {
     CURRENT_GENERATION
+    getSpec
     getRandomParameters
     generate
     play

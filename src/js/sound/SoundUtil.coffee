@@ -13,18 +13,19 @@ define [], ->
     delta = max - min
     random: ->
       num = Math.floor Math.random() * BASE
-      num * delta / BASE
+      num * delta / BASE + min
     encode: (value) ->
       index = Math.floor (value - min) / delta * BASE
       SYMBOLS[index]
     decode: (string) ->
       num = INVERSE.get string
-      num * (max - min) / BASE
+      num * delta / BASE + min
 
 
   options = (options) ->
     random: ->
-      Math.floor Math.random() * options.length
+      index = Math.floor Math.random() * options.length
+      options[index]
     encode: (value) ->
       index = options.indexOf value
       SYMBOLS[index]

@@ -43,9 +43,10 @@ define [
     return if playing
     playing = true
 
+    spec = Sound.getSpec Sound.CURRENT_GENERATION, type
     parameters = Sound.getRandomParameters type
-#    encoded = SoundUtil.encode generation, type, parameters, spec
-#    document.getElementById('sound-encoded').value = encoded
+    encoded = SoundUtil.encode Sound.CURRENT_GENERATION, type, parameters, spec
+    document.getElementById('sound-encoded').value = encoded
 
     Sound.generate Sound.CURRENT_GENERATION, type, parameters
     .then ->
