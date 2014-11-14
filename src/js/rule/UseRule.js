@@ -9,7 +9,8 @@ define([], function() {
 		consume,
 		healthDelta,
 		teleport,
-		message
+		message,
+		sound
 	) {
 		this.inTerrainItem = inTerrainItem;
 		this.inInventoryItem = inInventoryItem;
@@ -19,6 +20,7 @@ define([], function() {
 		this.healthDelta = healthDelta;
 		this.teleport = teleport;
 		this.message = message;
+		this.sound = sound;
 	}
 
 	return UseRule;

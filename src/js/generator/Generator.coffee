@@ -12,6 +12,8 @@ define [
   'rule/RuleSet'
   'Vec2'
   'Level'
+  'sound/Sound'
+  'sound/SoundUtil'
 ], (
   SpriteSheetGenerator
   Util
@@ -26,6 +28,8 @@ define [
   RuleSet
   Vec2
   Level
+  Sound
+  SoundUtil
 ) ->
 
   Generator = {}
@@ -45,21 +49,30 @@ define [
     # sort of hacky
     tileDimensions = playerSpritesByName.left.end.sub(playerSpritesByName.left.start)
     levelsByName = generateLevels(spec.levels, spec.legend, tileDimensions)
-    world = new World(
-      playerSpritesByName,
-      levelsByName,
-      params.startLocation,
-      nearRuleSet,
-      leaveRuleSet,
-      enterRuleSet,
-      useRuleSet,
-      tileDimensions,
-      params.camera,
-      params.inventorySizeMax,
-      params.healthMax
-    )
 
-    world
+    createWorld = (sounds) ->
+      new World(
+        playerSpritesByName
+        levelsByName
+        params.startLocation
+        nearRuleSet
+        leaveRuleSet
+        enterRuleSet
+        useRuleSet
+        tileDimensions
+        params.camera
+        params.inventorySizeMax
+        params.healthMax
+        sounds
+      )
+
+    (if spec.sounds
+      generateSounds spec.sounds
+    else
+      Promise.resolve({})
+    ).then createWorld
+
+
 
   generateParams = (params, levelsSpec) ->
     # needs rewriting using some variant of deepExend
@@ -80,11 +93,13 @@ define [
 
   Generator.generateParams = generateParams
 
+
   generatePlayer = (playerSpec, colorSpec, scale) ->
     namedPlayerSprites = SpriteSheetGenerator.generate playerSpec, colorSpec, scale
     Util.arrayToObject namedPlayerSprites, 'name', 'sprite'
 
   Generator.generatePlayer = generatePlayer
+
 
   generateObjects = (objectsSpec, colorSpec, scale) ->
     processSpriteName = (nam) ->
@@ -133,6 +148,7 @@ define [
 
   Generator.generateObjects = generateObjects
 
+
   generateSets = (spec) ->
     operators =
       or: Set::union
@@ -160,6 +176,7 @@ define [
 
   Generator.generateSets = generateSets
 
+
   generateNearRules = (rulesSpec, setsByName) ->
     rules = rulesSpec.map (ruleSpec) ->
       inTerrainItemName = ruleSpec.inTerrainItemName
@@ -173,6 +190,7 @@ define [
 
   Generator.generateNearRules = generateNearRules
 
+
   generateLeaveRules = (rulesSpec, setsByName) ->
     rules = rulesSpec.map (ruleSpec) ->
       inTerrainItemName = ruleSpec.inTerrainItemName
@@ -182,6 +200,7 @@ define [
     new RuleSet(rules, setsByName)
 
   Generator.generateLeaveRules = generateLeaveRules
+
 
   generateEnterRules = (rulesSpec, setsByName) ->
     rules = rulesSpec.map (ruleSpec) ->
@@ -224,6 +243,7 @@ define [
 
   Generator.generateEnterRules = generateEnterRules
 
+
   generateUseRules = (rulesSpec, setsByName) ->
     rules = rulesSpec.map (ruleSpec) ->
       inTerrainItemName = ruleSpec.inTerrainItemName
@@ -240,32 +260,39 @@ define [
         outInventoryItems = []
 
       consume = !!ruleSpec.consume
+
       healthDelta = 0
       healthDelta += +ruleSpec.heal if ruleSpec.heal
       healthDelta -= +ruleSpec.hurt if ruleSpec.hurt
+
       teleport = undefined
       if ruleSpec.teleport
         teleport =
           x: +ruleSpec.teleport.x
           y: +ruleSpec.teleport.y
           levelName: ruleSpec.teleport.levelName
+
       message = undefined
       message = ruleSpec.message if ruleSpec.message
 
+      sound = ruleSpec.sound
+
       new UseRule(
-        inTerrainItemName,
-        inInventoryItemName,
-        outTerrainItemName,
-        outInventoryItems,
-        consume,
-        healthDelta,
-        teleport,
+        inTerrainItemName
+        inInventoryItemName
+        outTerrainItemName
+        outInventoryItems
+        consume
+        healthDelta
+        teleport
         message
+        sound
       )
 
     new RuleSet(rules, setsByName)
 
   Generator.generateUseRules = generateUseRules
+
 
   generateLevels = (namedStringedLevels, legendSpec, tileDimensions) ->
     levelsByName = {}
@@ -288,5 +315,24 @@ define [
     levelsByName
 
   Generator.generateLevels = generateLevels
+
+
+  generateSounds = (sounds) ->
+    soundsById = {}
+
+    promises = sounds.map (entry) ->
+      [generation, type] = entry.soundString
+
+      spec = Sound.getSpec generation, type
+      parameters = SoundUtil.decode entry.soundString, spec
+
+      Sound.generate generation, type, parameters
+      .then (buffer) ->
+        soundsById[entry.id] = buffer
+
+    Promise.all promises
+    .then ->
+      soundsById
+
 
   Generator

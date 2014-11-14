@@ -3,7 +3,7 @@ define([
 	'Vec2',
 	'Items',
     'con2d'
-	], function(
+	], function (
 		SystemBus,
 		Vec2,
 		Items,
@@ -344,6 +344,10 @@ define([
                     if (rule.message) {
                         this.world.textBubble.show().setText(rule.message);
                     }
+
+					if (rule.sound) {
+						this.world.playSound(rule.sound);
+					}
 				}
 			}
 		}

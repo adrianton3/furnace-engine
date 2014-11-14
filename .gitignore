@@ -19,6 +19,7 @@ src/js/tokenizer/Tokenizer.js
 src/js/validator/*.js
 src/js/generator/*.js
 src/js/sound/**/*.js
+src/js/Game.js
 
 test/spec/*.js
 test/all-tests.js

@@ -46,9 +46,10 @@ define [
     if game
       game.cleanup()
 
-    game = new Game()
+    game = new Game
     game.init tree
-    game.start()
+    .then ->
+      game.start()
     return
 
 

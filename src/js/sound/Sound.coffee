@@ -52,7 +52,6 @@ define [
     context
 
 
-  soundBank = {}
   generate = (generation, type, parameters) ->
     synth = synthForKey generation, type
 
@@ -66,23 +65,18 @@ define [
       box.start 0
 
       recorder.startRendering()
-    .then (buffer) ->
-      key = synthKey generation, type
-      soundBank[key] = buffer
       return
 
 
-  play = (type, onEnded) ->
-    key = synthKey CURRENT_GENERATION, type
-
+  play = (buffer, onEnded) ->
     bufferSource = audioContext.createBufferSource()
-    bufferSource.buffer = soundBank[key]
+    bufferSource.buffer = buffer
     bufferSource.connect audioContext.destination
     bufferSource.start()
 
     bufferSource.onended = ->
       bufferSource.disconnect()
-      onEnded()
+      onEnded?()
 
 
   encode = (parameters) ->

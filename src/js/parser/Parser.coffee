@@ -29,8 +29,6 @@ define [
 ) ->
   'use strict'
 
-  ERRPREF = 'Parsing exception: '
-
   IDENTIFIER = new TokIdentifier()
   STR = new TokStr()
   COMMA = new TokComma()
@@ -50,6 +48,7 @@ define [
     player = parsePlayer(tokens)
     objects = parseObjects(tokens)
     sets = parseSets(tokens)
+    sounds = parseSounds(tokens) if tokens.match 'SOUNDS'
     nearRules = parseNearRules(tokens) if tokens.match 'NEARRULES'
     leaveRules = parseLeaveRules(tokens) if tokens.match 'LEAVERULES'
     enterRules = parseEnterRules(tokens) if tokens.match 'ENTERRULES'
@@ -65,6 +64,7 @@ define [
     player: player
     objects: objects
     sets: sets
+    sounds: sounds
     nearRules: nearRules or []
     leaveRules: leaveRules or []
     enterRules: enterRules or []
@@ -198,7 +198,8 @@ define [
 
     sets = []
 
-    until tokens.match('NEARRULES') or tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
+    until tokens.match('SOUNDS') or tokens.match('NEARRULES') or tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
+
       tokens.expect IDENTIFIER, ''
       setName = tokens.past()
       set = name: setName
@@ -223,13 +224,34 @@ define [
 
   Parser.parseSets = parseSets # for debugging/testing only
 
+
+  parseSounds = (tokens) ->
+    tokens.expect 'SOUNDS', 'Expected SOUNDS section after SETS'
+    chompNL tokens, 'Expected new line after SOUNDS'
+
+    sounds = []
+
+    until tokens.match('NEARRULES') or tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
+
+      tokens.expect IDENTIFIER, ''
+      soundString = tokens.past()
+
+      tokens.expect IDENTIFIER, 'Expected sound binding'
+      id = tokens.past()
+
+      sounds.push { soundString, id }
+      chompNL tokens, 'Expected new line between sound bindings'
+
+    sounds
+
+
   parseNearRules = (tokens) ->
-    tokens.expect 'NEARRULES', 'Expected NEARRULES section after SETS'
+    tokens.expect 'NEARRULES', 'Expected NEARRULES section after SOUNDS'
     chompNL tokens, 'Expected new line after NEARRULES'
 
     rules = []
 
-    while not tokens.match('LEAVERULES') and not tokens.match('ENTERRULES') and not tokens.match('USERULES')
+    until tokens.match('LEAVERULES') or tokens.match('ENTERRULES') or tokens.match('USERULES')
       rule = {}
       tokens.expect IDENTIFIER, 'Expected terrain unit'
       rule.inTerrainItemName = tokens.past()
@@ -389,6 +411,10 @@ define [
           tokens.adv()
           tokens.expect STR, 'Expected message'
           rule.message = tokens.past()
+        else if tokens.match('sound')
+          tokens.adv()
+          tokens.expect IDENTIFIER, 'Expected sound identifier'
+          rule.sound = tokens.past()
       chompNL tokens, 'Expected new line between rules'
       rules.push rule
 

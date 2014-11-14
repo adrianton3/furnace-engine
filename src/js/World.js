@@ -7,6 +7,7 @@ define([
 	'con2d',
 	'Camera',
     'TextBubble',
+	'sound/Sound',
     'Util',
     'underscore'
 	], function (
@@ -14,12 +15,13 @@ define([
 		Inventory,
 		Items,
 		Vec2,
-        RuleSet,
+		RuleSet,
 		con2d,
 		Camera,
-        TextBubble,
-        Util,
-        _
+		TextBubble,
+		Sound,
+		Util,
+		_
 	) {
 	'use strict';
 
@@ -27,14 +29,15 @@ define([
 		playerSpritesByName,
 		levelsByName,
 		startLocation,
-        nearRuleSet,
+		nearRuleSet,
 		leaveRuleSet,
 		enterRuleSet,
 		useRuleSet,
 		tileDimensions,
 		cameraDimensions,
-        inventorySizeMax,
-        playerMaxHealth
+		inventorySizeMax,
+		playerMaxHealth,
+		sounds
 		) {
 		this.player = new Player(this, playerMaxHealth, playerSpritesByName, tileDimensions);
 		this.startLocation = startLocation;
@@ -45,6 +48,7 @@ define([
 		this.enterRuleSet = enterRuleSet;
 		this.useRuleSet = useRuleSet;
 		this.tileDimensions = tileDimensions;
+		this.sounds = sounds;
 
 		this.camera = new Camera(new Vec2(0, 0), new Vec2(cameraDimensions.x, cameraDimensions.y));
 
@@ -83,6 +87,11 @@ define([
 	World.prototype.initStartingLocation = function () {
 		this.level = this.levelsByName[this.startLocation.levelName];
 		this.player.setPosition(this.startLocation.x, this.startLocation.y);
+	};
+
+	World.prototype.playSound = function (id) {
+		var sound = this.sounds[id];
+		Sound.play(sound);
 	};
 
 	World.prototype.draw = function () {

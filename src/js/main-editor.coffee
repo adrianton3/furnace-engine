@@ -49,8 +49,9 @@ define [
     document.getElementById('sound-encoded').value = encoded
 
     Sound.generate Sound.CURRENT_GENERATION, type, parameters
-    .then ->
-      Sound.play type, -> playing = false
+    .then (buffer) ->
+      Sound.play buffer, -> playing = false
+      return
     return
 
 
