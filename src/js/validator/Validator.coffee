@@ -15,10 +15,11 @@ define [
 		validatePlayer spec.player, spec.colors
 		validateObjects spec.objects, spec.colors
 		validateSets spec.sets, spec.objects
+		if spec.sounds.length then validateSounds spec.sounds
 		if spec.nearRules.length then validateNearRules spec.nearRules, spec.objects, spec.sets
 		if spec.leaveRules.length then validateLeaveRules spec.leaveRules, spec.objects, spec.sets
 		if spec.enterRules.length then validateEnterRules spec.enterRules, spec.objects, spec.sets, spec.levels
-		if spec.useRules.length then validateUseRules spec.useRules, spec.objects, spec.sets, spec.levels
+		if spec.useRules.length then validateUseRules spec.useRules, spec.objects, spec.sets, spec.sounds, spec.levels
 		validateLegend spec.legend, spec.objects
 		validateLevels spec.levels, spec.legend
 		true
@@ -215,6 +216,17 @@ define [
 						throw new ValidatorError element, "Object #{element.value} was not defined"
 
 	Validator.validateSets = validateSets
+
+
+	validateSounds = (soundsSpec) ->
+		checkCollisions(
+			soundsSpec
+			(binding) -> binding.id.value
+			(binding) -> binding.id
+			'Sound binding already declared'
+		)
+
+	Validator.validateSounds = validateSounds
 
 
 	validateInTerrainItem = (inTerrainItemName, objectsSet, setsSet) ->

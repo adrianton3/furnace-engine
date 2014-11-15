@@ -231,6 +231,36 @@ define [
         }]
 
 
+    describe 'SOUNDS', ->
+      parse = (str) ->
+        extract Parser.parseSounds chop str
+
+      it 'can parse no terrain binding', ->
+        expect(parse '''
+            SOUNDS
+            NEARRULES
+          ''').toEqual []
+
+      it 'can parse a terrain binding', ->
+        expect(parse '''
+            SOUNDS
+            001234 asd
+            NEARRULES
+          ''').toEqual [{ soundString: '001234', id: 'asd' }]
+
+      it 'can parse more terrain bindings', ->
+        expect(parse '''
+            SOUNDS
+            001234 asd
+            015678 fgh
+            NEARRULES
+          ''').toEqual [{
+          soundString: '001234', id: 'asd'
+        }, {
+          soundString: '015678', id: 'fgh'
+        }]
+
+
     describe 'NEARRULES', ->
       parse = (str) ->
         extract Parser.parseNearRules chop str

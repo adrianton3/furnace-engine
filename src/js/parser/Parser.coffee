@@ -244,6 +244,8 @@ define [
 
     sounds
 
+  Parser.parseSounds = parseSounds
+
 
   parseNearRules = (tokens) ->
     tokens.expect 'NEARRULES', 'Expected NEARRULES section after SOUNDS'

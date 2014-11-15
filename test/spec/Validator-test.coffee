@@ -484,6 +484,30 @@ define [
 					''').toThrowWithMessage 'Cannot reference a set in its own definition'
 
 
+		describe 'SOUNDS', ->
+			validate = (soundsSource) ->
+				soundsSpec = Parser.parseSounds chop soundsSource
+				Validator.validateSounds soundsSpec
+
+			it 'validates a correct sounds spec', ->
+				expect(-> validate '''
+						SOUNDS
+						001234 asd
+						015678 fgh
+
+						NEARRULES
+					''').not.toThrow()
+
+			it 'throws an error if the same binding is used twice', ->
+				expect(-> validate '''
+						SOUNDS
+						001234 asd
+						015678 asd
+
+						NEARRULES
+					''').toThrowWithMessage 'Sound binding already declared'
+
+
 		describe 'NEARRULES', ->
 			stdObjectsSpec = Parser.parseObjects chop '''
 					OBJECTS
