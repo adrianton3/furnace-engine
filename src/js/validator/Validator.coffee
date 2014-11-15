@@ -337,6 +337,13 @@ define [
 				"Hurt quantity must be a number"
 			)
 
+	validateSound = (soundSpec, soundsSet) ->
+		unless soundsSet[soundSpec.value]?
+			throw new ValidatorError(
+				soundSpec
+				"Sound #{soundSpec.value} was not defined"
+			)
+
 	validateNearRules = (rulesSpec, objectsSpec, setsSpec) ->
 		objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
 		setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
@@ -380,10 +387,11 @@ define [
 	Validator.validateEnterRules = validateEnterRules
 
 
-	validateUseRules = (rulesSpec, objectsSpec, setsSpec, levelsSpec) ->
+	validateUseRules = (rulesSpec, objectsSpec, setsSpec, soundsSpec, levelsSpec) ->
 		objectsSet = Util.getSet objectsSpec.map (entry) -> entry.name.value
 		setsSet = Util.getSet setsSpec.map (entry) -> entry.name.value
 		extrasSet = _terrain: true, _inventory: true
+		soundsSet = Util.getSet soundsSpec.map (entry) -> entry.id.value
 		levelsSet = Util.indexBy levelsSpec, (entry) -> entry.name.value
 
 		rulesSpec.forEach (rule) ->
@@ -394,6 +402,7 @@ define [
 			if rule.heal? then validateHeal rule.heal
 			if rule.hurt? then validateHurt rule.hurt
 			if rule.teleport? then validateTeleport rule.teleport, levelsSet
+			if rule.sound? then validateSound rule.sound, soundsSet
 
 	Validator.validateUseRules = validateUseRules
 

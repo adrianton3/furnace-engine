@@ -720,6 +720,14 @@ define [
 					NEARRULES
 				'''
 
+			stdSoundsSpec = Parser.parseSounds chop '''
+					SOUNDS
+					001234 boing
+					015678 squiggle
+
+					NEARRULES
+				'''
+
 			stdLevelsSpec = Parser.parseLevels chop '''
 					LEVELS
 
@@ -730,13 +738,13 @@ define [
 
 			validate = (useRulesSource) ->
 				useRulesSpec = Parser.parseUseRules chop useRulesSource
-				Validator.validateUseRules useRulesSpec, stdObjectsSpec, stdSetsSpec, stdLevelsSpec
+				Validator.validateUseRules useRulesSpec, stdObjectsSpec, stdSetsSpec, stdSoundsSpec, stdLevelsSpec
 
 			it 'validates a correct use rules spec', ->
 				expect(-> validate '''
 					USERULES
 					stone sand -> sand ; teleport level1 3 1
-					A sand -> _inventory ; heal 10
+					A sand -> _inventory ; heal 10 ; sound squiggle
 					stone A -> _terrain
 					LEGEND
 				''').not.toThrow()
@@ -768,6 +776,13 @@ define [
 					sand B -> sand
 					LEGEND
 				''').toThrowWithMessage 'Set B was not defined'
+
+			it 'throws an error if the sound was not defined', ->
+				expect(-> validate '''
+					USERULES
+					stone sand -> sand ; sound hiss
+					LEGEND
+				''').toThrowWithMessage 'Sound hiss was not defined'
 
 
 		describe 'LEGEND', ->
