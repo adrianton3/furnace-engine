@@ -64,7 +64,7 @@ define [
     player: player
     objects: objects
     sets: sets
-    sounds: sounds
+    sounds: sounds or []
     nearRules: nearRules or []
     leaveRules: leaveRules or []
     enterRules: enterRules or []
