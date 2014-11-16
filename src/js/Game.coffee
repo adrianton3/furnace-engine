@@ -25,7 +25,7 @@ define [
   Game::start = ->
     frame = =>
       @world.update()
-      if Math.random() < 0.1 then @world.draw()
+      @world.draw()
       @requestId = window.requestAnimationFrame frame
 
     frame()
