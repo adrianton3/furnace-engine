@@ -20,15 +20,27 @@
         <br>
         <div id="status">...</div>
         <br>
-        <div>
-            <button id="compile" class="but-tall">Compile</button><!--
-            --><button id="geturl" class="but-tall">Get URL</button><!--
-            --><button id="exportaspng" class="but-tall">Get PNG</button>
+        <div id="menu">
+            <p>Export</p>
+            <div id="buttons">
+                <button id="compile" class="but-tall">Compile</button><!--
+                --><button id="geturl" class="but-tall">Get URL</button><!--
+                --><button id="exportaspng" class="but-tall">Get PNG</button>
+            </div>
+            <textarea id="url" cols="46" rows="4">...</textarea>
+            <div id="exported-container"></div>
         </div>
-        <br><br>
-        <textarea id="url" cols="46" rows="4">...</textarea>
-        <br>
-        <div id="exported-container"></div>
+        <div id="sound">
+            <p>Sound generator</p>
+            <div id="sound-box">
+                <button id="s0" class="but-tall but-sound">P0</button><!--
+                --><button id="s1" class="but-tall but-sound">P1</button><!--
+                --><button id="s2" class="but-tall but-sound">P2</button><!--
+                --><button id="s3" class="but-tall but-sound">P3</button><!--
+                --><button id="s4" class="but-tall but-sound">P4</button>
+            </div>
+            <textarea id="sound-encoded" cols="26" rows="4">...</textarea>
+        </div>
     </div>
 
     <script>

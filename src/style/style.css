@@ -13,11 +13,12 @@ textarea {
 }
 
 button {
-	background-color: #0066DD;
+	transition: background 0.5s;
+	background-color: hsl(212, 100%, 43%);
 	border: 0px;
 	border-radius: 2px;
 	color: #FFF;
-	min-width: 96px;
+	width: 96px;
 	padding: 4px 8px;
 	box-shadow: 0px 2px 4px #000;
 	margin: 2px 1px;
@@ -35,8 +36,61 @@ button:last-child {
 	margin-right: 0;
 }
 
+p {
+	color: white;
+	font-family: sans-serif;
+	text-transform: uppercase;
+	font-size: small;
+	margin-bottom: 5px;
+}
+
+#menu {
+	position: relative;
+	width: 300px;
+	float: left;
+}
+
+#sound {
+	float: left;
+	position: relative;
+	margin-left: 80px;
+}
+
+#buttons {
+	margin-bottom: 15px;
+}
+
+.but-tall {
+	margin-left: 5px;
+}
+
+button:hover {
+	transition: background 0.5s;
+	background: hsl(212, 100%, 53%);
+}
+
+button:focus {
+	outline: 0;
+}
+
+#sound-box {
+	margin-bottom: 15px;
+}
+
+.but-sound {
+	width: 32px;
+}
+
+#url {
+	width: 295px;
+}
+
+#sound-encoded {
+	width: 178px;
+}
+
 .con {
-	padding: 0px 20px;
+	padding: 0 20px;
 	float: left;
 }
 
