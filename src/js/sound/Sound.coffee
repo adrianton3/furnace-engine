@@ -2,9 +2,9 @@ define [
   'sound/SoundUtil'
   'sound/generations/g0/s0'
   'sound/generations/g0/s1'
-#  'sound/generations/g0/s2'
-#  'sound/generations/g0/s3'
-#  'sound/generations/g0/s4'
+  'sound/generations/g0/s2'
+  'sound/generations/g0/s3'
+  'sound/generations/g0/s4'
 ], (
   SoundUtil
 ) ->
@@ -56,7 +56,7 @@ define [
     synth = synthForKey generation, type
 
     new Promise (resolve, reject) ->
-      recorder = getRecorder 1, (buffer) ->
+      recorder = getRecorder parameters.duration, (buffer) ->
         resolve buffer
 
       box = synth.build recorder, parameters
@@ -79,20 +79,10 @@ define [
       onEnded?()
 
 
-  encode = (parameters) ->
-    { generation, type, spec } = synthForKey parameters[0], parameters[1]
-    SoundUtil.encode generation, type, parameters, spec
-
-
-  decode = ->
-
-
   {
     CURRENT_GENERATION
     getSpec
     getRandomParameters
     generate
     play
-    encode
-    decode
   }

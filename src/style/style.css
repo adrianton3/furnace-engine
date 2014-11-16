@@ -73,9 +73,12 @@ button:focus {
 	outline: 0;
 }
 
+#sound-box {
+	margin-bottom: 15px;
+}
+
 .but-sound {
 	width: 32px;
-	margin-bottom: 15px;
 }
 
 #url {

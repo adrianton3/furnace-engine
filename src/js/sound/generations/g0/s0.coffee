@@ -12,14 +12,14 @@ define [
   type = 0
 
   spec =
-    duration: range 0.2, 1.4
-    oscType: options ['square']
-    oscFreq: range 2000, 3000 # not needed?
-    freqEnvelope0: range 100, 200
-    freqEnvelope1: range 300, 400
-    freqEnvelope2: range 500, 600
+    duration: range 0.4, 1.0
+    oscType: options ['square', 'sawtooth']
+    oscFreq: range 200, 3000
+    freqEnvelope0: range 300, 400
+    freqEnvelope1: range 500, 600
+    freqEnvelope2: range 300, 400
     freqEnvelope3: range 100, 200
-    gainEnvelope0: range 0.7, 1.0
+    gainEnvelope0: range 0.6, 0.8
     gainEnvelope1: range 0.4, 0.8
     gainEnvelope2: range 0.1, 0.4
     gainEnvelope3: range 0.0, 0.2

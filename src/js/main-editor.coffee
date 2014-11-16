@@ -56,7 +56,7 @@ define [
 
 
   setupSoundPanel = ->
-    for i in [0...2]
+    for i in [0..4]
       do (i) ->
         sXButton = document.getElementById "s#{i}"
         sXButton.addEventListener 'click', -> randomSound i
