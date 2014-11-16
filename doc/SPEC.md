@@ -8,6 +8,7 @@ The specification for a game is a big chunk of text that describes the content o
 + PLAYER
 + OBJECTS
 + SETS
++ SOUNDS (optional)
 + NEARRULES (optional)
 + LEAVERULES (optional)
 + ENTERRULES (optional)
@@ -143,6 +144,15 @@ Example:
     Pickable = Weapon or Furniture       // 'or' in this case is an operator
                                          // the other 2 operators are 'and' and 'minus'
 
+### SOUNDS (optional)
+This section contains sound bindings. Sounds can be referenced by their binding in the USERULES section.
+
+Example:
+
+    SOUNDS
+    032EBF53A930 boingo
+    026782C1 blip
+
 ### NEARRULES (optional)
 
 Defines what should happen when the player gets *near* tiles
@@ -198,6 +208,7 @@ Example:
     key Doors -> floor ; consume               // use a key on any element in the 'Doors' set
     Pickables Grass -> _inventory ; consume    // placing any pickable item on any grass tile
     hand Pickables -> grass ; give 1 _terrain  // getting back the placed item
+    axe Monsters -> grass ; sound growl        // monsters become noisy when attacked
 
 ### LEGEND
 

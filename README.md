@@ -14,6 +14,10 @@ A PuzzleScript like engine
 Changelog
 ---------
 
+#### r21
+ + added the SOUNDS section and sounds for USERULES
+ + added 5 types of procedurally generated sounds
+
 #### r20
  + separated the editor in its own window
  + small styling tweaks
