@@ -1,10 +1,12 @@
 define([
 	'tokenizer/Tokenizer',
 	'parser/Parser',
+	'extractor/ValueExtractor',
 	'prettyprinter/PrettyPrinter'
 	], function(
 		Tokenizer,
 		Parser,
+		ValueExtractor,
 		PrettyPrinter
 	) {
 	'use strict';
@@ -48,7 +50,8 @@ define([
 
 
 			var tree = Parser.parse(tokens);
-			var outTreeText = PrettyPrinter.print(tree);
+			var valueTree = ValueExtractor.extract(tree);
+			var outTreeText = PrettyPrinter.print(valueTree);
 
 			outInterpretedEditor.setValue(outTreeText);
 

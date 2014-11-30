@@ -1,0 +1,165 @@
+define [], ->
+  'use strict'
+
+  PrettyPrinter = {}
+
+  print = (spec) ->
+    [
+      printParams spec.params
+      printColors spec.colors
+      printPlayer spec.player
+      printObjects spec.objects
+      printSets spec.sets
+      printSounds spec.sounds
+      printNearRules spec.nearRules
+      printLeaveRules spec.leaveRules
+      printEnterRules spec.enterRules
+      printUseRules spec.useRules
+      printLegend spec.legend
+      printLevels spec.levels
+    ].join '\n'
+
+  PrettyPrinter.print = print
+
+
+  printParams = (spec) ->
+    'PARAM\n\n' + spec.map(({ name, parts }) ->
+      name + ' ' + parts.join ' '
+    ).join '\n'
+
+  PrettyPrinter.printParams = printParams
+
+
+  printColors = (spec) ->
+    'COLORS\n\n' + spec.map(({ name, red, green, blue }) ->
+      "#{name} rgb #{red} #{green} #{blue}"
+    ).join '\n'
+
+  PrettyPrinter.printColors = printColors
+
+
+  printPlayer = (spec) ->
+    str = 'PLAYER\n\n'
+    for key of spec
+      sprite = spec[key].map((identifier) ->
+        identifier.s
+      ).join('\n')
+      str += key + '\n' + sprite + '\n\n'
+    str
+
+  PrettyPrinter.printPlayer = printPlayer
+
+
+  printObjects = (spec) ->
+    str = 'OBJECTS\n\n'
+    for key of spec
+      sprite = spec[key].lines.map((identifier) ->
+        identifier.s
+      ).join('\n')
+      str += key + (if spec[key].blocking then ' blocking' else '') + '\n' + sprite + '\n\n'
+    str
+
+  PrettyPrinter.printObjects = printObjects
+
+
+  printSets = (spec) ->
+    str = 'SETS\n\n'
+    spec.forEach (setDeclaration) ->
+      str += setDeclaration.name + ' = '
+      str += if setDeclaration.elements
+        setDeclaration.elements.join ' '
+      else
+        setDeclaration.operand1 + ' ' + spec[key].operator + ' ' + spec[key].operand2
+      str += '\n'
+      return
+
+    str
+
+  PrettyPrinter.printSets = printSets
+
+
+  printSounds = (spec) ->
+    str = 'LEGEND\n\n'
+    for key of spec
+      str += key + ' ' + spec[key] + '\n'
+    str
+
+
+  printNearRules = (spec) ->
+    str = 'NEARRULES\n\n'
+    spec.forEach (rule) ->
+      str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';'
+      str += ' heal ' + rule.heal.s + ' ;'  if rule.heal
+      str += ' hurt ' + rule.hurt.s + ' ;'  if rule.hurt
+      str += '\n'
+      return
+
+    str
+
+
+  printLeaveRules = (spec) ->
+    str = 'LEAVERULES\n\n'
+    spec.forEach (rule) ->
+      str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';\n'
+      return
+
+    str
+
+
+  printEnterRules = (spec) ->
+    str = 'ENTERRULES\n\n'
+    spec.forEach (rule) ->
+      str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';'
+      if rule.give
+        giveStr = rule.give.map((item) ->
+          item.quantity.s + ' ' + item.itemName.s
+        ).join(' , ')
+        str += ' ' + giveStr + ' ;'
+      str += ' heal ' + rule.heal.s + ' ;'  if rule.heal
+      str += ' hurt ' + rule.hurt.s + ' ;'  if rule.hurt
+      str += ' teleport ' + rule.teleport.levelName + ' ' + rule.teleport.x + ' ' + rule.teleport.y + ';'  if rule.teleport
+      str += ' message \'' + rule.message + '\' ;'  if rule.message
+      str += '\n'
+      return
+
+    str
+
+
+  printUseRules = (spec) ->
+    str = 'USERULES\n\n'
+    spec.forEach (rule) ->
+      str += rule.inTerrainItemName.s + ' ' + rule.inInventoryItemName.s + ' -> ' + rule.outTerrainItemName.s + ';'
+      if rule.give
+        giveStr = rule.give.map((item) ->
+          item.quantity.s + ' ' + item.itemName.s
+        ).join(' , ')
+        str += ' ' + giveStr + ' ;'
+      str += ' consume ;'  if rule.consume
+      str += ' heal ' + rule.heal.s + ' ;'  if rule.heal
+      str += ' hurt ' + rule.hurt.s + ' ;'  if rule.hurt
+      str += ' teleport ' + rule.teleport.levelName + ' ' + rule.teleport.x + ' ' + rule.teleport.y + ';'  if rule.teleport
+      str += ' message \'' + rule.message + '\' ;'  if rule.message
+      str += '\n'
+      return
+
+    str
+
+
+  printLegend = (spec) ->
+    str = 'LEGEND\n\n'
+    for key of spec
+      str += key + ' ' + spec[key] + '\n'
+    str
+
+
+  printLevels = (spec) ->
+    str = 'LEVELS\n\n'
+    for key of spec
+      data = spec[key].map((identifier) ->
+        identifier.s
+      ).join('\n')
+      str += key + '\n' + data + '\n\n'
+    str
+
+
+  PrettyPrinter
