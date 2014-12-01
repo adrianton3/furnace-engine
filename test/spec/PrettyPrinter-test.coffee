@@ -139,3 +139,17 @@ define [
 
             a -> b ; hurt 3
           '''
+
+    describe 'printLeaveRules', ->
+      it 'serializes leave rules', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }]
+        serialized = PrettyPrinter.printLeaveRules valueTree
+        expect serialized
+        .toEqual '''
+            LEAVERULES
+
+            a -> b
+          '''

@@ -74,21 +74,21 @@ define [], ->
 
   printNearRules = (spec) ->
     'NEARRULES\n\n' + spec.map(({ inTerrainItemName, outTerrainItemName, heal, hurt }) ->
-      "#{inTerrainItemName} -> #{outTerrainItemName}" +
-        if heal? then " ; heal #{heal}" else
-          if hurt? then " ; hurt #{hurt}" else ''
+      str = "#{inTerrainItemName} -> #{outTerrainItemName}"
+      str += " ; heal #{heal}" if heal?
+      str += " ; hurt #{hurt}" if hurt?
+      str
     ).join '\n'
 
   PrettyPrinter.printNearRules = printNearRules
 
 
   printLeaveRules = (spec) ->
-    str = 'LEAVERULES\n\n'
-    spec.forEach (rule) ->
-      str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';\n'
-      return
+    'LEAVERULES\n\n' + spec.map(({ inTerrainItemName, outTerrainItemName}) ->
+      "#{inTerrainItemName} -> #{outTerrainItemName}"
+    ).join '\n'
 
-    str
+  PrettyPrinter.printLeaveRules = printLeaveRules
 
 
   printEnterRules = (spec) ->
