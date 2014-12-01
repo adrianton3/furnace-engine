@@ -97,3 +97,45 @@ define [
             001234 asd
             015678 fgh
           '''
+
+    describe 'printNearRules', ->
+      it 'serializes near rules', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+        }]
+        serialized = PrettyPrinter.printNearRules valueTree
+        expect serialized
+        .toEqual '''
+            NEARRULES
+
+            a -> b
+          '''
+
+      it 'serializes near rules with heal', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          heal: '3'
+        }]
+        serialized = PrettyPrinter.printNearRules valueTree
+        expect serialized
+        .toEqual '''
+            NEARRULES
+
+            a -> b ; heal 3
+          '''
+
+      it 'serializes near rules with hurt', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          hurt: '3'
+        }]
+        serialized = PrettyPrinter.printNearRules valueTree
+        expect serialized
+        .toEqual '''
+            NEARRULES
+
+            a -> b ; hurt 3
+          '''
