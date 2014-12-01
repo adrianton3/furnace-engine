@@ -39,25 +39,17 @@ define [], ->
 
 
   printPlayer = (spec) ->
-    str = 'PLAYER\n\n'
-    for key of spec
-      sprite = spec[key].map((identifier) ->
-        identifier.s
-      ).join('\n')
-      str += key + '\n' + sprite + '\n\n'
-    str
+    'PLAYER\n\n' + spec.map(({ name, data }) ->
+      name + '\n' + data.join '\n'
+    ).join '\n'
 
   PrettyPrinter.printPlayer = printPlayer
 
 
   printObjects = (spec) ->
-    str = 'OBJECTS\n\n'
-    for key of spec
-      sprite = spec[key].lines.map((identifier) ->
-        identifier.s
-      ).join('\n')
-      str += key + (if spec[key].blocking then ' blocking' else '') + '\n' + sprite + '\n\n'
-    str
+    'OBJECTS\n\n' + spec.map(({ name, blocking, data }) ->
+      name + (if blocking then ' blocking' else '') + '\n' + data.join '\n'
+    ).join '\n'
 
   PrettyPrinter.printObjects = printObjects
 
