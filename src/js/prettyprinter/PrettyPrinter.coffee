@@ -55,17 +55,12 @@ define [], ->
 
 
   printSets = (spec) ->
-    str = 'SETS\n\n'
-    spec.forEach (setDeclaration) ->
-      str += setDeclaration.name + ' = '
-      str += if setDeclaration.elements
-        setDeclaration.elements.join ' '
-      else
-        setDeclaration.operand1 + ' ' + spec[key].operator + ' ' + spec[key].operand2
-      str += '\n'
-      return
-
-    str
+    'SETS\n\n' +
+    spec.map(({ name, elements, operator, operand1, operand2 }) ->
+      name + ' = ' +
+        if elements then elements.join ' '
+        else "#{operand1} #{operator} #{operand2}"
+    ).join '\n'
 
   PrettyPrinter.printSets = printSets
 

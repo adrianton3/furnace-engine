@@ -60,3 +60,24 @@ define [
             312
             321
           '''
+
+    describe 'printSets', ->
+      it 'serializes a set defined by enumeration', ->
+        valueTree = [{ name: 'S', elements: ['stone', 'dirt', 'sand'] }]
+        serialized = PrettyPrinter.printSets valueTree
+        expect serialized
+        .toEqual '''
+            SETS
+
+            S = stone dirt sand
+          '''
+
+      it 'serializes a set defined using other sets', ->
+        valueTree = [{ name: 'S', operator: 'and', operand1: 'A', operand2: 'B' }]
+        serialized = PrettyPrinter.printSets valueTree
+        expect serialized
+        .toEqual '''
+            SETS
+
+            S = A and B
+          '''
