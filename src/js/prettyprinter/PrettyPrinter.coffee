@@ -55,10 +55,9 @@ define [], ->
 
 
   printSets = (spec) ->
-    'SETS\n\n' +
-    spec.map(({ name, elements, operator, operand1, operand2 }) ->
+    'SETS\n\n' + spec.map(({ name, elements, operator, operand1, operand2 }) ->
       name + ' = ' +
-        if elements then elements.join ' '
+        if elements? then elements.join ' '
         else "#{operand1} #{operator} #{operand2}"
     ).join '\n'
 
@@ -66,10 +65,11 @@ define [], ->
 
 
   printSounds = (spec) ->
-    str = 'LEGEND\n\n'
-    for key of spec
-      str += key + ' ' + spec[key] + '\n'
-    str
+    'SOUNDS\n\n' + spec.map(({ id, soundString }) ->
+      "#{soundString} #{id}"
+    ).join '\n'
+
+  PrettyPrinter.printSounds = printSounds
 
 
   printNearRules = (spec) ->

@@ -81,3 +81,19 @@ define [
 
             S = A and B
           '''
+
+    describe 'printSounds', ->
+      it 'serializes sounds', ->
+        valueTree = [{
+          soundString: '001234', id: 'asd'
+        }, {
+          soundString: '015678', id: 'fgh'
+        }]
+        serialized = PrettyPrinter.printSounds valueTree
+        expect serialized
+        .toEqual '''
+            SOUNDS
+
+            001234 asd
+            015678 fgh
+          '''
