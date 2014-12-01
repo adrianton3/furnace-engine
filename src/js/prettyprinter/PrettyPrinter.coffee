@@ -84,7 +84,7 @@ define [], ->
 
 
   printLeaveRules = (spec) ->
-    'LEAVERULES\n\n' + spec.map(({ inTerrainItemName, outTerrainItemName}) ->
+    'LEAVERULES\n\n' + spec.map(({ inTerrainItemName, outTerrainItemName }) ->
       "#{inTerrainItemName} -> #{outTerrainItemName}"
     ).join '\n'
 
@@ -92,22 +92,23 @@ define [], ->
 
 
   printEnterRules = (spec) ->
-    str = 'ENTERRULES\n\n'
-    spec.forEach (rule) ->
-      str += rule.inTerrainItemName.s + ' -> ' + rule.outTerrainItemName.s + ';'
-      if rule.give
-        giveStr = rule.give.map((item) ->
-          item.quantity.s + ' ' + item.itemName.s
-        ).join(' , ')
-        str += ' ' + giveStr + ' ;'
-      str += ' heal ' + rule.heal.s + ' ;'  if rule.heal
-      str += ' hurt ' + rule.hurt.s + ' ;'  if rule.hurt
-      str += ' teleport ' + rule.teleport.levelName + ' ' + rule.teleport.x + ' ' + rule.teleport.y + ';'  if rule.teleport
-      str += ' message \'' + rule.message + '\' ;'  if rule.message
-      str += '\n'
-      return
+    'ENTERRULES\n\n' +
+      spec.map(({ inTerrainItemName, outTerrainItemName, give, heal, hurt, message, teleport, checkpoint }) ->
+        str = "#{inTerrainItemName} -> #{outTerrainItemName}"
+        if give?
+          giveStr = give.map(({ quantity, itemName }) ->
+            "#{quantity} #{itemName}"
+          ).join ' , '
+          str += " ; give #{giveStr}"
+        str += " ; heal #{heal}" if heal?
+        str += " ; hurt #{hurt}" if hurt?
+        str += " ; teleport #{teleport.levelName} #{teleport.x} #{teleport.y}" if teleport?
+        str += " ; message '#{message}'" if message?
+        str += " ; checkpoint" if checkpoint
+        str
+      ).join '\n'
 
-    str
+  PrettyPrinter.printEnterRules = printEnterRules
 
 
   printUseRules = (spec) ->

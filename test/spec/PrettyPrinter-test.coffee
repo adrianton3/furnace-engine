@@ -153,3 +153,66 @@ define [
 
             a -> b
           '''
+
+    describe 'printEnterRules', ->
+      it 'serializes enter rules with one give item', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          give: [{
+            itemName: 'stone'
+            quantity: '5'
+          }]
+        }]
+        serialized = PrettyPrinter.printEnterRules valueTree
+        expect serialized
+        .toEqual '''
+            ENTERRULES
+
+            a -> b ; give 5 stone
+          '''
+
+      it 'serializes enter rules with teleport', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          teleport:
+            levelName: 'second'
+            x: '10'
+            y: '20'
+        }]
+        serialized = PrettyPrinter.printEnterRules valueTree
+        expect serialized
+        .toEqual '''
+            ENTERRULES
+
+            a -> b ; teleport second 10 20
+          '''
+
+      it 'serializes enter rules with a checkpoint', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          checkpoint: true
+        }]
+        serialized = PrettyPrinter.printEnterRules valueTree
+        expect serialized
+        .toEqual '''
+            ENTERRULES
+
+            a -> b ; checkpoint
+          '''
+
+      it 'serializes enter rules with message', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          outTerrainItemName: 'b'
+          message: 'ala bala portocala'
+        }]
+        serialized = PrettyPrinter.printEnterRules valueTree
+        expect serialized
+        .toEqual '''
+            ENTERRULES
+
+            a -> b ; message 'ala bala portocala'
+          '''
