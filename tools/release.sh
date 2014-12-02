@@ -22,6 +22,7 @@ git checkout master -- src/style/style.css
 
 git checkout master -- src/js/Util.js
 git checkout master -- src/js/conv.js
+git checkout master -- src/js/parser.js
 
 git add -u
 
