@@ -14,6 +14,9 @@ A PuzzleScript like engine
 Changelog
 ---------
 
+#### r22
+ + fixed and updated the parsing demo
+
 #### r21
  + added the SOUNDS section and sounds for USERULES
  + added 5 types of procedurally generated sounds
