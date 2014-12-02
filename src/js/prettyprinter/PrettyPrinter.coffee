@@ -4,20 +4,21 @@ define [], ->
   PrettyPrinter = {}
 
   print = (spec) ->
-    [
-      printParams spec.params
-      printColors spec.colors
-      printPlayer spec.player
-      printObjects spec.objects
-      printSets spec.sets
-      printSounds spec.sounds
-      printNearRules spec.nearRules
-      printLeaveRules spec.leaveRules
-      printEnterRules spec.enterRules
-      printUseRules spec.useRules
-      printLegend spec.legend
-      printLevels spec.levels
-    ].join '\n'
+    sections = []
+    sections.push printParams spec.params
+    sections.push printColors spec.colors
+    sections.push printPlayer spec.player
+    sections.push printObjects spec.objects
+    sections.push printSets spec.sets
+    sections.push printSounds spec.sounds if spec.sounds?.length
+    sections.push printNearRules spec.nearRules if spec.nearRules?.length
+    sections.push printLeaveRules spec.leaveRules if spec.leaveRules?.length
+    sections.push printEnterRules spec.enterRules if spec.enterRules?.length
+    sections.push printUseRules spec.useRules
+    sections.push printLegend spec.legend
+    sections.push printLevels spec.levels
+
+    sections.join '\n\n'
 
   PrettyPrinter.print = print
 
@@ -41,7 +42,7 @@ define [], ->
   printPlayer = (spec) ->
     'PLAYER\n\n' + spec.map(({ name, data }) ->
       name + '\n' + data.join '\n'
-    ).join '\n'
+    ).join '\n\n'
 
   PrettyPrinter.printPlayer = printPlayer
 
@@ -49,7 +50,7 @@ define [], ->
   printObjects = (spec) ->
     'OBJECTS\n\n' + spec.map(({ name, blocking, data }) ->
       name + (if blocking then ' blocking' else '') + '\n' + data.join '\n'
-    ).join '\n'
+    ).join '\n\n'
 
   PrettyPrinter.printObjects = printObjects
 
@@ -141,13 +142,11 @@ define [], ->
 
 
   printLevels = (spec) ->
-    str = 'LEVELS\n\n'
-    for key of spec
-      data = spec[key].map((identifier) ->
-        identifier.s
-      ).join('\n')
-      str += key + '\n' + data + '\n\n'
-    str
+    'LEVELS\n\n' + spec.map(({ name, data }) ->
+      name + '\n' + data.join '\n'
+    ).join '\n\n'
+
+  PrettyPrinter.printLevels = printLevels
 
 
   PrettyPrinter

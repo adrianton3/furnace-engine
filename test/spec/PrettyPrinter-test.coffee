@@ -309,3 +309,17 @@ define [
 
             a asd
           '''
+
+    describe 'printLevels', ->
+      it 'serializes levels', ->
+        valueTree = [{ name: 'a', data: ['123', '312', '321']}]
+        serialized = PrettyPrinter.printLevels valueTree
+        expect serialized
+        .toEqual '''
+            LEVELS
+
+            a
+            123
+            312
+            321
+          '''
