@@ -133,10 +133,11 @@ define [], ->
 
 
   printLegend = (spec) ->
-    str = 'LEGEND\n\n'
-    for key of spec
-      str += key + ' ' + spec[key] + '\n'
-    str
+    'LEGEND\n\n' + spec.map(({ name, objectName }) ->
+      "#{name} #{objectName}"
+    ).join '\n'
+
+  PrettyPrinter.printLegend = printLegend
 
 
   printLevels = (spec) ->

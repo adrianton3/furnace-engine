@@ -298,3 +298,14 @@ define [
 
             a b -> c ; sound boing
           '''
+
+    describe 'printLegend', ->
+      it 'serializes legend', ->
+        valueTree = [{ name: 'a', objectName: 'asd' }]
+        serialized = PrettyPrinter.printLegend valueTree
+        expect serialized
+        .toEqual '''
+            LEGEND
+
+            a asd
+          '''
