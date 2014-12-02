@@ -216,3 +216,85 @@ define [
 
             a -> b ; message 'ala bala portocala'
           '''
+
+    describe 'printUseRules', ->
+      it 'serializes use rules with two give item', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          give: [
+            { itemName: 'stone', quantity: '5' }
+            { itemName: 'sand', quantity: '11' }
+          ]
+        }]
+        serialized = PrettyPrinter.printUseRules valueTree
+        expect serialized
+        .toEqual '''
+            USERULES
+
+            a b -> c ; give 5 stone , 11 sand
+          '''
+
+      it 'serializes use rules with teleport', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          teleport:
+            levelName: 'second'
+            x: '10'
+            y: '20'
+        }]
+        serialized = PrettyPrinter.printUseRules valueTree
+        expect serialized
+        .toEqual '''
+            USERULES
+
+            a b -> c ; teleport second 10 20
+          '''
+
+      it 'serializes use rules that consumes', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          consume: true
+        }]
+        serialized = PrettyPrinter.printUseRules valueTree
+        expect serialized
+        .toEqual '''
+            USERULES
+
+            a b -> c ; consume
+          '''
+
+      it 'serializes use rules with message', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          message: 'ala bala portocala'
+        }]
+        serialized = PrettyPrinter.printUseRules valueTree
+        expect serialized
+        .toEqual '''
+            USERULES
+
+            a b -> c ; message 'ala bala portocala'
+          '''
+
+      it 'serializes use rules with sound', ->
+        valueTree = [{
+          inTerrainItemName: 'a'
+          inInventoryItemName: 'b'
+          outTerrainItemName: 'c'
+          sound: 'boing'
+        }]
+        serialized = PrettyPrinter.printUseRules valueTree
+        expect serialized
+        .toEqual '''
+            USERULES
+
+            a b -> c ; sound boing
+          '''
