@@ -13,7 +13,7 @@ define(function () {
             var COMMENT = 'comment';
             var SETBINDING = 'storage.type';
             var PLAIN = 'text';
-            // string: ["](?:(?:\\\\.)|(?:[^"\\\\]))*?["]
+
             this.$rules = {
                 'start': [{
                     token: SECTION,
@@ -25,25 +25,25 @@ define(function () {
                     regex: /^\s*COLORS\s*$/,
                     next: 'COLORS'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: BINDING,
-                    regex: /[_a-zA-Z]\w*/,
-                    next: 'PARAM-parts'
-                }],
-                'PARAM-parts': [{
-                    token: PLAIN,
-                    regex: /\w+/
+                    regex: /^[_a-zA-Z]\w*/
                 }, {
                     token: PLAIN,
-                    regex: /$/,
-                    next: 'PARAM'
+                    regex: /\w+/
                 }],
                 'COLORS': [{
                     token: SECTION,
                     regex: /^\s*PLAYER\s*$/,
                     next: 'PLAYER'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: BINDING,
-                    regex: /^\w+/
+                    regex: /^\w/
                 }, {
                     token: RESERVED,
                     regex: /rgb|rgba/
@@ -56,13 +56,23 @@ define(function () {
                     regex: /^\s*OBJECTS\s*$/,
                     next: 'OBJECTS'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: BINDING,
                     regex: /^\s*\w+\s*$/,
+                    next: 'PLAYER-data'
+                }, {
+                    token: BINDING,
+                    regex: /^\s*\w+\s*(?=\/\/)/,
                     next: 'PLAYER-data'
                 }],
                 'PLAYER-data': [{
                     token: PLAIN,
                     regex: /^\w+$/
+                }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
                 }, {
                     token: PLAIN,
                     regex: /^\s*$/,
@@ -73,8 +83,11 @@ define(function () {
                     regex: /^\s*SETS\s*$/,
                     next: 'SETS'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: BINDING,
-                    regex: /^\s*\w+(?:\:\d+)?(?=\s+blocking)\s*/
+                    regex: /^\s*\w+(?:\:\d+)?(?=\s+blocking)/
                 }, {
                     token: RESERVED,
                     regex: /blocking\s*$/,
@@ -83,10 +96,17 @@ define(function () {
                     token: BINDING,
                     regex: /^\s*\w+(?:\:\d+)?\s*$/,
                     next: 'OBJECTS-data'
+                }, {
+                    token: BINDING,
+                    regex: /^\s*\w+(?:\:\d+)?\s*(?=\/\/)/,
+                    next: 'OBJECTS-data'
                 }],
                 'OBJECTS-data': [{
                     token: PLAIN,
                     regex: /^\w+$/
+                }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
                 }, {
                     token: PLAIN,
                     regex: /^\s*$/,
@@ -112,6 +132,9 @@ define(function () {
                     token: SECTION,
                     regex: /^\s*USERULES\s*$/,
                     next: 'USERULES'
+                }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
                 }, {
                     token: RESERVED,
                     regex: /=|and|or|minus/
@@ -139,11 +162,14 @@ define(function () {
                     regex: /^\s*USERULES\s*$/,
                     next: 'USERULES'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: PLAIN,
-                    regex: /^[0-9A-Z]+/
+                    regex: /^[0-9A-F]+/
                 }, {
                     token: BINDING,
-                    regex: /\w+$/
+                    regex: /\w+/
                 }],
                 'NEARRULES': [{
                     token: SECTION,
@@ -157,6 +183,9 @@ define(function () {
                     token: SECTION,
                     regex: /^\s*USERULES\s*$/,
                     next: 'USERULES'
+                }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
                 }, {
                     token: RESERVED,
                     regex: /->|;|heal|hurt/
@@ -176,6 +205,9 @@ define(function () {
                     regex: /^\s*USERULES\s*$/,
                     next: 'USERULES'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: RESERVED,
                     regex: /->/
                 }, {
@@ -190,6 +222,12 @@ define(function () {
                     regex: /USERULES/,
                     next: 'USERULES'
                 }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
+                    token: STRING,
+                    regex: /"(?:(?:\\.)|(?:[^"\\]))*"/
+                }, {
                     token: RESERVED,
                     regex: /->|;|,|_terrain|_inventory|give|heal|hurt|teleport|message|checkpoint/
                 }, {
@@ -203,6 +241,12 @@ define(function () {
                     token: SECTION,
                     regex: /LEGEND/,
                     next: 'LEGEND'
+                }, {
+                    token: STRING,
+                    regex: /"(?:(?:\\.)|(?:[^"\\]))*"/
+                }, {
+                    token: COMMENT,
+                    regex: /\/\/.*$/
                 }, {
                     token: RESERVED,
                     regex: /->|;|,|_terrain|_inventory|give|heal|hurt|teleport|message|sound|consume/
@@ -219,14 +263,24 @@ define(function () {
                     next: 'LEVELS'
                 }, {
                     token: BINDING,
-                    regex: /^[\w!@#$%^&*()\-=+]/
+                    regex: /^[\w!@#$%^&*\-=+]/
                 }],
                 'LEVELS': [{
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: BINDING,
                     regex: /^\s*\w+\s*$/,
                     next: 'LEVELS-data'
+                }, {
+                    token: BINDING,
+                    regex: /^\s*\w+\s*(?=\/\/)/,
+                    next: 'LEVELS-data'
                 }],
                 'LEVELS-data': [{
+                    token: COMMENT,
+                    regex: /\/\/.*$/
+                }, {
                     token: PLAIN,
                     regex: /^\w+$/
                 }, {
