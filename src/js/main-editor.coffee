@@ -88,7 +88,7 @@ define [
 
   mainEventHandlers =
     'source': (data) ->
-      inWorldEditor.setValue data.source
+      inWorldEditor.setValue data.source, -1
 
 
   mainListener = (e) ->
@@ -118,8 +118,8 @@ define [
       Validator.validate tree
 
       if errorLine != null
-#  	    inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
-  	    errorLine = null
+        inWorldEditor.getSession().setAnnotations []
+        errorLine = null
 
       document.getElementById('status').classList.add 'ok'
       document.getElementById('status').classList.remove 'err'
@@ -132,11 +132,15 @@ define [
 
       if ex.line or ex.token
         line = ex.line or ex.token.coords.line
-#        if line != errorLine && errorLine != null
-#  	      inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
+        if line != errorLine && errorLine != null
+          inWorldEditor.getSession().setAnnotations []
 
         errorLine = line
-#        inWorldEditor.addLineClass(errorLine - 1, 'background', 'line-error')
+        inWorldEditor.getSession().setAnnotations([
+            row: errorLine - 1
+            text: ex.message || ex
+            type: 'error'
+        ])
 
       document.getElementById('status').classList.add('err')
       document.getElementById('status').classList.remove('ok')
