@@ -6,6 +6,8 @@ define [
   'import-export/ToPng'
   'sound/Sound'
   'sound/SoundUtil'
+
+  'editor/furnace-mode'
 ], (
   Tokenizer
   Parser
@@ -22,19 +24,16 @@ define [
   errorLine = null
   inWorldEditor = null
 
-
   onChange = ->
     parse inWorldEditor.getValue()
+    return
 
 
   setupEditors = ->
-    inWorldEditor = CodeMirror.fromTextArea(document.getElementById('in'), {
-      lineNumbers: true
-      styleActiveLine: true
-    })
-    inWorldEditor.setSize 600, 400
-    inWorldEditor.setOption 'theme', 'cobalt'
-    inWorldEditor.on 'change', onChange
+    inWorldEditor = ace.edit 'in'
+    inWorldEditor.getSession().setMode 'ace/mode/furnace'
+    inWorldEditor.setTheme 'ace/theme/monokai'
+    inWorldEditor.on 'input', onChange
     return
 
 
@@ -77,6 +76,7 @@ define [
 
   requestSource = ->
     emit type: 'request-source'
+    return
 
 
   compile = ->
@@ -118,7 +118,7 @@ define [
       Validator.validate tree
 
       if errorLine != null
-  	    inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
+#  	    inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
   	    errorLine = null
 
       document.getElementById('status').classList.add 'ok'
@@ -132,11 +132,11 @@ define [
 
       if ex.line or ex.token
         line = ex.line or ex.token.coords.line
-        if line != errorLine && errorLine != null
-  	      inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
+#        if line != errorLine && errorLine != null
+#  	      inWorldEditor.removeLineClass(errorLine - 1, 'background', 'line-error')
 
         errorLine = line
-        inWorldEditor.addLineClass(errorLine - 1, 'background', 'line-error')
+#        inWorldEditor.addLineClass(errorLine - 1, 'background', 'line-error')
 
       document.getElementById('status').classList.add('err')
       document.getElementById('status').classList.remove('ok')
@@ -181,7 +181,6 @@ define [
     setupSoundPanel()
     setupComm()
     requestSource()
-
     return
 
 
