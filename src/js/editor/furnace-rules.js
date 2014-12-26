@@ -1,9 +1,9 @@
 define(function () {
     'use strict';
 
-    ace.define('ace/mode/furnace-rules', function (require, exports, module) {
-        var oop = require('../lib/oop');
-        var TextHighlightRules = require('./text_highlight_rules').TextHighlightRules;
+    ace.define('ace/mode/furnace-rules', function (require_, exports, module) {
+        var oop = require_('../lib/oop');
+        var TextHighlightRules = require_('./text_highlight_rules').TextHighlightRules;
 
         var FurnaceHighlightRules = function () {
             var SECTION = 'keyword';
