@@ -16,8 +16,7 @@ src/js/AjaxUtil.js
 src/js/Util.js
 src/js/extractor/*.js
 src/js/parser/*.js
-src/js/tokenizer/Tokenizer.js
-src/js/tokenizer/IterableString.js
+src/js/tokenizer/*.js
 src/js/validator/*.js
 src/js/generator/*.js
 src/js/sound/**/*.js
