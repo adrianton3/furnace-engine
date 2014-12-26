@@ -7,6 +7,7 @@ node_modules
 src/js/furnace.js
 src/js/main.js
 src/js/main-editor.js
+src/js/parser.js
 src/js/sampleSpec_1.js
 src/js/sampleSpec_2.js
 src/js/Font.js
