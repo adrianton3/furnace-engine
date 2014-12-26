@@ -21,7 +21,7 @@ src/js/generator/*.js
 src/js/sound/**/*.js
 src/js/prettyprinter/*.js
 src/js/Game.js
-src/js/editor/furnace-mode.js
+src/js/editor/*.js
 
 test/spec/*.js
 test/all-tests.js
