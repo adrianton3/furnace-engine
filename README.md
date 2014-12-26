@@ -14,6 +14,10 @@ A PuzzleScript like engine
 Changelog
 ---------
 
+#### r23
+ + added syntax highlighting to the editor
+ + switched from codemirror to ace for the editor
+
 #### r22
  + fixed and updated the parsing demo
 
