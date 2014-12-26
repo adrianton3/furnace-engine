@@ -1,5 +1,5 @@
 body {
-	background-color: rgb(0, 13, 23);
+	background-color: #131411;
 }
 
 canvas {
@@ -8,13 +8,13 @@ canvas {
 }
 
 textarea {
-	background-color: #000000;
-	color: #ffffff;
+	background-color: #181a16;
+	color: #FFFFFF;
 }
 
 button {
 	transition: background 0.5s;
-	background-color: hsl(212, 100%, 43%);
+	background-color: hsl(212, 90%, 36%);
 	border: 0px;
 	border-radius: 2px;
 	color: #FFF;
@@ -108,11 +108,11 @@ button:focus {
 }
 
 .ok {
-	background: #00Ab00;
+	background: #599c27;
 }
 
 .err {
-	background: #AA0000;
+	background: #cc3333;
 }
 
 .info {
@@ -140,4 +140,11 @@ button:focus {
     border: 1px solid white;
     padding: 3px;
     margin-top: 8px;
+}
+
+div#in {
+	position: relative;
+	width: 600px;
+	height: 400px;
+	font-size: 16px;
 }

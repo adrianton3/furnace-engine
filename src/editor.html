@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <title>Furnace engine editor</title>
     <link rel="stylesheet" type="text/css" href="style/style.css">
-    <link rel="stylesheet" href="lib/cm/codemirror.css">
-    <link rel="stylesheet" href="lib/cm/cobalt.css">
     <script type="text/javascript" src="lib/purl.js"></script>
-    <script type="text/javascript" src="lib/cm/codemirror.js"></script>
+    <script src="lib/ace/ace.js"></script>
+    <script src="lib/ace/theme-monokai.js"></script>
     <script src="lib/require.js"></script>
     <script src="lib/underscore-min.js"></script>
     <!--<script src="lib/angular.min.js"></script>-->
@@ -15,7 +14,7 @@
 </head>
 <body>
     <div id="editor" class="con">
-        <textarea id="in" spellcheck="false"></textarea>
+        <div id="in"></div>
 
         <br>
         <div id="status">...</div>
@@ -27,7 +26,13 @@
                 --><button id="geturl" class="but-tall">Get URL</button><!--
                 --><button id="exportaspng" class="but-tall">Get PNG</button>
             </div>
-            <textarea id="url" cols="46" rows="4">...</textarea>
+            <textarea
+                id="url"
+                cols="46"
+                rows="4"
+                readonly="readonly"
+                spellcheck="false"
+            >...</textarea>
             <div id="exported-container"></div>
         </div>
         <div id="sound">
@@ -39,7 +44,13 @@
                 --><button id="s3" class="but-tall but-sound">P3</button><!--
                 --><button id="s4" class="but-tall but-sound">P4</button>
             </div>
-            <textarea id="sound-encoded" cols="26" rows="4">...</textarea>
+            <textarea
+                id="sound-encoded"
+                cols="26"
+                rows="4"
+                readonly="readonly"
+                spellcheck="false"
+            >...</textarea>
         </div>
     </div>
 
