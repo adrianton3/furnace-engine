@@ -43,10 +43,10 @@ define ->
             regex: /\/\/.*$/
           }, {
             token: BINDING
-            regex: /^\w/
+            regex: /^[\w!@#$%^&*\-=+]/
           }, {
             token: RESERVED
-            regex: /rgb|rgba/
+            regex: /rgba?/
           }, {
             token: PLAIN
             regex: /\d+/
