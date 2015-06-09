@@ -20,7 +20,7 @@ define [
   'use strict'
 
 
-  baseUrl = 'http://madflame991.github.io/furnace-engine/src/index.html'
+  baseUrl = 'http://adrianton3.github.io/furnace-engine/src/index.html'
   errorLine = null
   inWorldEditor = null
 
