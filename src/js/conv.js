@@ -301,7 +301,7 @@ define(['js/Util'], function (Util) {
         }
 
         // and output it via codemirror
-        outTokensEditor.setValue(completeString);
+        outTokensEditor.setValue(completeString, -1);
 
         paintGrid();
     }
@@ -372,13 +372,10 @@ define(['js/Util'], function (Util) {
      * Sets up the codemirror editor where the result is shown
      */
     function setupEditors() {
-        outTokensEditor = CodeMirror.fromTextArea(document.getElementById('outobjects'), {
-            lineNumbers: true,
-            styleActiveLine: true,
-            readOnly: true
-        });
-        outTokensEditor.setSize(400, 500);
-        outTokensEditor.setOption('theme', 'cobalt');
+        outTokensEditor = ace.edit('out-objects');
+        outTokensEditor.setTheme('ace/theme/monokai');
+        outTokensEditor.setReadOnly(true);
+        outTokensEditor.$blockScrolling = Infinity;
     }
 
     /**
