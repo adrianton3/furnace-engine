@@ -29,12 +29,16 @@ define [
     inWorldEditor = getEditor 'in-world'
     inWorldEditor.getSession().setMode 'ace/mode/furnace'
     inWorldEditor.on 'input', parse
+    inWorldEditor.$blockScrolling = Infinity
 
     outTokensEditor = getEditor 'out-tokens'
     outTokensEditor.setReadOnly true
+    outTokensEditor.$blockScrolling = Infinity
 
     outInterpretedEditor = getEditor 'out-world'
     outInterpretedEditor.setReadOnly true
+    outInterpretedEditor.$blockScrolling = Infinity
+    return
 
 
   parse = ->
