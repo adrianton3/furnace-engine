@@ -22,6 +22,7 @@ src/js/generator/*.js
 src/js/sound/**/*.js
 src/js/prettyprinter/*.js
 src/js/Game.js
+src/js/TextBubble.js
 src/js/editor/*.js
 
 test/spec/*.js
