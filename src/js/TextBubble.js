@@ -17,7 +17,6 @@ define([
         this.visible = true;
         this.text = '';
         this.length = -Infinity;
-        this.maxLength = 20;
         this.lines = [];
     }
 
@@ -46,18 +45,13 @@ define([
     TextBubble.prototype.setText = function (text) {
         this.text = text.toUpperCase();
 
-        this.lines = [];
-        this.length = -Infinity;
+        this.lines = this.text.split('\n')
+            .map(function (line) { return line.trim() })
 
-        // chop text on multiple lines
-        for (var i = 0; i < this.text.length; i += this.maxLength) {
-            var line = this.text.substr(i, this.maxLength).trim();
-            this.lines.push(line);
-
-            if (line.length > this.length) {
-                this.length = line.length;
-            }
-        }
+        this.length = Math.max.apply(
+            null,
+            this.lines.map(function (line) { return line.length })
+        )
 
         var boxWidth = this.length * 16 + 8;
         this.position.x = Math.floor((con2d.canvas.width - boxWidth) / 2);
