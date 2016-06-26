@@ -10,7 +10,7 @@ define [
 	'use strict'
 
 	TextBubble = ->
-		@position = new Vec2(8, 8)
+		@position = new Vec2 8, 8
 		@visible = true
 		@text = ''
 		@length = -Infinity
@@ -36,10 +36,9 @@ define [
 		con2d.fillRect @position.x, @position.y, @length * 16 + 8, @lines.length * 18 + 8
 
 		# draw the text, line by line
-		i = 0
-		while i < @lines.length
-			Text.drawAt @lines[i], @position.x + 4, @position.y + i * 18 + 4
-			i++
+		@lines.forEach (line, index) =>
+			Text.drawAt line, @position.x + 4, @position.y + index * 18 + 4
+			return
 
 		return
 
