@@ -12,7 +12,6 @@ define [
 	TextBubble = ->
 		@position = new Vec2 8, 8
 		@visible = true
-		@text = ''
 		@length = -Infinity
 		@lines = []
 		return
@@ -44,10 +43,7 @@ define [
 
 
 	TextBubble::setText = (text) ->
-		# remove when the character set is complete
-		@text = text.toUpperCase()
-
-		@lines = @text.split '\n'
+		@lines = text.split '\n'
 			.map (line) -> line.trim()
 
 		@length = Math.max @lines.map(({ length }) -> length)...
