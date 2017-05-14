@@ -815,21 +815,21 @@ bottle-empty -> floor ; give 1 bottle-empty
 battery -> floor ; give 1 battery
 
 snow -> snow-trampled
-snow-rad -> snow-rad-trampled ; hurt 1 ; message "This heavily\nradiated snow hurts"
+snow-rad -> snow-rad-trampled ; hurt 1 ; message "This heavily\\nradiated snow hurts"
 
 ladder-down1 -> ladder-down1 ; teleport surface 26 12
 ladder-down2 -> ladder-down2 ; teleport surface 1 0
 ladder-up1 -> ladder-up1 ; teleport entry 0 1
 ladder-up2 -> ladder-up2 ; teleport section2 40 17
 
-win -> floor ; message "I have found a stash\nto last a lifetime"
+win -> floor ; message "I have found a stash\\nto last a lifetime"
 
 USERULES
 
-ladder-down1 eye -> ladder-down1 ; message "Ladder goes to\nthe surface"
-ladder-down2 eye -> ladder-down2 ; message "Ladder goes to\nthe surface"
-ladder-up1 eye -> ladder-up1 ; message "Ladder to\nunderground"
-ladder-up2 eye -> ladder-up2 ; message "Ladder to\nunderground"
+ladder-down1 eye -> ladder-down1 ; message "Ladder goes to\\nthe surface"
+ladder-down2 eye -> ladder-down2 ; message "Ladder goes to\\nthe surface"
+ladder-up1 eye -> ladder-up1 ; message "Ladder to\\nunderground"
+ladder-up2 eye -> ladder-up2 ; message "Ladder to\\nunderground"
 
 skull eye -> skull ; message "Skull"
 key eye -> key ; message "Key"
@@ -843,7 +843,7 @@ rat eye -> rat ; message "Sleeping rat"
 pickaxe eye -> pickaxe ; message "Pickaxe"
 crowbar eye -> crowbar ; message "Crowbar"
 jane eye -> jane ; message "So you have heard my distress signals"
-mr-white1 eye -> mr-white1 ; message "Mr White looks\nthirsty"
+mr-white1 eye -> mr-white1 ; message "Mr White looks\\nthirsty"
 mr-white2 eye -> mr-white2 ; message "Mr White"
 radx-unpowered eye -> radx-unpowered ; message "Unpowered RADX"
 radx-powered eye -> radx-powered ; message "Powered RADX"
@@ -857,7 +857,7 @@ chair eye -> chair ; message "Chair"
 Walls eye -> _terrain ; message "Wall"
 bottle-empty eye -> bottle-empty ; message "Empty bottle"
 bottle-water eye -> bottle-water ; message "Bottle of water"
-bottle-rad eye -> bottle-rad ; message "Bottle of irradiated\nwater"
+bottle-rad eye -> bottle-rad ; message "Bottle of irradiated\\nwater"
 purifier eye -> purifier ; message "Empty purifier"
 purifier-water eye -> purifier-water ; message "Purifier"
 purifier-rad eye -> purifier-rad ; message "Purifier"
@@ -866,12 +866,12 @@ mushroom2 eye -> mushroom2 ; message "Mushrooms"
 snow eye -> snow ; message "Snow"
 snow-trampled eye -> snow-trampled ; message "Trampled snow"
 snow-rad eye -> snow-rad ; message "Irradiated snow"
-snow-rad-trampled eye -> snow-rad-trampled ; message "Irradiated trampled\nsnow"
+snow-rad-trampled eye -> snow-rad-trampled ; message "Irradiated trampled\\nsnow"
 tree eye -> tree ; message "Dead tree"
 radio1-unpowered eye -> radio1-unpowered ; message "Radio unpowered"
-radio1-powered eye -> radio1-powered ; message "Radio there is a\nfaint signal"
+radio1-powered eye -> radio1-powered ; message "Radio there is a\\nfaint signal"
 radio2-unpowered eye -> radio2-unpowered ; message "Radio unpowered"
-radio2-powered eye -> radio2-powered ; message "Radio the signal is\nstronger here"
+radio2-powered eye -> radio2-powered ; message "Radio the signal is\\nstronger here"
 
 dirt1 pickaxe -> floor ; consume
 dirt2 pickaxe -> floor ; consume
@@ -892,12 +892,12 @@ rat crowbar -> floor
 bug crowbar -> floor ; hurt 1 ; consume
 
 drill-unpowered battery -> floor ; give 1 drill-powered ; consume
-radio1-unpowered battery -> radio1-powered ; consume ; message "You can hear a faint\ndistress signal"
-radio2-unpowered battery -> radio2-powered ; consume ; message "You hear the same\nsignal, but stronger"
+radio1-unpowered battery -> radio1-powered ; consume ; message "You can hear a faint\\ndistress signal"
+radio2-unpowered battery -> radio2-powered ; consume ; message "You hear the same\\nsignal, but stronger"
 
 floor bottle-water -> floor ; heal 1
-mr-white1 bottle-water -> mr-white2 ; give 1 key , 1 bottle-empty ; consume ; message "Thanks! Here take this\nkey I found! I don't know\nwhat it opens but maybe\nyou will find out"
-mr-white1 bottle-rad -> mr-white1 ; message "This water is\nnot pure"
+mr-white1 bottle-water -> mr-white2 ; give 1 key , 1 bottle-empty ; consume ; message "Thanks! Here take this\\nkey I found! I don't know\\nwhat it opens but maybe\\nyou will find out"
+mr-white1 bottle-rad -> mr-white1 ; message "This water is\\nnot pure"
 
 snow-rad radx-powered -> snow ; give 1 radx-unpowered ; consume
 snow-rad-trampled radx-powered -> snow-trampled ; give 1 radx-unpowered ; consume
