@@ -39,7 +39,7 @@ b rgb 0 148 255
 B rgb 0 113 193
 c rgb 91 46 1
 C rgb 51 26 1
-
+v rgb 60 150 15
 
 PLAYER
 down
@@ -122,16 +122,16 @@ t444t
 t443t
 
 tree blocking
-LlllL
-lllll
-lllll
-LlllL
+LvvvL
+vvvlv
+vvvvv
+LvvvL
 LLtLL
 
 tree2 blocking
-LlllL
-lllll
-LlllL
+LvvvL
+vvvvv
+LvvvL
 LLtLL
 LLtLL
 
