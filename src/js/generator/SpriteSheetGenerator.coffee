@@ -47,10 +47,7 @@ define [
       paint x, y, stringedSprite.data
       return
 
-    dataURL = canvas.toDataURL('image/png')
-    image = new Image()
-    image.src = dataURL
-    spriteSheet = new SpriteSheet(image, width, width)
+    spriteSheet = new SpriteSheet(canvas, width, width)
 
     namedSprites = stringedSprites.map (stringedSprite, index) ->
       x = index % width
