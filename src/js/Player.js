@@ -24,6 +24,9 @@ define([
         this.healthSprite = spritesByName['health'];
 		this.direction = 'down';
         this.alive = true;
+
+        this.moving = []
+		this.invMoving = []
 	}
 
 	var keyMapping = {
@@ -49,6 +52,9 @@ define([
 		invright: 1
 	};
 
+	const moveKeys = new Set([38, 37, 40, 39])
+	const invMoveKeys = new Set([83, 68])
+
 	/**
 	 * Initializes the player
 	 */
@@ -56,40 +62,67 @@ define([
 		this.direction = 'down';
 		this.sprite = this.spritesByName[this.direction];
 
-		SystemBus.addListener('keydown', '', function (data) {
-            if (data.key === 75) {
+		SystemBus.addListener('keydown', '', ({ key }) => {
+            if (key === 75) {
                 delete localStorage['furnace-save'];
             }
 
             if (this.alive) {
                 if (this.world.textBubble.visible) {
-                    if (data.key === 65) {
+                    if (key === 65) {
                         this.world.textBubble.hide();
                     }
                 } else {
-                    if (data.key === 85) {
+                    if (key === 85) {
                         this.restore();
-                    } else if (data.key === 65) {
+                    } else if (key === 65) {
                         this.use();
-                    } else if (data.key === 83 || data.key === 68) {
-                        this.world.inventory.move(invDeltas[keyMapping[data.key]]);
+                    } else if (key === 83 || key === 68) {
+						this.invMoving.push(keyMapping[key])
                     } else {
-                        if (keyMapping[data.key]) {
-                            this.move(deltas[keyMapping[data.key]]);
-                            this.direction = keyMapping[data.key];
-                            this.sprite = this.spritesByName[this.direction];
+                        if (keyMapping[key]) {
+							this.moving.push(keyMapping[key])
+
+							this.direction = keyMapping[key]
+							this.sprite = this.spritesByName[this.direction]
                         }
                     }
                 }
             } else {
-                if (data.key === 82) {
+                if (key === 82) {
                     this.alive = true;
                     this.world.textBubble.hide();
                     this.restore();
                 }
             }
-		}.bind(this));
+		})
+
+		SystemBus.addListener('keyup', '', ({ key }) => {
+			if (moveKeys.has(key)) {
+				this.moving.splice(this.moving.indexOf(keyMapping[key]), 1)
+			}
+
+			if (invMoveKeys.has(key)) {
+				this.invMoving.splice(this.invMoving.indexOf(keyMapping[key]), 1)
+			}
+		})
 	};
+
+	Player.prototype.update = function () {
+		if (this.moving.length > 0) {
+			const movingEntry = this.moving[this.moving.length - 1]
+
+			this.direction = movingEntry
+			this.sprite = this.spritesByName[this.direction]
+			this.move(deltas[movingEntry])
+		}
+
+		if (this.invMoving.length > 0) {
+			const invMovingEntry = this.invMoving[this.invMoving.length - 1]
+
+			this.world.inventory.move(invDeltas[invMovingEntry]);
+		}
+	}
 
     Player.prototype.healOrHurt = function (delta) {
         if (this.healthMax > 0) {

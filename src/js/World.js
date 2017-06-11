@@ -25,6 +25,8 @@ define([
 	) {
 	'use strict';
 
+	const frameTime = 120
+
 	function World(
 		playerSpritesByName,
 		levelsByName,
@@ -62,7 +64,7 @@ define([
 
         // animation related
 		this.tick = 0;
-		this.z = 0;
+		this.subTick = 0;
 	}
 
 	World.prototype.init = function () {
@@ -107,11 +109,20 @@ define([
 	};
 
 	World.prototype.update = function () {
-		this.z++; // should count deltaTime
-		if (this.z >= 20) {
-			this.z = 0;
-			this.tick = 1 - this.tick;
+		const now = performance.now()
+		if (now - this.updateTime < frameTime) {
+			return
 		}
+
+		this.updateTime = now
+
+		this.subTick++
+		if (this.subTick >= 5) {
+			this.subTick = 0
+			this.tick = 1 - this.tick
+		}
+
+		this.player.update()
 	};
 
     World.prototype.serialize = function () {
