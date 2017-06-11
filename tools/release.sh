@@ -1,5 +1,5 @@
 #!/bin/sh
-node tools/build.js
+./build.sh
 mkdir -p tmp
 cp out/furnace.js tmp/furnace.js
 cp src/js/sampleSpec_1.js tmp/sampleSpec_1.js
