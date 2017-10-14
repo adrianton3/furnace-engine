@@ -76,7 +76,7 @@ define [
             COLORS
             a rgb 11 22 33
             PLAYER
-          ''').toEqual [{ name: 'a', red: '11', green: '22', blue: '33' }]
+          ''').toEqual [{ name: 'a', format: 'rgb', red: '11', green: '22', blue: '33' }]
 
       it 'can parse more color bindings', ->
         expect(parse '''
@@ -85,9 +85,9 @@ define [
             b rgb 44 55 66
             PLAYER
           ''').toEqual [{
-            name: 'a', red: '11', green: '22', blue: '33'
+            name: 'a', format: 'rgb', red: '11', green: '22', blue: '33'
           }, {
-            name: 'b', red: '44', green: '55', blue: '66'
+            name: 'b', format: 'rgb', red: '44', green: '55', blue: '66'
           }]
 
       it 'can parse an rgba color binding', ->
@@ -95,7 +95,7 @@ define [
             COLORS
             a rgba 11 22 33 44
             PLAYER
-          ''').toEqual [{ name: 'a', red: '11', green: '22', blue: '33', alpha: '44' }]
+          ''').toEqual [{ name: 'a', format: 'rgba', red: '11', green: '22', blue: '33', alpha: '44' }]
 
 
     describe 'PLAYER', ->

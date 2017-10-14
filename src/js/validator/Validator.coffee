@@ -114,9 +114,14 @@ define [
 			if color.name.value.length != 1
 				throw new ValidatorError color.name, 'Color bindings must have one character in length'
 
-			validateColorComponent color.red, 'Red', 0, 255
-			validateColorComponent color.green, 'Green', 0, 255
-			validateColorComponent color.blue, 'Blue', 0, 255
+			if color.format in ['rgb', 'rgba']
+				validateColorComponent color.red, 'Red', 0, 255
+				validateColorComponent color.green, 'Green', 0, 255
+				validateColorComponent color.blue, 'Blue', 0, 255
+			else
+				validateColorComponent color.hue, 'Hue', 0, 360
+				validateColorComponent color.saturation, 'Saturation', 0, 100
+				validateColorComponent color.lightness, 'Lightness', 0, 100
 
 			if color.alpha
 				validateColorComponent color.alpha, 'Alpha', 0, 1

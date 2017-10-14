@@ -46,7 +46,7 @@ define ->
             regex: /^[\w!@#$%^&*\-=+]/
           }, {
             token: RESERVED
-            regex: /rgba?/
+            regex: /rgba?|hsla?/
           }, {
             token: PLAIN
             regex: /\d+/

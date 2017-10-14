@@ -175,7 +175,28 @@ define [
 			it 'throws an error if the range for the alpha channel is not right', ->
 				expect(-> validate '''
 					COLORS
-					a rgb 11 22 33 2
+					a rgba 11 22 33 2
+					PLAYER
+				''').toThrow()
+
+			it 'throws an error if the range for hue is not right', ->
+				expect(-> validate '''
+					COLORS
+					a hsl 361 22 33
+					PLAYER
+				''').toThrow()
+
+			it 'throws an error if the range for saturation is not right', ->
+				expect(-> validate '''
+					COLORS
+					a hsl 11 101 33
+					PLAYER
+				''').toThrow()
+
+			it 'throws an error if the range for lightness is not right', ->
+				expect(-> validate '''
+					COLORS
+					a hsl 11 22 101
 					PLAYER
 				''').toThrow()
 
