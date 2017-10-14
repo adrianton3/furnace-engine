@@ -28,7 +28,7 @@ define [
   build = (context, parameters) ->
     osc = context.createOscillator()
     osc.type = parameters.oscType
-    osc.frequency.value = parameters.ofcFreq
+    osc.frequency.value = parameters.oscFreq
 
     lfo = context.createOscillator()
     lfo.type = parameters.lfoType
