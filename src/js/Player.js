@@ -338,50 +338,43 @@ define([
         if (!currentInventoryItem) { return; }
 
 		var facingPosition = this.getFacing();
-		if (level.withinBounds(facingPosition.x, facingPosition.y)) {
-			var currentTerrainItem = level.get(facingPosition.x, facingPosition.y);
+		if (!level.withinBounds(facingPosition.x, facingPosition.y)) { return; }
 
-			var rule = ruleSet.getRuleFor(currentTerrainItem.id, currentInventoryItem.id);
-			if (rule) {
-				if (!rule.consume ||
-					(rule.consume &&
-						inventory.has(
-							Items.collection[
-								resolveItem(currentTerrainItem.id, currentInventoryItem.id, currentInventoryItem.id)]))) {
+		var currentTerrainItem = level.get(facingPosition.x, facingPosition.y);
 
-					if (rule.consume) {
-						inventory.consume(
-							Items.collection[
-								resolveItem(currentTerrainItem.id, currentInventoryItem.id, currentInventoryItem.id)]);
-					}
+		var rule = ruleSet.getRuleFor(currentTerrainItem.id, currentInventoryItem.id);
+		if (!rule) { return; }
 
-					level.set(
-						facingPosition.x,
-						facingPosition.y,
-						Items.collection[
-							resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.outTerrainItem)]);
+		if (!rule.consume || inventory.has(Items.collection[currentInventoryItem.id])) {
+			if (rule.consume) {
+				inventory.consume(Items.collection[currentInventoryItem.id]);
+			}
 
-					rule.outInventoryItems.forEach(function (item) {
-						inventory.addItem(
-							Items.collection[
-								resolveItem(currentTerrainItem.id, currentInventoryItem.id, item.itemName)],
-							item.quantity);
-					});
+			level.set(
+				facingPosition.x,
+				facingPosition.y,
+				Items.collection[
+					resolveItem(currentTerrainItem.id, currentInventoryItem.id, rule.outTerrainItem)]);
 
-                    this.healOrHurt(rule.healthDelta);
+			rule.outInventoryItems.forEach(function (item) {
+				inventory.addItem(
+					Items.collection[
+						resolveItem(currentTerrainItem.id, currentInventoryItem.id, item.itemName)],
+					item.quantity);
+			});
 
-					if (rule.teleport) {
-						this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
-					}
+			this.healOrHurt(rule.healthDelta);
 
-                    if (rule.message) {
-                        this.world.textBubble.show().setText(rule.message);
-                    }
+			if (rule.teleport) {
+				this.teleport(rule.teleport.levelName, rule.teleport.x, rule.teleport.y);
+			}
 
-					if (rule.sound) {
-						this.world.playSound(rule.sound);
-					}
-				}
+			if (rule.message) {
+				this.world.textBubble.show().setText(rule.message);
+			}
+
+			if (rule.sound) {
+				this.world.playSound(rule.sound);
 			}
 		}
 	};
