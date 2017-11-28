@@ -9,6 +9,7 @@ define [
   'KeyListener'
   'import-export/FromPng'
   'AjaxUtil'
+	'compilers/js/main'
 ], (
   SystemBus
   Text
@@ -20,6 +21,7 @@ define [
   KeyListener
   FromPng
   AjaxUtil
+	JsCompiler
 ) ->
   'use strict'
 
@@ -54,11 +56,15 @@ define [
 
 
   editorEventHandlers =
-    'compile': (data) ->
-      tree = parse data.source
-      compile tree
-    'request-source': (data) ->
-      emit { type: 'source', source }
+		'compile': (data) ->
+			tree = parse data.source
+			compile tree
+			console.log JsCompiler.compile tree
+			return
+
+		'request-source': (data) ->
+			emit { type: 'source', source }
+			return
 
 
   originUrl = '*'
