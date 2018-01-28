@@ -59,15 +59,19 @@ define [
 
 
 	compileLevelSize = (levels) ->
-		(
-			levels.map ({ name, data }) ->
-				"""
-					'#{name}' : {
-						x: #{data[0].length},
-						y: #{data.length},
-					}
-				"""
-		).join ',\n'
+		"""
+			{#{
+				(
+					levels.map ({ name, data }) ->
+						"""
+							'#{name}' : {
+								x: #{data[0].length},
+								y: #{data.length},
+							}
+						"""
+				).join ',\n'
+			}}
+		"""
 
 
 	compileLevel = (legend, { name, data }) ->
