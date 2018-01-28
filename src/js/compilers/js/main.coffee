@@ -30,6 +30,33 @@ define [
 		lines.join '\n'
 
 
+	compilePlayerSprite = ({ name, data }) ->
+		colorData = for line in data
+			for color in line
+				"colors['#{color}']"
+
+		"""
+			'#{name}': {
+				data: [#{colorData}],
+			}
+		"""
+
+
+	compilePlayerSprites = (playerSprites) ->
+		lines = []
+		push = lines.push.bind lines
+
+		push "var player = {"
+
+		playerSprites.forEach (playerSprite) ->
+			push "#{compilePlayerSprite playerSprite},"
+			return
+
+		push "}"
+
+		lines.join '\n'
+
+
 	compileObject = ({ name, data, blocking }) ->
 		colorData = for line in data
 			for color in line
@@ -104,9 +131,11 @@ define [
 
 		"""
 			#{compileColors spec.colors}
+			#{compilePlayerSprites spec.player}
 			#{compileObjects spec.objects}
 
-			var sprites = {}
+			var objectSprites = {}
+			var playerSprites = {}
 
 			var params = {
 				scale: #{params['scale'][0]},
