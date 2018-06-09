@@ -180,6 +180,65 @@ define [
 		lines.join '\n'
 
 
+	isSetReference = Util.isCapitalized
+
+
+	resolveItem = (reference) ->
+		switch reference
+			when '_terrain'
+				'terrainItem'
+			when '_inventory'
+				'inventoryItem'
+			else
+				reference
+
+
+	makeList = ->
+		elements = []
+
+		{
+			push: elements.push.bind elements
+			join: elements.join.bind elements
+		}
+
+
+	compileLeaveRule = (rule) ->
+		{ push, join } = makeList()
+
+		terrainItemCondition = if isSetReference rule.inTerrainItemName
+			"sets['#{rule.inTerrainItemName}'].has(terrainItem)"
+		else
+			"terrainItem === #{rule.inTerrainItemName}"
+
+		push "if (#{terrainItemCondition}) {"
+
+		push "setTerrainItem(prevPosition, '#{resolveItem rule.outTerrainItemName}')"
+
+		push "}"
+
+		join '\n'
+
+
+	compileLeaveRules = (rules) ->
+		{ push, join } = makeList()
+
+		push 'function applyLeaveRules (prevPosition) {'
+
+		push 'var terrainItem = getTerrainItem(prevPosition)'
+
+		push 'var inventoryItem = getInventoryItem()'
+
+		ruleLines = makeList()
+		rules.forEach (rule) ->
+			ruleLines.push compileLeaveRule rule
+			return
+		push ruleLines.join ' else '
+
+		push '}'
+
+		join '\n'
+
+
 	compile = (spec) ->
 		params = Util.arrayToObject spec.params, 'name', 'parts'
 
@@ -212,11 +271,50 @@ define [
 						y: #{params['start_location'][1]},
 						level: "#{params['start_location'][2]}",
 					},
+					inventory: {
+						index: -1,
+						items: [],
+					},
 				},
 				levels: #{compileLevels spec.legend, spec.levels},
 			}
 
+			function isWithin (position, level) {
+				const levelSize = params.levelSize[level]
+
+				return position.x >= 0 && position.x < levelSize.x &&
+					position.y >= 0 && position.y < levelSize.y
+			}
+
+			function getTerrainItem (position) {
+				const { player, levels } = state
+				const level = state.levels[player.position.level]
+
+				return isWithin(position, player.position.level)
+					? level[position.y][position.x]
+					: null
+			}
+
+			function setTerrainItem (position, item) {
+				const { player, levels } = state
+				const level = state.levels[player.position.level]
+
+				if (isWithin(position, player.position.level)) {
+					level[position.y][position.x] = item
+				}
+			}
+
+			function getInventoryItem () {
+				const { items, index } = state.player.inventory
+
+				return items.length <= 0
+					? null
+					: items[index]
+			}
+
 			#{compileSets spec.sets}
+
+			#{compileLeaveRules spec.leaveRules}
 		"""
 
 	{
