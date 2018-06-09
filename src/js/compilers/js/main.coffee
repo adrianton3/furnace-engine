@@ -126,6 +126,60 @@ define [
 		lines.join '\n'
 
 
+	compileSet = (setSpec, setDefinitions) ->
+		if setSpec.elements?
+			set = new Set setSpec.elements
+		else
+			operand1 = setDefinitions[setSpec.operand1]
+			operand2 = setDefinitions[setSpec.operand2]
+
+			set = new Set
+
+			switch setSpec.operator
+				when 'or'
+					operand1.forEach (element) ->
+						set.add element
+						return
+
+					operand2.forEach (element) ->
+						set.add element
+						return
+
+				when 'and'
+					operand1.forEach (element) ->
+						if operand2.has element
+							set.add element
+						return
+
+				when 'minus'
+					operand1.forEach (element) ->
+						if not operand2.has element
+							set.add element
+						return
+
+		setDefinitions[setSpec.name] = set
+
+		elements = (Array.from set).map (element) -> "'#{element}'"
+
+		"'#{setSpec.name}': new Set([#{elements.join ', '}])"
+
+
+	compileSets = (sets) ->
+		lines = []
+		push = lines.push.bind lines
+
+		push "var sets = {"
+
+		setDefinitions = {}
+		sets.forEach (set) ->
+			push "#{compileSet set, setDefinitions},"
+			return
+
+		push "}"
+
+		lines.join '\n'
+
+
 	compile = (spec) ->
 		params = Util.arrayToObject spec.params, 'name', 'parts'
 
@@ -161,6 +215,8 @@ define [
 				},
 				levels: #{compileLevels spec.legend, spec.levels},
 			}
+
+			#{compileSets spec.sets}
 		"""
 
 	{
