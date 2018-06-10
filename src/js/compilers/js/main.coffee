@@ -202,13 +202,57 @@ define [
 		}
 
 
+	compileNearRule = (rule) ->
+		{ push, join } = makeList()
+
+		terrainItemCondition = if isSetReference rule.inTerrainItemName
+			"sets['#{rule.inTerrainItemName}'].has(terrainItem)"
+		else
+			"terrainItem === '#{rule.inTerrainItemName}'"
+
+		push "if (#{terrainItemCondition}) {"
+
+		push "setTerrainItem(neighbor, '#{resolveItem rule.outTerrainItemName}')"
+
+		push "}"
+
+		if rule.healthDelta? and rule.healthDelta != 0
+			push "state.player.health += #{rule.healthDelta}"
+
+		join '\n'
+
+
+	compileNearRules = (rules) ->
+		{ push, join } = makeList()
+
+		push 'function applyNearRules (position) {'
+
+		push 'var inventoryItem = getInventoryItem()'
+
+		push 'getNeighbors(position).forEach((neighbor) => {'
+
+		push 'var terrainItem = getTerrainItem(neighbor)'
+
+		ruleLines = makeList()
+		rules.forEach (rule) ->
+			ruleLines.push compileNearRule rule
+			return
+		push ruleLines.join ' else '
+
+		push '})'
+
+		push '}'
+
+		join '\n'
+
+
 	compileLeaveRule = (rule) ->
 		{ push, join } = makeList()
 
 		terrainItemCondition = if isSetReference rule.inTerrainItemName
 			"sets['#{rule.inTerrainItemName}'].has(terrainItem)"
 		else
-			"terrainItem === #{rule.inTerrainItemName}"
+			"terrainItem === '#{rule.inTerrainItemName}'"
 
 		push "if (#{terrainItemCondition}) {"
 
@@ -312,7 +356,27 @@ define [
 					: items[index]
 			}
 
+			function getNeighbors (position) {
+				return [
+					{ x:  0, y: -1 },
+					{ x: -1, y: -1 },
+					{ x: -1, y:  0 },
+					{ x: -1, y:  1 },
+					{ x:  0, y:  1 },
+					{ x:  1, y:  1 },
+					{ x:  1, y:  0 },
+					{ x:  1, y: -1 },
+				].map(({ x, y }) => ({
+					x: position.x + x,
+					y: position.y + y,
+				})).filter((position) =>
+					isWithin(position, state.player.position.level)
+				)
+			}
+
 			#{compileSets spec.sets}
+
+			#{compileNearRules spec.nearRules}
 
 			#{compileLeaveRules spec.leaveRules}
 		"""
