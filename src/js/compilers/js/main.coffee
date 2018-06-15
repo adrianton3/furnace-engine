@@ -190,7 +190,7 @@ define [
 			when '_inventory'
 				'inventoryItem'
 			else
-				reference
+				"'#{reference}'"
 
 
 	makeList = ->
@@ -212,12 +212,13 @@ define [
 
 		push "if (#{terrainItemCondition}) {"
 
-		push "setTerrainItem(neighbor, '#{resolveItem rule.outTerrainItemName}')"
-
-		push "}"
+		if rule.outTerrainItemName?
+			push "setTerrainItem(neighbor, #{resolveItem rule.outTerrainItemName})"
 
 		if rule.healthDelta? and rule.healthDelta != 0
 			push "state.player.health += #{rule.healthDelta}"
+
+		push "}"
 
 		join '\n'
 
@@ -227,11 +228,9 @@ define [
 
 		push 'function applyNearRules (position) {'
 
-		push 'var inventoryItem = getInventoryItem()'
-
 		push 'getNeighbors(position).forEach((neighbor) => {'
 
-		push 'var terrainItem = getTerrainItem(neighbor)'
+		push 'const terrainItem = getTerrainItem(neighbor)'
 
 		ruleLines = makeList()
 		rules.forEach (rule) ->
@@ -256,7 +255,8 @@ define [
 
 		push "if (#{terrainItemCondition}) {"
 
-		push "setTerrainItem(prevPosition, '#{resolveItem rule.outTerrainItemName}')"
+		if rule.outTerrainItemName?
+			push "setTerrainItem(prevPosition, #{resolveItem rule.outTerrainItemName})"
 
 		push "}"
 
@@ -268,9 +268,7 @@ define [
 
 		push 'function applyLeaveRules (prevPosition) {'
 
-		push 'var terrainItem = getTerrainItem(prevPosition)'
-
-		push 'var inventoryItem = getInventoryItem()'
+		push 'const terrainItem = getTerrainItem(prevPosition)'
 
 		ruleLines = makeList()
 		rules.forEach (rule) ->
