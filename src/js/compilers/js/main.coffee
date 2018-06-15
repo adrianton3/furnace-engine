@@ -281,6 +281,55 @@ define [
 		join '\n'
 
 
+	compileEnterRule = (rule) ->
+		{ push, join } = makeList()
+
+		terrainItemCondition = if isSetReference rule.inTerrainItemName
+			"sets['#{rule.inTerrainItemName}'].has(terrainItem)"
+		else
+			"terrainItem === '#{rule.inTerrainItemName}'"
+
+		push "if (#{terrainItemCondition}) {"
+
+		if rule.outTerrainItemName?
+			push "setTerrainItem(position, #{resolveItem rule.outTerrainItemName})"
+
+		if rule.outInventoryItems?
+			rule.outInventoryItems.forEach ({ itemName, quantity }) ->
+				push "addInventoryItem(#{resolveItem itemName}, #{quantity})"
+				return
+
+		if rule.healthDelta? and rule.healthDelta != 0
+			push "state.player.health += #{rule.healthDelta}"
+
+		if rule.teleport?
+			push "state.player.position.level = '#{rule.teleport.levelName}'"
+			push "state.player.position.x = #{rule.teleport.x}"
+			push "state.player.position.y = #{rule.teleport.y}"
+
+		push "}"
+
+		join '\n'
+
+
+	compileEnterRules = (rules) ->
+		{ push, join } = makeList()
+
+		push 'function applyEnterRules (position) {'
+
+		push 'const terrainItem = getTerrainItem(position)'
+
+		ruleLines = makeList()
+		rules.forEach (rule) ->
+			ruleLines.push compileEnterRule rule
+			return
+		push ruleLines.join ' else '
+
+		push '}'
+
+		join '\n'
+
+
 	compile = (spec) ->
 		params = Util.arrayToObject spec.params, 'name', 'parts'
 
@@ -354,6 +403,17 @@ define [
 					: items[index]
 			}
 
+			function addInventoryItem (name, count) {
+				const { items, index } = state.player.inventory
+
+				const entry = items.find((entry) => entry.name === name)
+				if (entry != null) {
+					entry.count += count
+				} else {
+					items.push({ name, count })
+				}
+			}
+
 			function getNeighbors (position) {
 				return [
 					{ x:  0, y: -1 },
@@ -377,6 +437,8 @@ define [
 			#{compileNearRules spec.nearRules}
 
 			#{compileLeaveRules spec.leaveRules}
+
+			#{compileEnterRules spec.enterRules}
 		"""
 
 	{
