@@ -5,51 +5,40 @@ define [
 ) ->
 	'use strict'
 
-	compileColor = (color) ->
-		data = switch color.format
-			when 'rgb'
-				"[#{color.red}, #{color.green}, #{color.blue}, 1]"
-			when 'rgba'
-				"[#{color.red}, #{color.green}, #{color.blue}, #{color.alpha}]"
 
-		"'#{color.name}': #{data}"
-
-
-	compileColors = (colors) ->
-		lines = []
-		push = lines.push.bind lines
-
-		push "var colors = {"
-
-		colors.forEach (color) ->
-			push "#{compileColor color},"
-			return
-
-		push "}"
-
-		lines.join '\n'
-
-
-	compilePlayerSprite = ({ name, data }) ->
+	compileSpriteData = (data, colors) ->
 		colorData = for line in data
-			for color in line
-				"colors['#{color}']"
+			bytes = []
 
+			for colorName in line
+				color = colors.get colorName
+
+				if color.format == 'rgb'
+					bytes.push color.red, color.green, color.blue, 1
+				else
+					bytes.push color.red, color.green, color.blue, color.alpha
+
+			btoa String.fromCharCode bytes...
+
+		JSON.stringify colorData
+
+
+	compilePlayerSprite = ({ name, data }, colors) ->
 		"""
 			'#{name}': {
-				data: [#{colorData}],
+				data: #{compileSpriteData data, colors},
 			}
 		"""
 
 
-	compilePlayerSprites = (playerSprites) ->
+	compilePlayerSprites = (playerSprites, colors) ->
 		lines = []
 		push = lines.push.bind lines
 
 		push "var player = {"
 
 		playerSprites.forEach (playerSprite) ->
-			push "#{compilePlayerSprite playerSprite},"
+			push "#{compilePlayerSprite playerSprite, colors},"
 			return
 
 		push "}"
@@ -57,27 +46,23 @@ define [
 		lines.join '\n'
 
 
-	compileObject = ({ name, data, blocking }) ->
-		colorData = for line in data
-			for color in line
-				"colors['#{color}']"
-
+	compileObject = ({ name, data, blocking }, colors) ->
 		"""
 			'#{name}': {
-				data: [#{colorData}],
-				blocking: #{blocking},
+				blocking: #{Boolean blocking},
+				data: #{compileSpriteData data, colors},
 			}
 		"""
 
 
-	compileObjects = (objects) ->
+	compileObjects = (objects, colors) ->
 		lines = []
 		push = lines.push.bind lines
 
 		push "var objects = {"
 
 		objects.forEach (object) ->
-			push "#{compileObject object},"
+			push "#{compileObject object, colors},"
 			return
 
 		push "}"
@@ -394,10 +379,14 @@ define [
 	compile = (spec) ->
 		params = Util.arrayToObject spec.params, 'name', 'parts'
 
+		colorsIndexed = new Map
+		spec.colors.forEach (color) ->
+			colorsIndexed.set color.name, color
+			return
+
 		"""
-			#{compileColors spec.colors}
-			#{compilePlayerSprites spec.player}
-			#{compileObjects spec.objects}
+			#{compilePlayerSprites spec.player, colorsIndexed}
+			#{compileObjects spec.objects, colorsIndexed}
 
 			var objectSprites = {}
 			var playerSprites = {}
