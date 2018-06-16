@@ -294,8 +294,8 @@ define [
 		if rule.outTerrainItemName?
 			push "setTerrainItem(position, #{resolveItem rule.outTerrainItemName})"
 
-		if rule.outInventoryItems?
-			rule.outInventoryItems.forEach ({ itemName, quantity }) ->
+		if rule.give?
+			rule.give.forEach ({ itemName, quantity }) ->
 				push "addInventoryItem(#{resolveItem itemName}, #{quantity})"
 				return
 
@@ -322,6 +322,67 @@ define [
 		ruleLines = makeList()
 		rules.forEach (rule) ->
 			ruleLines.push compileEnterRule rule
+			return
+		push ruleLines.join ' else '
+
+		push '}'
+
+		join '\n'
+
+
+	compileUseRule = (rule) ->
+		{ push, join } = makeList()
+
+		terrainItemCondition = if isSetReference rule.inTerrainItemName
+			"sets['#{rule.inTerrainItemName}'].has(terrainItem)"
+		else
+			"terrainItem === '#{rule.inTerrainItemName}'"
+
+		inventoryItemCondition = if isSetReference rule.inInventoryItemName
+			"sets['#{rule.inInventoryItemName}'].has(inventoryItem.name)"
+		else
+			"inventoryItem.name === '#{rule.inInventoryItemName}'"
+
+		push "if (#{terrainItemCondition} && #{inventoryItemCondition} && inventoryItem.count > 0) {"
+
+		if rule.consume
+			push "consumeInventoryItem()"
+
+		if rule.outTerrainItemName?
+			push "setTerrainItem(forwardPosition, #{resolveItem rule.outTerrainItemName})"
+
+		if rule.give?
+			rule.give.forEach ({ itemName, quantity }) ->
+				push "addInventoryItem(#{resolveItem itemName}, #{quantity})"
+				return
+
+		if rule.healthDelta? and rule.healthDelta != 0
+			push "state.player.health += #{rule.healthDelta}"
+
+		if rule.teleport?
+			push "state.player.position.level = '#{rule.teleport.levelName}'"
+			push "state.player.position.x = #{rule.teleport.x}"
+			push "state.player.position.y = #{rule.teleport.y}"
+
+		push "}"
+
+		join '\n'
+
+
+	compileUseRules = (rules) ->
+		{ push, join } = makeList()
+
+		push 'function applyUseRules (position) {'
+
+		push 'const forwardPosition = stepForward(position)'
+
+		push 'const terrainItem = getTerrainItem(forwardPosition)'
+
+		push 'const inventoryItem = getInventoryItem()'
+
+		ruleLines = makeList()
+		rules.forEach (rule) ->
+			ruleLines.push compileUseRule rule
 			return
 		push ruleLines.join ' else '
 
@@ -361,6 +422,7 @@ define [
 						x: #{params['start_location'][0]},
 						y: #{params['start_location'][1]},
 						level: "#{params['start_location'][2]}",
+						direction: 2,
 					},
 					inventory: {
 						index: -1,
@@ -375,6 +437,20 @@ define [
 
 				return position.x >= 0 && position.x < levelSize.x &&
 					position.y >= 0 && position.y < levelSize.y
+			}
+
+			function stepForward (position) {
+				const increment = [
+					{ x:  0, y: -1 },
+					{ x: -1, y:  0 },
+					{ x:  0, y:  1 },
+					{ x:  1, y:  0 },
+				][position.direction]
+
+				return {
+					x: position.x + increment.x,
+					y: position.y + increment.y,
+				}
 			}
 
 			function getTerrainItem (position) {
@@ -412,6 +488,18 @@ define [
 				} else {
 					items.push({ name, count })
 				}
+
+				if (index === -1) {
+					state.player.inventory.index = 0
+				}
+			}
+
+			function consumeInventoryItem () {
+				const { items, index } = state.player.inventory
+
+				if (items[index] != null && items[index].count > 0) {
+					items[index].count--
+				}
 			}
 
 			function getNeighbors (position) {
@@ -439,6 +527,8 @@ define [
 			#{compileLeaveRules spec.leaveRules}
 
 			#{compileEnterRules spec.enterRules}
+
+			#{compileUseRules spec.useRules}
 		"""
 
 	{
