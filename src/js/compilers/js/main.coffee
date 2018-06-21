@@ -35,7 +35,7 @@ define [
 		lines = []
 		push = lines.push.bind lines
 
-		push "var player = {"
+		push "const player = {"
 
 		playerSprites.forEach (playerSprite) ->
 			push "#{compilePlayerSprite playerSprite, colors},"
@@ -59,7 +59,7 @@ define [
 		lines = []
 		push = lines.push.bind lines
 
-		push "var objects = {"
+		push "const objects = {"
 
 		objects.forEach (object) ->
 			push "#{compileObject object, colors},"
@@ -153,7 +153,7 @@ define [
 		lines = []
 		push = lines.push.bind lines
 
-		push "var sets = {"
+		push "const sets = {"
 
 		setDefinitions = {}
 		sets.forEach (set) ->
@@ -376,7 +376,7 @@ define [
 		join '\n'
 
 
-	compile = (spec) ->
+	compileData = (spec) ->
 		params = Util.arrayToObject spec.params, 'name', 'parts'
 
 		colorsIndexed = new Map
@@ -385,13 +385,16 @@ define [
 			return
 
 		"""
+			(() => {
+			'use strict'
+
 			#{compilePlayerSprites spec.player, colorsIndexed}
 			#{compileObjects spec.objects, colorsIndexed}
 
-			var objectSprites = {}
-			var playerSprites = {}
+			const objectSprites = {}
+			const playerSprites = {}
 
-			var params = {
+			const params = {
 				scale: #{params['scale'][0]},
 				tileSize: {
 					x: #{spec.objects[0].data[0].length},
@@ -404,8 +407,7 @@ define [
 				levelSize: #{compileLevelSize spec.levels},
 			}
 
-			// state
-			var state = {
+			const state = {
 				player: {
 					position: {
 						x: #{params['start_location'][0]},
@@ -421,93 +423,36 @@ define [
 				levels: #{compileLevels spec.legend, spec.levels},
 			}
 
-			function isWithin (position, level) {
-				const levelSize = params.levelSize[level]
+			window.fur = window.fur || {}
+			Object.assign(fur, {
+				objects,
+				player,
+				objectSprites,
+				playerSprites,
+				state,
+				params,
+			})
 
-				return position.x >= 0 && position.x < levelSize.x &&
-					position.y >= 0 && position.y < levelSize.y
-			}
+			})()
+		"""
 
-			function stepForward (position) {
-				const increment = [
-					{ x:  0, y: -1 },
-					{ x: -1, y:  0 },
-					{ x:  0, y:  1 },
-					{ x:  1, y:  0 },
-				][position.direction]
 
-				return {
-					x: position.x + increment.x,
-					y: position.y + increment.y,
-				}
-			}
+	compileCode = (spec) ->
+		"""
+			(() => {
+			'use strict'
 
-			function getTerrainItem (position) {
-				const { player, levels } = state
-				const level = state.levels[player.position.level]
-
-				return isWithin(position, player.position.level)
-					? level[position.y][position.x]
-					: null
-			}
-
-			function setTerrainItem (position, item) {
-				const { player, levels } = state
-				const level = state.levels[player.position.level]
-
-				if (isWithin(position, player.position.level)) {
-					level[position.y][position.x] = item
-				}
-			}
-
-			function getInventoryItem () {
-				const { items, index } = state.player.inventory
-
-				return items.length <= 0
-					? null
-					: items[index]
-			}
-
-			function addInventoryItem (name, count) {
-				const { items, index } = state.player.inventory
-
-				const entry = items.find((entry) => entry.name === name)
-				if (entry != null) {
-					entry.count += count
-				} else {
-					items.push({ name, count })
-				}
-
-				if (index === -1) {
-					state.player.inventory.index = 0
-				}
-			}
-
-			function consumeInventoryItem () {
-				const { items, index } = state.player.inventory
-
-				if (items[index] != null && items[index].count > 0) {
-					items[index].count--
-				}
-			}
-
-			function getNeighbors (position) {
-				return [
-					{ x:  0, y: -1 },
-					{ x: -1, y: -1 },
-					{ x: -1, y:  0 },
-					{ x: -1, y:  1 },
-					{ x:  0, y:  1 },
-					{ x:  1, y:  1 },
-					{ x:  1, y:  0 },
-					{ x:  1, y: -1 },
-				].map(({ x, y }) => ({
-					x: position.x + x,
-					y: position.y + y,
-				})).filter((position) =>
-					isWithin(position, state.player.position.level)
-				)
-			}
+			const {
+				state,
+				params,
+				getTerrainItem,
+				setTerrainItem,
+				stepForward,
+				getNeighbors,
+				getInventoryItem,
+				addInventoryItem,
+				consumeInventoryItem,
+			} = fur
 
 			#{compileSets spec.sets}
 
@@ -518,8 +463,19 @@ define [
 			#{compileEnterRules spec.enterRules}
 
 			#{compileUseRules spec.useRules}
+
+			window.fur = window.fur || {}
+			Object.assign(fur, {
+				applyNearRules,
+				applyLeaveRules,
+				applyEnterRules,
+				applyUseRules,
+			})
+
+			})()
 		"""
 
 	{
-		compile
+		compileData
+		compileCode
 	}
