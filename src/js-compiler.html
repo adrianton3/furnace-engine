@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JS-compiler</title>
+</head>
+<body>
+    <canvas id="can"></canvas>
+    <script>
+		function loadStatic (path) {
+			const element = document.createElement('script')
+			element.src = path
+			document.body.appendChild(element)
+
+			return new Promise((resolve, reject) => {
+				element.addEventListener('load', () => {
+					resolve()
+				})
+            })
+		}
+
+        function loadDynamic (source) {
+			const element = document.createElement('script')
+			element.text = source
+			document.body.appendChild(element)
+        }
+
+        loadDynamic(localStorage['source-data'])
+        loadStatic('js/compilers/js/static.js').then(() => {
+            loadDynamic(localStorage['source-code'])
+			loadStatic('js/compilers/js/run.js')
+		})
+    </script>
+</body>
+</html>

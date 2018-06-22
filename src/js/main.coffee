@@ -1,65 +1,69 @@
 define [
-  'SystemBus'
-  'Text'
-  'Game'
-  'tokenizer/Tokenizer'
-  'parser/Parser'
-  'validator/Validator'
-  'extractor/ValueExtractor'
-  'KeyListener'
-  'import-export/FromPng'
-  'AjaxUtil'
+	'SystemBus'
+	'Text'
+	'Game'
+	'tokenizer/Tokenizer'
+	'parser/Parser'
+	'validator/Validator'
+	'extractor/ValueExtractor'
+	'KeyListener'
+	'import-export/FromPng'
+	'AjaxUtil'
 	'compilers/js/main'
 ], (
-  SystemBus
-  Text
-  Game
-  Tokenizer
-  Parser
-  Validator
-  ValueExtractor
-  KeyListener
-  FromPng
-  AjaxUtil
+	SystemBus
+	Text
+	Game
+	Tokenizer
+	Parser
+	Validator
+	ValueExtractor
+	KeyListener
+	FromPng
+	AjaxUtil
 	JsCompiler
 ) ->
-  'use strict'
+	'use strict'
 
 
-  source = ''
-  game = null
-  editorWindow = null
-  editorListenerInstalled = false
+	source = ''
+	game = null
+	editorWindow = null
+	editorListenerInstalled = false
 
 
-  parse = (inText) ->
-    try
-      tokens = Tokenizer.chop inText
-      tree = Parser.parse tokens
-      Validator.validate tree
+	parse = (inText) ->
+		try
+			tokens = Tokenizer.chop inText
+			tree = Parser.parse tokens
+			Validator.validate tree
 
-      return ValueExtractor.extract tree
-    catch ex
-      console.error ex
-      return null
-
-
-  compile = (tree) ->
-    if game
-      game.cleanup()
-
-    game = new Game
-    game.init tree
-    .then ->
-      game.start()
-    return
+			return ValueExtractor.extract tree
+		catch ex
+			console.error ex
+			return null
 
 
-  editorEventHandlers =
+	compile = (tree) ->
+		if game
+			game.cleanup()
+
+		game = new Game
+		game.init tree
+		.then ->
+			game.start()
+		return
+
+
+	editorEventHandlers =
 		'compile': (data) ->
 			tree = parse data.source
 			compile tree
-			console.log JsCompiler.compile tree
+
+			if localStorage['js-compiler']?
+				localStorage['source-data'] = JsCompiler.compileData tree
+				localStorage['source-code'] = JsCompiler.compileCode tree
+
 			return
 
 		'request-source': (data) ->
@@ -67,80 +71,80 @@ define [
 			return
 
 
-  originUrl = '*'
+	originUrl = '*'
 
-  editorListener = (e) ->
-    e.preventDefault()
+	editorListener = (e) ->
+		e.preventDefault()
 
-    data = e.data
-    if data.type?
-      editorEventHandlers[data.type](data)
+		data = e.data
+		if data.type?
+			editorEventHandlers[data.type](data)
 
-    return
-
-
-  edit = ->
-    if not editorListenerInstalled
-      editorListenerInstalled = true
-      window.addEventListener 'message', editorListener, false
-
-    if not editorWindow? or editorWindow.closed
-      editorWindow = window.open(
-        'editor.html'
-        '_blank'
-        'menubar=no, location=no, width=656, height=640'
-      )
-    else
-      editorWindow.focus()
-
-    return
+		return
 
 
-  emit = (data) ->
-    editorWindow.postMessage data, originUrl
-    return
+	edit = ->
+		if not editorListenerInstalled
+			editorListenerInstalled = true
+			window.addEventListener 'message', editorListener, false
+
+		if not editorWindow? or editorWindow.closed
+			editorWindow = window.open(
+				'editor.html'
+				'_blank'
+				'menubar=no, location=no, width=656, height=640'
+			)
+		else
+			editorWindow.focus()
+
+		return
 
 
-  setupGUI = ->
-    editButton = document.getElementById('edit')
-    editButton.addEventListener 'click', edit
-    return
+	emit = (data) ->
+		editorWindow.postMessage data, originUrl
+		return
 
 
-  checkUrl = (callback) ->
-    urlParams = purl(true).param()
-
-    if urlParams.spec
-      callback urlParams.spec
-    else if urlParams.png
-      FromPng.decode urlParams.png, (text) ->
-        callback text
-    else if urlParams.text
-      AjaxUtil.load urlParams.text, (text) ->
-        callback text
-    else if urlParams.sample
-      sample = window.sampleSpecs[urlParams.sample]
-      callback sample or window.sampleSpecs['little-furnace']
-    else
-      callback window.sampleSpecs['little-furnace']
-    return
+	setupGUI = ->
+		editButton = document.getElementById('edit')
+		editButton.addEventListener 'click', edit
+		return
 
 
-  run = ->
-    setupGUI()
-    checkUrl (_source) ->
-      source = _source
-      Text.init()
-      document.getElementById('can').tabIndex = 0
-      KeyListener.init document.getElementById 'can'
+	checkUrl = (callback) ->
+		urlParams = purl(true).param()
 
-      tree = parse _source
-      compile tree
+		if urlParams.spec
+			callback urlParams.spec
+		else if urlParams.png
+			FromPng.decode urlParams.png, (text) ->
+				callback text
+		else if urlParams.text
+			AjaxUtil.load urlParams.text, (text) ->
+				callback text
+		else if urlParams.sample
+			sample = window.sampleSpecs[urlParams.sample]
+			callback sample or window.sampleSpecs['little-furnace']
+		else
+			callback window.sampleSpecs['little-furnace']
+		return
 
-      document.getElementById('can').focus()
-      return
 
-    return
+	run = ->
+		setupGUI()
+		checkUrl (_source) ->
+			source = _source
+			Text.init()
+			document.getElementById('can').tabIndex = 0
+			KeyListener.init document.getElementById 'can'
+
+			tree = parse _source
+			compile tree
+
+			document.getElementById('can').focus()
+			return
+
+		return
 
 
-  run: run
+	run: run
