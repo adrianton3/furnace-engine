@@ -1,8 +1,8 @@
 define [], ->
 	colorBindings = [
-		{ name: '1', red: '255', green: '255', blue: '255' }
-		{ name: '2', red: '0', green: '0', blue: '0' }
-		{ name: '.', red: '0', green: '0', blue: '0', alpha: '0' }
+		{ name: '1', format: 'rgb', red: '255', green: '255', blue: '255' }
+		{ name: '2', format: 'rgb', red: '0', green: '0', blue: '0' }
+		{ name: '.', format: 'rgba', red: '0', green: '0', blue: '0', alpha: '0' }
 	]
 
 	namedSprites = [{
@@ -784,8 +784,8 @@ define [], ->
 ...11111111112..
 ................
 ................
-  '''
-  }, {
+	'''
+	}, {
 		name: 'a'
 		data: '''
 ................
