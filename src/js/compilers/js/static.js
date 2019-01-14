@@ -103,6 +103,11 @@
 		return a
 	}
 
+	function canWalk (objects, state, { x, y }) {
+		const current = state.levels[state.player.position.level][y][x]
+		return !objects[current].blocking
+	}
+
 	function drawSprite (context, sprite, { x, y }) {
 		context.drawImage(sprite, x * sprite.width, y * sprite.height)
 	}
@@ -181,5 +186,6 @@
 		drawWorld,
 		updateWorld,
 		clamp,
+		canWalk,
 	})
 })()

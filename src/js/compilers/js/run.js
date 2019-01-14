@@ -15,6 +15,7 @@
 		drawWorld,
 		updateWorld,
 		clamp,
+		canWalk,
 	} = fur
 
 	function init () {
@@ -62,45 +63,52 @@
 		const context = canvas.getContext('2d')
 
 		window.addEventListener('keydown', ({ key }) => {
-			const prevPosition = { ...state.player.position }
+			const { position } = state.player
+			const prevPosition = { ...position }
 
-			let moveKey = false
 			if (key === 'ArrowUp') {
-				state.player.position.direction = 0
-				state.player.position.y -= 1
-				moveKey = true
+				position.direction = 0
+				if (canWalk(objects, state, { x: position.x, y: position.y - 1 })) {
+					position.y -= 1
+				}
 			} else if (key === 'ArrowLeft') {
-				state.player.position.direction = 1
-				state.player.position.x -= 1
-				moveKey = true
+				position.direction = 1
+				if (canWalk(objects, state, { x: position.x - 1, y: position.y })) {
+					position.x -= 1
+				}
 			} else if (key === 'ArrowDown') {
-				state.player.position.direction = 2
-				state.player.position.y += 1
-				moveKey = true
+				position.direction = 2
+				if (canWalk(objects, state, { x: position.x, y: position.y + 1 })) {
+					position.y += 1
+				}
 			} else if (key === 'ArrowRight') {
-				state.player.position.direction = 3
-				state.player.position.x += 1
-				moveKey = true
+				position.direction = 3
+				if (canWalk(objects, state, { x: position.x + 1, y: position.y })) {
+					position.x += 1
+				}
 			} else if (key === 'a') {
-				applyUseRules(state.player.position)
+				applyUseRules(position)
 			}
 
-			if (moveKey) {
+			if (
+				prevPosition.x !== position.x ||
+				prevPosition.y !== position.y
+			) {
 				clamp(
-					state.player.position,
+					position,
 					{ x: 0, y: 0 },
-					levelSize[state.player.position.level],
+					levelSize[position.level],
 				)
 
 				if (
-					prevPosition.x !== state.player.position.x ||
-					prevPosition.y !== state.player.position.y
+					prevPosition.x !== position.x ||
+					prevPosition.y !== position.y
 				) {
 					applyLeaveRules(prevPosition)
 
-					applyEnterRules(state.player.position)
+					applyEnterRules(position)
 
-					applyNearRules(state.player.position)
+					applyNearRules(position)
 				}
 			}
 
